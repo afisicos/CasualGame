@@ -94,6 +94,8 @@ const LEVELS: Level[] = [
 interface Piece {
   id: string;
   type: PieceType;
+  isNew?: boolean;
+  isRemoving?: boolean;
 }
 
 interface Cell {
@@ -104,7 +106,8 @@ interface Cell {
 
 const createPiece = (availableIngredients: PieceType[]): Piece => ({
   id: Math.random().toString(36).substr(2, 9),
-  type: (Math.random() > 0.4 ? availableIngredients[Math.floor(Math.random() * availableIngredients.length)] : 'BREAD')
+  type: (Math.random() > 0.4 ? availableIngredients[Math.floor(Math.random() * availableIngredients.length)] : 'BREAD'),
+  isNew: true
 });
 
 const findChain = (idx: number, currentChain: PieceType[], results: PieceType[][], visited: Set<number>, gridRef: Cell[]) => {
@@ -399,6 +402,7 @@ function App() {
     if (isForwardMatch || isBackwardMatch) {
       completeOrder();
       playSuccessSound();
+      // We don't clear currentSelection here because completeOrder needs it for animation
     } else {
       if (currentSelection.length > 1) {
         // If the last piece is a bread but the burger is wrong
@@ -408,9 +412,8 @@ function App() {
           playCancelSound();
         }
       }
+      setCurrentSelection([]);
     }
-    
-    setCurrentSelection([]);
   };
 
   const completeOrder = () => {
@@ -424,40 +427,71 @@ function App() {
       return;
     }
 
-    const newGrid = [...grid];
-    
-    // Remove pieces
+    // Mark pieces as removing
+    const removingGrid = [...grid];
     currentSelection.forEach(idx => {
-      newGrid[idx] = { ...newGrid[idx], piece: null };
+      if (removingGrid[idx].piece) {
+        removingGrid[idx] = { 
+          ...removingGrid[idx], 
+          piece: { ...removingGrid[idx].piece!, isRemoving: true } 
+        };
+      }
     });
+    setGrid(removingGrid);
 
-    // Apply gravity
-    for (let col = 0; col < GRID_SIZE; col++) {
-      let emptySpot = GRID_SIZE - 1;
-      for (let row = GRID_SIZE - 1; row >= 0; row--) {
-        const idx = row * GRID_SIZE + col;
-        if (newGrid[idx].piece) {
-          if (row !== emptySpot) {
-            newGrid[emptySpot * GRID_SIZE + col] = { ...newGrid[emptySpot * GRID_SIZE + col], piece: newGrid[idx].piece };
-            newGrid[idx] = { ...newGrid[idx], piece: null };
+    // Wait for pop-out animation
+    setTimeout(() => {
+      const newGrid = [...removingGrid];
+      
+      // Remove pieces
+      currentSelection.forEach(idx => {
+        newGrid[idx] = { ...newGrid[idx], piece: null };
+      });
+
+      // Apply gravity
+      for (let col = 0; col < GRID_SIZE; col++) {
+        let emptySpot = GRID_SIZE - 1;
+        for (let row = GRID_SIZE - 1; row >= 0; row--) {
+          const idx = row * GRID_SIZE + col;
+          if (newGrid[idx].piece) {
+            if (row !== emptySpot) {
+              newGrid[emptySpot * GRID_SIZE + col] = { ...newGrid[emptySpot * GRID_SIZE + col], piece: newGrid[idx].piece };
+              newGrid[idx] = { ...newGrid[idx], piece: null };
+            }
+            emptySpot--;
           }
-          emptySpot--;
+        }
+        // Fill from top
+        for (let row = emptySpot; row >= 0; row--) {
+          newGrid[row * GRID_SIZE + col] = { ...newGrid[row * GRID_SIZE + col], piece: createPiece(selectedLevel.ingredients) };
         }
       }
-      // Fill from top
-      for (let row = emptySpot; row >= 0; row--) {
-        newGrid[row * GRID_SIZE + col] = { ...newGrid[row * GRID_SIZE + col], piece: createPiece(selectedLevel.ingredients) };
-      }
-    }
 
-    setGrid(newGrid);
-    generateNewOrder();
+      setGrid(newGrid);
+      generateNewOrder();
+      setCurrentSelection([]);
+    }, 300);
   };
 
   const skipOrder = () => {
     if (isGameOver) return;
     generateNewOrder();
   };
+
+  // Clear isNew flags after animation
+  useEffect(() => {
+    const hasNewPieces = grid.some(cell => cell.piece?.isNew);
+    if (hasNewPieces) {
+      const timer = setTimeout(() => {
+        setGrid(currentGrid => 
+          currentGrid.map(cell => 
+            cell.piece?.isNew ? { ...cell, piece: { ...cell.piece, isNew: false } } : cell
+          )
+        );
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [grid]);
 
   const saveGameLog = useCallback(async (finalMoney: number) => {
     if (hasSaved) return;
@@ -660,7 +694,7 @@ function App() {
             >
             {cell.piece && (
               <div
-                className={`piece ${cell.piece.type.toLowerCase()}`}
+                className={`piece ${cell.piece.type.toLowerCase()} ${cell.piece.isNew ? 'is-new' : ''} ${cell.piece.isRemoving ? 'is-removing' : ''}`}
               />
             )}
             </div>
