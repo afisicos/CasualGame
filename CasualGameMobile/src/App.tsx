@@ -747,6 +747,7 @@ function GameContent() {
     setArcadeHighScore(0);
     setGlobalMoney(0);
     setLives(MAX_LIVES);
+    setDiscoveredRecipes([]);
     setScreen('MENU');
     await AsyncStorage.clear();
   };
@@ -817,7 +818,7 @@ function GameContent() {
           <IntroScreen 
             levelId={selectedLevel.id}
             newIngredient={selectedLevel.newIngredient} 
-            showNewIngredient={!!selectedLevel.showNewIngredient}
+            showNewIngredient={!!(selectedLevel.showNewIngredient && selectedLevel.newIngredient)}
             newRecipe={levelRecipe ? (t[levelRecipe.name as keyof typeof t] || levelRecipe.name) : undefined}
             recipeIngredients={levelRecipe?.ingredients}
             recipePrice={levelRecipe?.price}
@@ -868,11 +869,15 @@ function GameContent() {
                            contentContainerStyle={{ paddingBottom: 10 }}
                            nestedScrollEnabled={true}
                          >
-                           {BASE_RECIPES.filter(r => getUnlockedRecipesForArcade(arcadeUnlockedLevel).includes(r.id) || r.isSecret).map((recipe) => {
+                           {BASE_RECIPES.filter(r => {
+                             const isUnlockedNormal = getUnlockedRecipesForArcade(arcadeUnlockedLevel).includes(r.id);
+                             const isSecretDiscovered = r.isSecret && discoveredRecipes.includes(r.id);
+                             return isUnlockedNormal || isSecretDiscovered;
+                           }).map((recipe) => {
                              const isDiscovered = !recipe.isSecret || discoveredRecipes.includes(recipe.id);
-                             const isUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel).includes(recipe.id) || recipe.isSecret;
+                             const isUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel).includes(recipe.id) || (recipe.isSecret && discoveredRecipes.includes(recipe.id));
                              
-                             if (!isUnlocked && !recipe.isSecret) return null;
+                             // Ya está filtrado arriba, así que siempre debería mostrarse
 
                              return (
                                <View key={recipe.id} style={styles.recipeItem}>

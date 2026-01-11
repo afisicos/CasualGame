@@ -8,7 +8,7 @@ const { width } = Dimensions.get('window');
 
 interface IntroScreenProps {
   levelId: number;
-  newIngredient: PieceType;
+  newIngredient?: PieceType;
   showNewIngredient: boolean;
   newRecipe?: string; // Nombre traducido o clave de traducción
   recipeIngredients?: PieceType[];
@@ -67,7 +67,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         </View>
 
         {/* ZONA 2: NUEVO INGREDIENTE (CONDICIONAL) */}
-        {showNewIngredient && (
+        {showNewIngredient && newIngredient && (
           <View style={[styles.section, styles.ingredientSection]}>
             <Text style={styles.sectionLabel}>{t.new_ingredient}</Text>
             <View style={styles.ingredientRow}>

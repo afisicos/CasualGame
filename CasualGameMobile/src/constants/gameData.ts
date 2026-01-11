@@ -23,7 +23,8 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'veggie', name: 'r_garden', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'BREAD'], price: 10, isSecret: false },
   { id: 'lettuce_burger', name: 'r_lettuce_burger', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'BREAD'], price: 8, isSecret: true },
   { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 12, isSecret: true },
-  { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 12, isSecret: true },
+  { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 12, isSecret: false },
+  { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 11, isSecret: true },
   { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 15, isSecret: true },
 ];
 
@@ -62,18 +63,28 @@ export const LEVELS: Level[] = [
     id: 4, 
     name: "l4_name", 
     targetMoney: 60, 
+    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'], 
+    showNewIngredient: false,
+    newRecipe: 'veggie_cheese',
+    description: "l4_desc" 
+  },
+  { 
+    id: 5, 
+    name: "l5_name", 
+    targetMoney: 60, 
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'LETTUCE'], 
     newIngredient: 'BACON', 
-    showNewIngredient: false,
+    showNewIngredient: true,
     newRecipe: 'bacon_cheese',
-    description: "l4_desc" 
+    description: "l5_desc" 
   },
 ];
 
 // Mapeo de qué recetas están desbloqueadas según el nivel superado
 export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   const recipes = ['classic'];
-  if (arcadeUnlockedLevel >= 1) recipes.push('tomato_burger');
+  if (arcadeUnlockedLevel >= 1) 
+    recipes.push('tomato_burger');
   if (arcadeUnlockedLevel >= 2) {
     recipes.push('cheese');
     recipes.push('cheese_tomato');
@@ -86,6 +97,7 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   }
   if (arcadeUnlockedLevel >= 5) {
     recipes.push('bacon_cheese');
+    recipes.push('super_bacon');
   }
   return recipes;
 };
@@ -160,6 +172,7 @@ export const TRANSLATIONS = {
     r_cheese: "Cheeseburger Simple",
     r_garden: "Burger del Huerto",
     r_bacon_cheese: "Bacon & Cheese",
+    r_super_bacon: "Super Bacon",
     r_classic_usa: "Clásica Americana",
     r_viking: "La Vikinga",
     r_monster: "La Mega Monster",
@@ -187,8 +200,8 @@ export const TRANSLATIONS = {
     l1_name: "Rumbo al Tomate",
     l2_name: "Más Sabor",
     l3_name: "El Toque Verde",
-    l4_name: "La Completa",
-    l5_name: "Crujiente",
+    l4_name: "Vegetal con Queso",
+    l5_name: "Se viene el Bacon",
     l6_name: "Salsa Especial",
     l7_name: "El Toque Ácido",
     l8_name: "El Final",
@@ -260,6 +273,7 @@ export const TRANSLATIONS = {
     r_cheese: "Simple Cheeseburger",
     r_garden: "Garden Burger",
     r_bacon_cheese: "Bacon & Cheese",
+    r_super_bacon: "Super Bacon",
     r_classic_usa: "American Classic",
     r_viking: "The Viking",
     r_monster: "The Mega Monster",
@@ -287,8 +301,8 @@ export const TRANSLATIONS = {
     l1_name: "Road to Tomato",
     l2_name: "Perfect Mix",
     l3_name: "The Green Touch",
-    l4_name: "The Full One",
-    l5_name: "Crunchy",
+    l4_name: "Veggie and Cheese",
+    l5_name: "Bacon is coming",
     l6_name: "Special Sauce",
     l7_name: "The Sour Touch",
     l8_name: "The Final",

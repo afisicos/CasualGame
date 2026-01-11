@@ -29,8 +29,8 @@ export interface Level {
   name: string;
   targetMoney: number;
   ingredients: PieceType[];
-  newIngredient: PieceType;
-  showNewIngredient?: boolean; // Nueva propiedad
+  newIngredient?: PieceType; // Opcional: algunos niveles solo descubren recetas
+  showNewIngredient?: boolean;
   newRecipe?: string;
   description: string;
 }
