@@ -12,9 +12,10 @@ interface ResultScreenProps {
   arcadeHighScore: number;
   onBack: () => void;
   onRetry: () => void;
+  t: any;
 }
 
-const ResultScreen: React.FC<ResultScreenProps> = ({ gameMode, money, targetMoney, arcadeHighScore, onBack, onRetry }) => {
+const ResultScreen: React.FC<ResultScreenProps> = ({ gameMode, money, targetMoney, arcadeHighScore, onBack, onRetry, t }) => {
   const isCampaign = gameMode === 'CAMPAIGN';
   const isWin = isCampaign ? money >= targetMoney : false;
   const isNewRecord = !isCampaign && money >= arcadeHighScore && money > 0;
@@ -32,19 +33,19 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ gameMode, money, targetMone
         
         <Text style={styles.title}>
           {isCampaign 
-            ? (isWin ? '¡NIVEL SUPERADO!' : '¡TIEMPO AGOTADO!') 
-            : (isNewRecord ? '¡NUEVO RÉCORD!' : '¡TIEMPO AGOTADO!')}
+            ? (isWin ? t.win_title : t.lose_title) 
+            : (isNewRecord ? t.arcade_win : t.arcade_lose)}
         </Text>
         
         <View style={styles.resultBox}>
-          <Text style={styles.resultLabel}>DINERO CONSEGUIDO</Text>
+          <Text style={styles.resultLabel}>{t.money_earned}</Text>
           <Text style={styles.money}>{money}€</Text>
           
           {isCampaign ? (
-            <Text style={styles.targetLabel}>Objetivo: {targetMoney}€</Text>
+            <Text style={styles.targetLabel}>{t.objective}: {targetMoney}€</Text>
           ) : (
             <View style={styles.recordRow}>
-              <Text style={styles.recordLabelSmall}>TU RÉCORD: </Text>
+              <Text style={styles.recordLabelSmall}>{t.record}: </Text>
               <Text style={styles.recordValueSmall}>{arcadeHighScore}€</Text>
             </View>
           )}
@@ -52,12 +53,12 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ gameMode, money, targetMone
 
         <TouchableOpacity style={styles.button} onPress={onRetry}>
           <Text style={styles.buttonText}>
-            {isCampaign ? (isWin ? 'SIGUIENTE NIVEL' : 'REINTENTAR') : 'JUGAR DE NUEVO'}
+            {isCampaign ? (isWin ? t.continue : t.retry) : t.play_again}
           </Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backText}>VOLVER AL MENÚ</Text>
+          <Text style={styles.backText}>{t.back_menu}</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -32,12 +32,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 800,
+        duration: 600,
         useNativeDriver: true,
       }).start(() => {
         onFinish();
       });
-    }, 3000); // 3 segundos visible + animación
+    }, 1500); // Reducido a la mitad (1.5s)
 
     return () => clearTimeout(timer);
   }, [fadeAnim, scaleAnim, onFinish]);

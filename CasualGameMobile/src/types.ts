@@ -1,4 +1,13 @@
 export type PieceType = 'BREAD' | 'MEAT' | 'CHEESE' | 'LETTUCE' | 'TOMATO' | 'BACON' | 'KETCHUP' | 'PICKLE' | 'ONION';
+export interface Recipe {
+  id: string;
+  name: string;
+  ingredients: PieceType[];
+  price: number;
+  isSecret: boolean;
+  discovered?: boolean;
+}
+
 export type Screen = 'SPLASH' | 'MENU' | 'INTRO' | 'GAME' | 'RESULT' | 'OPTIONS';
 export type GameMode = 'CAMPAIGN' | 'ARCADE';
 
@@ -21,6 +30,8 @@ export interface Level {
   targetMoney: number;
   ingredients: PieceType[];
   newIngredient: PieceType;
+  showNewIngredient?: boolean; // Nueva propiedad
+  newRecipe?: string;
   description: string;
 }
 

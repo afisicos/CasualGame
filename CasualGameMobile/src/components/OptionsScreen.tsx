@@ -8,10 +8,13 @@ interface OptionsScreenProps {
   onResetProgress: () => void;
   onLoginGoogle: () => void;
   onBack: () => void;
+  language: 'es' | 'en';
+  onToggleLanguage: () => void;
+  t: any;
 }
 
 const OptionsScreen: React.FC<OptionsScreenProps> = ({ 
-  isSoundEnabled, onToggleSound, onResetProgress, onLoginGoogle, onBack 
+  isSoundEnabled, onToggleSound, onResetProgress, onLoginGoogle, onBack, language, onToggleLanguage, t
 }) => {
   return (
     <View style={styles.container}>
@@ -23,15 +26,15 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>OPCIONES</Text>
+        <Text style={styles.title}>{t.options}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>SONIDO</Text>
+          <Text style={styles.sectionTitle}>{t.sound}</Text>
           <View style={styles.optionRow}>
-            <Text style={styles.optionLabel}>Efectos de sonido</Text>
+            <Text style={styles.optionLabel}>{t.sound_fx}</Text>
             <Switch 
               value={isSoundEnabled} 
               onValueChange={onToggleSound}
@@ -42,25 +45,33 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>CUENTA</Text>
-          <TouchableOpacity style={styles.googleButton} onPress={onLoginGoogle}>
-            <Text style={styles.googleButtonText}>Conectar con Google</Text>
+          <Text style={styles.sectionTitle}>{t.language}</Text>
+          <TouchableOpacity style={styles.optionRow} onPress={onToggleLanguage}>
+            <Text style={styles.optionLabel}>{t.lang_name}</Text>
+            <Text style={styles.langFlag}>{language === 'es' ? '🇪🇸' : '🇺🇸'}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>PELIGRO</Text>
+          <Text style={styles.sectionTitle}>{t.account}</Text>
+          <TouchableOpacity style={styles.googleButton} onPress={onLoginGoogle}>
+            <Text style={styles.googleButtonText}>{t.google_login}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t.danger_zone}</Text>
           <TouchableOpacity style={styles.resetButton} onPress={() => {
             Alert.alert(
-              "Borrar Progreso",
-              "¿Estás seguro? Esta acción no se puede deshacer.",
+              t.reset_confirm_title,
+              t.reset_confirm_msg,
               [
-                { text: "Cancelar", style: "cancel" },
-                { text: "BORRAR TODO", style: "destructive", onPress: onResetProgress }
+                { text: t.cancel, style: "cancel" },
+                { text: t.delete_all, style: "destructive", onPress: onResetProgress }
               ]
             );
           }}>
-            <Text style={styles.resetButtonText}>Reiniciar Progreso 🔄</Text>
+            <Text style={styles.resetButtonText}>{t.reset_progress}</Text>
           </TouchableOpacity>
         </View>
 
@@ -109,6 +120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   optionLabel: { fontSize: 16, fontWeight: '700', color: '#4a4a4a' },
+  langFlag: { fontSize: 24 },
   googleButton: {
     backgroundColor: '#4285F4',
     padding: 15,

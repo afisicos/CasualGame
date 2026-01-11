@@ -8,16 +8,19 @@ const { width } = Dimensions.get('window');
 interface MenuScreenProps {
   levels: Level[];
   unlockedLevel: number;
+  arcadeUnlockedLevel: number;
   arcadeHighScore: number;
   lives: number;
+  maxLives: number;
   globalMoney: number;
   nextLifeTime: number; 
   onStartLevel: (level: Level) => void;
   onStartArcade: () => void;
   onOptions: () => void;
+  t: any;
 }
 
-const LevelNode = ({ item, isLocked, onStartLevel }: { item: Level, isLocked: boolean, onStartLevel: (l: Level) => void }) => {
+const LevelNode = ({ item, isLocked, onStartLevel, t }: { item: Level, isLocked: boolean, onStartLevel: (l: Level) => void, t: any }) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -59,10 +62,10 @@ const LevelNode = ({ item, isLocked, onStartLevel }: { item: Level, isLocked: bo
           <Text style={styles.levelNumber}>{item.id}</Text>
         </LinearGradient>
       </View>
-      <View style={styles.levelInfo}>
-        <Text style={styles.levelName}>{item.name}</Text>
-        <Text style={styles.levelTarget}>Objetivo: {item.targetMoney}€</Text>
-      </View>
+            <View style={styles.levelInfo}>
+              <Text style={styles.levelName}>{t.level_prefix} {item.id}: {t[item.name as keyof typeof t] || item.name}</Text>
+              <Text style={styles.levelTarget}>{t.objective}: {item.targetMoney}€</Text>
+            </View>
       {isLocked ? (
         <Text style={styles.lockIcon}>🔒</Text>
       ) : (
@@ -73,8 +76,8 @@ const LevelNode = ({ item, isLocked, onStartLevel }: { item: Level, isLocked: bo
 };
 
 const MenuScreen: React.FC<MenuScreenProps> = ({ 
-  levels, unlockedLevel, arcadeHighScore, lives, globalMoney, nextLifeTime,
-  onStartLevel, onStartArcade, onOptions 
+  levels, unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, lives, maxLives, globalMoney, nextLifeTime,
+  onStartLevel, onStartArcade, onOptions, t
 }) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -95,8 +98,8 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           <View style={styles.topBarGroup}>
             <View style={styles.statPill}>
               <Text style={styles.statEmoji}>❤️</Text>
-              <Text style={styles.statValue}>{lives}/5</Text>
-              {lives < 5 && (
+              <Text style={styles.statValue}>{lives}/{maxLives}</Text>
+              {lives < maxLives && (
                 <View style={styles.timeBadge}>
                   <Text style={styles.timeBadgeText}>{formatTime(nextLifeTime)}</Text>
                 </View>
@@ -115,34 +118,35 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
 
       <View style={styles.content}>
         <View style={styles.arcadeSection}>
-          <LinearGradient
-            colors={['#4dabf7', '#339af0']}
-            style={styles.arcadeGradient}
-          >
-            <View style={styles.arcadeHeader}>
-              <TouchableOpacity style={styles.arcadeButton} onPress={onStartArcade}>
-                <Image source={require('../assets/Iconos/arcade.png')} style={styles.arcadeIcon} resizeMode="contain" />
-                <Text style={styles.arcadeButtonText}>¡MINUTO EXPRESS!</Text>
-              </TouchableOpacity>
-              <View style={styles.recordContainer}>
-                <Text style={styles.recordLabel}>RÉCORD</Text>
-                <Text style={styles.recordValue}>{arcadeHighScore}€</Text>
-              </View>
-            </View>
-          </LinearGradient>
+                <LinearGradient
+                  colors={['#4dabf7', '#339af0']}
+                  style={styles.arcadeGradient}
+                >
+                  <View style={styles.arcadeHeader}>
+                    <TouchableOpacity style={styles.arcadeButton} onPress={onStartArcade}>
+                      <Image source={require('../assets/Iconos/arcade.png')} style={styles.arcadeIcon} resizeMode="contain" />
+                      <Text style={styles.arcadeButtonText}>{t.arcade_btn}</Text>
+                    </TouchableOpacity>
+                    <View style={styles.recordContainer}>
+                      <Text style={styles.recordLabel}>{t.record}</Text>
+                      <Text style={styles.recordValue}>{arcadeHighScore}€</Text>
+                    </View>
+                  </View>
+                </LinearGradient>
         </View>
 
         <FlatList 
           data={levels}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContainer}
-          renderItem={({ item }) => (
-            <LevelNode 
-              item={item} 
-              isLocked={item.id > unlockedLevel} 
-              onStartLevel={onStartLevel} 
-            />
-          )}
+                renderItem={({ item }) => (
+                  <LevelNode 
+                    item={item} 
+                    isLocked={item.id > unlockedLevel} 
+                    onStartLevel={onStartLevel} 
+                    t={t}
+                  />
+                )}
           style={styles.list}
         />
       </View>

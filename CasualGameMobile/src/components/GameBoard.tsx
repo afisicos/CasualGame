@@ -13,7 +13,7 @@ interface GameBoardProps {
   currentSelection: number[];
   isGameOver: boolean;
   gridSize: number;
-  onSelectionUpdate: (index: number) => void;
+  onSelectionUpdate: (index: number, isGrant?: boolean) => void;
   onSelectionEnd: () => void;
 }
 
@@ -27,17 +27,17 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
   const panResponder = useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (evt) => handleGesture(evt.nativeEvent.locationX, evt.nativeEvent.locationY),
-    onPanResponderMove: (evt) => handleGesture(evt.nativeEvent.locationX, evt.nativeEvent.locationY),
+    onPanResponderGrant: (evt) => handleGesture(evt.nativeEvent.locationX, evt.nativeEvent.locationY, true),
+    onPanResponderMove: (evt) => handleGesture(evt.nativeEvent.locationX, evt.nativeEvent.locationY, false),
     onPanResponderRelease: () => propsRef.current.onSelectionEnd(),
     onPanResponderTerminate: () => propsRef.current.onSelectionEnd()
   }), [gridSize]);
 
-  const handleGesture = (x: number, y: number) => {
+  const handleGesture = (x: number, y: number, isGrant: boolean) => {
     const col = Math.floor((x - BOARD_PADDING) / cellSize);
     const row = Math.floor((y - BOARD_PADDING) / cellSize);
     if (col >= 0 && col < gridSize && row >= 0 && row < gridSize) {
-      propsRef.current.onSelectionUpdate(row * gridSize + col);
+      propsRef.current.onSelectionUpdate(row * gridSize + col, isGrant);
     }
   };
 
