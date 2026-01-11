@@ -28,6 +28,9 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 12, isSecret: false },
   { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 11, isSecret: true },
   { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 13, isSecret: true },
+  { id: 'ketchup_lettuce', name: 'r_ketchup_lettuce', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'KETCHUP', 'BREAD'], price: 11, isSecret: true },
+  { id: 'dirty_one', name: 'r_dirty_one', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'BREAD'], price: 11, isSecret: true },
+
 ];
 
 export const LEVELS: Level[] = [
@@ -74,7 +77,7 @@ export const LEVELS: Level[] = [
     id: 5, 
     name: "l5_name", 
     targetMoney: 60, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'LETTUCE'], 
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO'], 
     newIngredient: 'BACON', 
     showNewIngredient: true,
     newRecipe: 'bacon_cheese',
@@ -83,11 +86,21 @@ export const LEVELS: Level[] = [
   { 
     id: 6, 
     name: "l6_name", 
-    targetMoney: 70, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', ], 
+    targetMoney: 60, 
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO','LETTUCE'], 
     showNewIngredient: false,
     newRecipe: 'tomatomato',
     description: "l6_desc" 
+  },
+  { 
+    id: 7, 
+    name: "l7_name", 
+    targetMoney: 65, 
+    ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'CHEESE', 'TOMATO', 'KETCHUP'], 
+    newIngredient: 'KETCHUP', 
+    showNewIngredient: true,
+    newRecipe: 'ketchup_lettuce',
+    description: "l7_desc" 
   },
 ];
 
@@ -98,6 +111,7 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
     recipes.push('tomato_burger');
   if (arcadeUnlockedLevel >= 2) {
     recipes.push('cheese');
+    recipes.push('double_cheese');
     recipes.push('cheese_tomato');
   }
   if (arcadeUnlockedLevel >= 3) {
@@ -110,6 +124,13 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
     recipes.push('bacon_cheese');
     recipes.push('super_bacon');
   }
+  if (arcadeUnlockedLevel >= 6) {
+    recipes.push('tomatomato');
+  }
+  if (arcadeUnlockedLevel >= 7) {
+    recipes.push('ketchup_lettuce');
+    recipes.push('dirty_one');
+  }
   return recipes;
 };
 
@@ -120,6 +141,7 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => 
   if (arcadeUnlockedLevel >= 2) ingredients.push('CHEESE');
   if (arcadeUnlockedLevel >= 3) ingredients.push('LETTUCE');
   if (arcadeUnlockedLevel >= 5) ingredients.push('BACON');
+  if (arcadeUnlockedLevel >= 7) ingredients.push('KETCHUP');
   return ingredients;
 };
 
@@ -185,6 +207,7 @@ export const TRANSLATIONS = {
     r_garden: "Burger del Huerto",
     r_bacon_cheese: "Bacon & Cheese",
     r_super_bacon: "Super Bacon",
+    r_ketchup_lettuce: "Ketchuga",
     r_classic_usa: "Clásica Americana",
     r_viking: "La Vikinga",
     r_monster: "La Mega Monster",
@@ -216,7 +239,7 @@ export const TRANSLATIONS = {
     l4_name: "Vegetal con Queso",
     l5_name: "Se viene el Bacon",
     l6_name: "Toma tomate!",
-    l7_name: "El Toque Ácido",
+    l7_name: "¡Ketchup!",
     l8_name: "El Final",
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
     l2_desc: "¡La mezcla perfecta! Combina el QUESO y el TOMATE para superar este nivel.",
@@ -224,7 +247,7 @@ export const TRANSLATIONS = {
     l4_desc: "¡El siguiente paso! Añadimos QUESO a la vegetal para crear la hamburguesa más completa hasta ahora.",
     l5_desc: "¡BACON desbloqueado! Añade un toque crujiente.",
     l6_desc: "Para los amantes del TOMATE, añade más TOMATE.",
-    l7_desc: "¡PEPINILLO desbloqueado! Para los amantes de los sabores fuertes.",
+    l7_desc: "No hacía falta tanto tomate, ¿verdad?",
     l8_desc: "¡CEBOLLA desbloqueada! La hamburguesa definitiva."
   },
   en: {
@@ -288,6 +311,7 @@ export const TRANSLATIONS = {
     r_garden: "Garden Burger",
     r_bacon_cheese: "Bacon & Cheese",
     r_super_bacon: "Super Bacon",
+    r_ketchup_lettuce: "Ketchuga",
     r_classic_usa: "American Classic",
     r_viking: "The Viking",
     r_monster: "The Mega Monster",
@@ -319,7 +343,7 @@ export const TRANSLATIONS = {
     l4_name: "Veggie and Cheese",
     l5_name: "Bacon is coming",
     l6_name: "Toma Tomato!",
-    l7_name: "The Sour Touch",
+    l7_name: "Ketchup!",
     l8_name: "The Final",
     l1_desc: "Welcome! Learn to use TOMATO. In this level, we'll only serve tomato burgers.",
     l2_desc: "The perfect mix! Combine CHEESE and TOMATO to clear this level.",
@@ -327,7 +351,7 @@ export const TRANSLATIONS = {
     l4_desc: "The next step! We add CHEESE to the veggie burger to create the most complete burger yet.",
     l5_desc: "BACON unlocked! Add a crunchy touch.",
     l6_desc: "For tomato lovers, add more tomato.",
-    l7_desc: "PICKLE unlocked! For those who love strong flavors.",
+    l7_desc: "No need for so much tomato, right?",
     l8_desc: "ONION unlocked! The ultimate burger."
   }
 };
