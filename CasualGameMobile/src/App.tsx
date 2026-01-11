@@ -13,6 +13,7 @@ import ResultScreen from './components/ResultScreen';
 import BurgerPiece from './components/BurgerPiece';
 import SplashScreen from './components/SplashScreen';
 import OptionsScreen from './components/OptionsScreen';
+import ShopScreen from './components/ShopScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe } from './types';
 import { 
   TRANSLATIONS, 
@@ -91,6 +92,13 @@ function GameContent() {
   const [discoveredRecipes, setDiscoveredRecipes] = useState<string[]>([]);
   const [isRecipeListVisible, setIsRecipeListVisible] = useState(false);
 
+  // Power-ups
+  const [timeBoostCount, setTimeBoostCount] = useState<number>(0);
+  const [destructionPackCount, setDestructionPackCount] = useState<number>(0);
+  const [useTimeBoost, setUseTimeBoost] = useState<boolean>(false);
+  const [useDestructionPack, setUseDestructionPack] = useState<boolean>(false);
+  const [destructionsUsed, setDestructionsUsed] = useState<number>(0);
+
   const soundPool = useRef<Audio.Sound[]>([]);
   const poolIndex = useRef(0);
   const successSoundRef = useRef<Audio.Sound | null>(null);
@@ -107,6 +115,9 @@ function GameContent() {
           [
             { text: t.cancel, style: "cancel" },
             { text: t.exit_confirm, onPress: () => {
+              // Consumir power-ups activados al salir perdiendo vida (ya se consumieron al empezar)
+              setUseTimeBoost(false);
+              setUseDestructionPack(false);
               setIsGameStarted(false);
               setScreen('MENU');
             }}
@@ -136,6 +147,8 @@ function GameContent() {
         const savedLastLifeTime = await AsyncStorage.getItem('lastLifeGainTime');
         const savedRecipes = await AsyncStorage.getItem('discoveredRecipes');
         const savedLang = await AsyncStorage.getItem('language');
+        const savedTimeBoost = await AsyncStorage.getItem('timeBoostCount');
+        const savedDestructionPack = await AsyncStorage.getItem('destructionPackCount');
 
         if (savedLevel) setUnlockedLevel(parseInt(savedLevel));
         if (savedArcadeLevel) setArcadeUnlockedLevel(parseInt(savedArcadeLevel));
@@ -145,6 +158,8 @@ function GameContent() {
         if (savedLastLifeTime) setLastLifeGainTime(parseInt(savedLastLifeTime));
         if (savedRecipes) setDiscoveredRecipes(JSON.parse(savedRecipes));
         if (savedLang) setLanguage(savedLang as 'es' | 'en');
+        if (savedTimeBoost) setTimeBoostCount(parseInt(savedTimeBoost));
+        if (savedDestructionPack) setDestructionPackCount(parseInt(savedDestructionPack));
 
         // Si las vidas guardadas son menos que el nuevo MAX_LIVES, las subimos a MAX_LIVES por esta vez
         if (savedLives) {
@@ -169,7 +184,9 @@ function GameContent() {
     AsyncStorage.setItem('lastLifeGainTime', lastLifeGainTime.toString());
     AsyncStorage.setItem('discoveredRecipes', JSON.stringify(discoveredRecipes));
     AsyncStorage.setItem('language', language);
-  }, [unlockedLevel, arcadeHighScore, lives, globalMoney, isSoundEnabled, lastLifeGainTime, discoveredRecipes, language]);
+    AsyncStorage.setItem('timeBoostCount', timeBoostCount.toString());
+    AsyncStorage.setItem('destructionPackCount', destructionPackCount.toString());
+  }, [unlockedLevel, arcadeHighScore, lives, globalMoney, isSoundEnabled, lastLifeGainTime, discoveredRecipes, language, timeBoostCount, destructionPackCount]);
 
   // Sistema de recuperación de vidas
   useEffect(() => {
@@ -443,14 +460,31 @@ function GameContent() {
       setArcadeUnlockedLevel(prev => Math.max(prev, level.id));
     }
 
+    // Verificar y consumir power-ups activados
+    const timeBoostToUse = useTimeBoost && timeBoostCount > 0;
+    const destructionPackToUse = useDestructionPack && destructionPackCount > 0;
+
+    // Consumir power-ups solo si están activados y disponibles
+    if (useTimeBoost && timeBoostCount > 0) {
+      setTimeBoostCount(prev => Math.max(0, prev - 1));
+    }
+    if (useDestructionPack && destructionPackCount > 0) {
+      setDestructionPackCount(prev => Math.max(0, prev - 1));
+    }
+
     const initialGrid = initGrid(level, mode, mode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel);
     setMoney(0);
-    setTimeLeft(60); // Todos los niveles y modos ahora son de 60 segundos
+    setTimeLeft(60 + (timeBoostToUse ? 10 : 0)); // 60 segundos base + 10 si tiene time boost
     setIsGameOver(false);
     setIsGameStarted(false);
     setArcadeDifficultyStep(0);
     setCurrentOrder([]);
+    setDestructionsUsed(0); // Resetear contador de eliminaciones
     setScreen('GAME');
+
+    // Resetear toggles de power-ups
+    setUseTimeBoost(false);
+    setUseDestructionPack(false);
 
     // Iniciar cuenta atrás con el grid recién creado
     startCountdown(initialGrid, mode, level);
@@ -493,6 +527,13 @@ function GameContent() {
   };
 
   const destroyPiece = (index: number) => {
+    const maxDestructions = useDestructionPack ? 30 : 10;
+    if (destructionsUsed >= maxDestructions) {
+      Alert.alert(t.powerup_destruction_limit || "Límite alcanzado", t.powerup_destruction_limit_msg || "Has usado todas tus eliminaciones");
+      return;
+    }
+
+    setDestructionsUsed(prev => prev + 1);
     Vibration.vibrate(60);
     playDestroySound();
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
@@ -748,8 +789,26 @@ function GameContent() {
     setGlobalMoney(0);
     setLives(MAX_LIVES);
     setDiscoveredRecipes([]);
+    setTimeBoostCount(0);
+    setDestructionPackCount(0);
+    setUseTimeBoost(false);
+    setUseDestructionPack(false);
     setScreen('MENU');
     await AsyncStorage.clear();
+  };
+
+  const buyTimeBoost = () => {
+    if (globalMoney >= 50) {
+      setGlobalMoney(prev => prev - 50);
+      setTimeBoostCount(prev => prev + 1);
+    }
+  };
+
+  const buyDestructionPack = () => {
+    if (globalMoney >= 100) {
+      setGlobalMoney(prev => prev - 100);
+      setDestructionPackCount(prev => prev + 1);
+    }
   };
 
   const handleResultAction = () => {
@@ -789,6 +848,18 @@ function GameContent() {
             t={t}
           />
         );
+      case 'SHOP':
+        return (
+          <ShopScreen
+            globalMoney={globalMoney}
+            timeBoostCount={timeBoostCount}
+            destructionPackCount={destructionPackCount}
+            onBuyTimeBoost={buyTimeBoost}
+            onBuyDestructionPack={buyDestructionPack}
+            onBack={() => setScreen('MENU')}
+            t={t}
+          />
+        );
       case 'MENU':
         return (
           <MenuScreen 
@@ -800,12 +871,19 @@ function GameContent() {
             maxLives={MAX_LIVES}
             globalMoney={globalMoney}
             nextLifeTime={nextLifeTime}
+            timeBoostCount={timeBoostCount}
+            destructionPackCount={destructionPackCount}
+            useTimeBoost={useTimeBoost}
+            useDestructionPack={useDestructionPack}
+            onToggleTimeBoost={setUseTimeBoost}
+            onToggleDestructionPack={setUseDestructionPack}
             onStartLevel={(l) => { 
               setSelectedLevel(l); 
               setScreen('INTRO'); 
             }}
             onStartArcade={() => playGame('ARCADE')}
             onOptions={() => setScreen('OPTIONS')}
+            onShop={() => setScreen('SHOP')}
             t={t}
           />
         );

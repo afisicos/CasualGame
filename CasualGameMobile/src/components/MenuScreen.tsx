@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, Dimensions, Animated } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, Dimensions, Animated, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
 
@@ -13,10 +13,17 @@ interface MenuScreenProps {
   lives: number;
   maxLives: number;
   globalMoney: number;
-  nextLifeTime: number; 
+  nextLifeTime: number;
+  timeBoostCount: number;
+  destructionPackCount: number;
+  useTimeBoost: boolean;
+  useDestructionPack: boolean;
+  onToggleTimeBoost: (value: boolean) => void;
+  onToggleDestructionPack: (value: boolean) => void;
   onStartLevel: (level: Level) => void;
   onStartArcade: () => void;
   onOptions: () => void;
+  onShop: () => void;
   t: any;
 }
 
@@ -77,7 +84,9 @@ const LevelNode = ({ item, isLocked, onStartLevel, t }: { item: Level, isLocked:
 
 const MenuScreen: React.FC<MenuScreenProps> = ({ 
   levels, unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, lives, maxLives, globalMoney, nextLifeTime,
-  onStartLevel, onStartArcade, onOptions, t
+  timeBoostCount, destructionPackCount, useTimeBoost, useDestructionPack,
+  onToggleTimeBoost, onToggleDestructionPack,
+  onStartLevel, onStartArcade, onOptions, onShop, t
 }) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -109,12 +118,57 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
               <Text style={styles.statEmoji}>💰</Text>
               <Text style={styles.statValue}>{globalMoney}</Text>
             </View>
+            {timeBoostCount > 0 && (
+              <View style={[styles.statPill, { marginLeft: 10 }]}>
+                <Text style={styles.statEmoji}>⏱️</Text>
+                <Text style={styles.statValue}>{timeBoostCount}</Text>
+              </View>
+            )}
+            {destructionPackCount > 0 && (
+              <View style={[styles.statPill, { marginLeft: 10 }]}>
+                <Text style={styles.statEmoji}>💥</Text>
+                <Text style={styles.statValue}>{destructionPackCount}</Text>
+              </View>
+            )}
           </View>
-          <TouchableOpacity style={styles.settingsBtn} onPress={onOptions}>
-            <Text style={styles.settingsEmoji}>⚙️</Text>
-          </TouchableOpacity>
+          <View style={styles.rightButtons}>
+            <TouchableOpacity style={styles.shopBtn} onPress={onShop}>
+              <Text style={styles.shopEmoji}>🛒</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.settingsBtn} onPress={onOptions}>
+              <Text style={styles.settingsEmoji}>⚙️</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
+
+      {/* Franja de Activación de Power-ups */}
+      {(timeBoostCount > 0 || destructionPackCount > 0) && (
+        <View style={styles.powerUpBar}>
+          {timeBoostCount > 0 && (
+            <View style={styles.powerUpToggle}>
+              <Text style={styles.powerUpLabel}>⏱️ {t.powerup_activate_time}</Text>
+              <Switch
+                value={useTimeBoost}
+                onValueChange={onToggleTimeBoost}
+                trackColor={{ false: '#adb5bd', true: '#ff922b' }}
+                thumbColor={useTimeBoost ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+          )}
+          {destructionPackCount > 0 && (
+            <View style={styles.powerUpToggle}>
+              <Text style={styles.powerUpLabel}>💥 {t.powerup_activate_destruction}</Text>
+              <Switch
+                value={useDestructionPack}
+                onValueChange={onToggleDestructionPack}
+                trackColor={{ false: '#adb5bd', true: '#ff922b' }}
+                thumbColor={useDestructionPack ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+          )}
+        </View>
+      )}
 
       <View style={styles.content}>
         <View style={styles.arcadeSection}>
@@ -212,6 +266,46 @@ const styles = StyleSheet.create({
     shadowRadius: 3
   },
   settingsEmoji: { fontSize: 20 },
+  rightButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  shopBtn: {
+    backgroundColor: 'white',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3
+  },
+  shopEmoji: { fontSize: 20 },
+  powerUpBar: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: 15,
+    gap: 20,
+  },
+  powerUpToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  powerUpLabel: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '800',
+  },
   content: { flex: 1 },
   arcadeSection: { 
     marginHorizontal: 20,
