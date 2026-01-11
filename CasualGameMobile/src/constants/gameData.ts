@@ -18,14 +18,16 @@ export const INGREDIENT_IMAGES: Record<PieceType, any> = {
 export const BASE_RECIPES: Recipe[] = [
   { id: 'classic', name: 'r_pure', ingredients: ['BREAD', 'MEAT', 'BREAD'], price: 5, isSecret: false },
   { id: 'cheese', name: 'r_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'BREAD'], price: 7, isSecret: false },
+  { id: 'double_cheese', name: 'r_double_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE','CHEESE', 'BREAD'], price: 11, isSecret: true },
+  { id: 'tomatomato', name: 'r_tomatomato', ingredients: ['BREAD', 'MEAT', 'TOMATO','TOMATO', 'TOMATO', 'BREAD'], price: 13, isSecret: false },
   { id: 'tomato_burger', name: 'r_tomato_burger', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'BREAD'], price: 8, isSecret: false },
   { id: 'cheese_tomato', name: 'r_cheese_tomato', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'BREAD'], price: 10, isSecret: false },
   { id: 'veggie', name: 'r_garden', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'BREAD'], price: 10, isSecret: false },
   { id: 'lettuce_burger', name: 'r_lettuce_burger', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'BREAD'], price: 8, isSecret: true },
-  { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 12, isSecret: true },
+  { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 15, isSecret: true },
   { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 12, isSecret: false },
   { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 11, isSecret: true },
-  { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 15, isSecret: true },
+  { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 13, isSecret: true },
 ];
 
 export const LEVELS: Level[] = [
@@ -77,6 +79,15 @@ export const LEVELS: Level[] = [
     showNewIngredient: true,
     newRecipe: 'bacon_cheese',
     description: "l5_desc" 
+  },
+  { 
+    id: 6, 
+    name: "l6_name", 
+    targetMoney: 70, 
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', ], 
+    showNewIngredient: false,
+    newRecipe: 'tomatomato',
+    description: "l6_desc" 
   },
 ];
 
@@ -170,6 +181,7 @@ export const TRANSLATIONS = {
     r_pure: "Hamburguesa Pura",
     r_double: "Doble de Carne",
     r_cheese: "Cheeseburger Simple",
+    r_double_cheese: "Doble de Queso",
     r_garden: "Burger del Huerto",
     r_bacon_cheese: "Bacon & Cheese",
     r_super_bacon: "Super Bacon",
@@ -182,6 +194,7 @@ export const TRANSLATIONS = {
     r_cheese_fresh: "Cheeseburger Fresh",
     r_pickled: "La Encurtida",
     r_tomato_burger: "Burger con Tomate",
+    r_tomatomato: "Toma Tomate Tómalo",
     r_cheese_tomato: "Cheeseburger con Tomate",
     r_lettuce_burger: "Burger con Lechuga",
     r_cheese_onion: "Queso y Cebolla Crunch",
@@ -202,7 +215,7 @@ export const TRANSLATIONS = {
     l3_name: "El Toque Verde",
     l4_name: "Vegetal con Queso",
     l5_name: "Se viene el Bacon",
-    l6_name: "Salsa Especial",
+    l6_name: "Toma tomate!",
     l7_name: "El Toque Ácido",
     l8_name: "El Final",
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
@@ -210,7 +223,7 @@ export const TRANSLATIONS = {
     l3_desc: "¡El Huerto! Has desbloqueado la LECHUGA. Prepara la Hamburguesa Vegetal con tomate y lechuga.",
     l4_desc: "¡El siguiente paso! Añadimos QUESO a la vegetal para crear la hamburguesa más completa hasta ahora.",
     l5_desc: "¡BACON desbloqueado! Añade un toque crujiente.",
-    l6_desc: "¡KETCHUP desbloqueado! La salsa que no puede faltar.",
+    l6_desc: "Para los amantes del TOMATE, añade más TOMATE.",
     l7_desc: "¡PEPINILLO desbloqueado! Para los amantes de los sabores fuertes.",
     l8_desc: "¡CEBOLLA desbloqueada! La hamburguesa definitiva."
   },
@@ -271,6 +284,7 @@ export const TRANSLATIONS = {
     r_pure: "Pure Burger",
     r_double: "Double Meat",
     r_cheese: "Simple Cheeseburger",
+    r_double_cheese: "Double Cheese",
     r_garden: "Garden Burger",
     r_bacon_cheese: "Bacon & Cheese",
     r_super_bacon: "Super Bacon",
@@ -283,6 +297,7 @@ export const TRANSLATIONS = {
     r_cheese_fresh: "Cheeseburger Fresh",
     r_pickled: "The Pickled One",
     r_tomato_burger: "Tomato Burger",
+    r_tomatomato: "TomaTomato",
     r_cheese_tomato: "Tomato Cheeseburger",
     r_lettuce_burger: "Lettuce Burger",
     r_cheese_onion: "Cheese & Onion Crunch",
@@ -303,7 +318,7 @@ export const TRANSLATIONS = {
     l3_name: "The Green Touch",
     l4_name: "Veggie and Cheese",
     l5_name: "Bacon is coming",
-    l6_name: "Special Sauce",
+    l6_name: "Toma Tomato!",
     l7_name: "The Sour Touch",
     l8_name: "The Final",
     l1_desc: "Welcome! Learn to use TOMATO. In this level, we'll only serve tomato burgers.",
@@ -311,7 +326,7 @@ export const TRANSLATIONS = {
     l3_desc: "The Orchard! You've unlocked LETTUCE. Prepare the Veggie Burger with tomato and lettuce.",
     l4_desc: "The next step! We add CHEESE to the veggie burger to create the most complete burger yet.",
     l5_desc: "BACON unlocked! Add a crunchy touch.",
-    l6_desc: "KETCHUP unlocked! The sauce that can't be missing.",
+    l6_desc: "For tomato lovers, add more tomato.",
     l7_desc: "PICKLE unlocked! For those who love strong flavors.",
     l8_desc: "ONION unlocked! The ultimate burger."
   }
