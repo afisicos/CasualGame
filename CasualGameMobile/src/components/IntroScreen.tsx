@@ -1,10 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import BurgerPiece from './BurgerPiece';
 import { PieceType } from '../types';
-
-const { width } = Dimensions.get('window');
+import { styles } from '../styles/IntroScreen.styles';
 
 interface IntroScreenProps {
   levelId: number;
@@ -16,8 +15,15 @@ interface IntroScreenProps {
   description: string;
   targetMoney: number;
   timeLimit: number;
+  timeBoostCount: number;
+  destructionPackCount: number;
+  useTimeBoost: boolean;
+  useDestructionPack: boolean;
+  onToggleTimeBoost: (value: boolean) => void;
+  onToggleDestructionPack: (value: boolean) => void;
   onPlay: () => void;
   onBack: () => void;
+  onPlaySound?: () => void;
   t: any;
 }
 
@@ -30,15 +36,22 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
   recipePrice,
   description, 
   targetMoney, 
-  timeLimit, 
+  timeLimit,
+  timeBoostCount,
+  destructionPackCount,
+  useTimeBoost,
+  useDestructionPack,
+  onToggleTimeBoost,
+  onToggleDestructionPack,
   onPlay, 
-  onBack, 
+  onBack,
+  onPlaySound,
   t 
 }) => {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#FF9966', '#FF5E62']}
+        colors={['#f39c12', '#e67e22']}
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.card}>
@@ -50,7 +63,8 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
             <Text style={styles.sectionLabel}>{t.new_recipe}</Text>
             {recipePrice !== undefined && (
               <View style={styles.pricePill}>
-                <Text style={styles.pricePillText}>{recipePrice}€</Text>
+                <Text style={styles.pricePillText}>{recipePrice}</Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.pillCoin} resizeMethod="resize" />
               </View>
             )}
           </View>
@@ -84,7 +98,10 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>{t.objective}</Text>
-            <Text style={styles.statValue}>{targetMoney}€</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.statValue}>{recipePrice ? Math.floor(targetMoney / recipePrice) : targetMoney}</Text>
+              <Image source={require('../assets/Iconos/burger.png')} style={styles.statCoin} resizeMethod="resize" />
+            </View>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>{t.time}</Text>
@@ -92,185 +109,48 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
           </View>
         </View>
 
-        <TouchableOpacity style={styles.playButton} onPress={onPlay}>
-          <Text style={styles.buttonText}>{t.cook}</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Text style={styles.backText}>{t.back}</Text>
-        </TouchableOpacity>
+        {/* Power-ups Toggles */}
+        {(timeBoostCount > 0 || destructionPackCount > 0) && (
+          <View style={styles.powerUpBar}>
+            {timeBoostCount > 0 && (
+              <View style={styles.powerUpToggle}>
+                <Text style={styles.powerUpEmoji}>⏱️</Text>
+                <Text style={styles.powerUpLabel}>{t.powerup_time_name}</Text>
+                <Switch
+                  value={useTimeBoost}
+                  onValueChange={(value) => { onPlaySound?.(); onToggleTimeBoost(value); }}
+                  trackColor={{ false: '#adb5bd', true: '#ff922b' }}
+                  thumbColor={useTimeBoost ? '#fff' : '#f4f3f4'}
+                />
+              </View>
+            )}
+            {destructionPackCount > 0 && (
+              <View style={styles.powerUpToggle}>
+                <Text style={styles.powerUpEmoji}>💥</Text>
+                <Text style={styles.powerUpLabel}>{t.powerup_destruction_name}</Text>
+                <Switch
+                  value={useDestructionPack}
+                  onValueChange={(value) => { onPlaySound?.(); onToggleDestructionPack(value); }}
+                  trackColor={{ false: '#adb5bd', true: '#ff922b' }}
+                  thumbColor={useDestructionPack ? '#fff' : '#f4f3f4'}
+                />
+              </View>
+            )}
+          </View>
+        )}
+
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.backButtonInline} onPress={() => { onPlaySound?.(); onBack(); }}>
+            <Text style={styles.backTextInline}>Volver</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.playButtonInline} onPress={() => { onPlaySound?.(); onPlay(); }}>
+            <Text style={styles.buttonText}>{t.cook}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    padding: 20 
-  },
-  card: { 
-    backgroundColor: 'white', 
-    borderRadius: 35, 
-    padding: 25, 
-    alignItems: 'center',
-    width: '100%',
-    elevation: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15
-  },
-  levelBadge: {
-    backgroundColor: '#ff922b',
-    color: 'white',
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: '900',
-    marginBottom: 20
-  },
-  section: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: '#fcf8f2',
-    padding: 15,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: '#efe5d9'
-  },
-  ingredientSection: {
-    backgroundColor: '#e7f5ff',
-    borderColor: '#d0ebff'
-  },
-  sectionLabel: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: '#adb5bd',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  recipeHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    marginBottom: 8
-  },
-  pricePill: {
-    backgroundColor: '#27ae60',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  pricePillText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: '900'
-  },
-  burgerName: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#4a4a4a',
-    textAlign: 'center',
-    marginBottom: 12
-  },
-  recipePreview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: -10 // Superponer un poquito para que parezca una burger
-  },
-  recipeIngIcon: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  ingredientRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15
-  },
-  ingredientIconBg: {
-    width: 60,
-    height: 60,
-    backgroundColor: 'white',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3
-  },
-  ingredientName: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1864ab'
-  },
-  description: { 
-    textAlign: 'center', 
-    fontSize: 15,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 20,
-    fontWeight: '600',
-    paddingHorizontal: 10
-  },
-  statsRow: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-around',
-    marginBottom: 25,
-    borderTopWidth: 1,
-    borderColor: '#f0f0f0',
-    paddingVertical: 15
-  },
-  statBox: {
-    alignItems: 'center'
-  },
-  statLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#adb5bd',
-    marginBottom: 5
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#27ae60'
-  },
-  playButton: { 
-    backgroundColor: '#ff922b', 
-    paddingVertical: 18, 
-    borderRadius: 20, 
-    width: '100%', 
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#ff922b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5
-  },
-  buttonText: { 
-    color: 'white', 
-    fontWeight: '900',
-    fontSize: 18,
-    letterSpacing: 1
-  },
-  backButton: {
-    marginTop: 15
-  },
-  backText: { 
-    color: '#adb5bd',
-    fontWeight: '700',
-    textDecorationLine: 'underline',
-    fontSize: 12
-  }
-});
 
 export default IntroScreen;
 

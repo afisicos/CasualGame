@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView } from 'react-native';
+import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,6 +14,7 @@ import BurgerPiece from './components/BurgerPiece';
 import SplashScreen from './components/SplashScreen';
 import OptionsScreen from './components/OptionsScreen';
 import ShopScreen from './components/ShopScreen';
+import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe } from './types';
 import { 
   TRANSLATIONS, 
@@ -33,6 +34,9 @@ import {
   isRecipeMatch, 
   calculatePrice 
 } from './utils/gameLogic';
+import { styles } from './styles/App.styles';
+import { initializeAds, showRewardedAd } from './utils/ads';
+import { logScreenView, logGameEvent } from './utils/analytics';
 
 const { width, height } = Dimensions.get('window');
 
@@ -69,6 +73,8 @@ function GameContent() {
   const [currentOrder, setCurrentOrder] = useState<PieceType[]>([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [money, setMoney] = useState(0);
+  const [burgersCreated, setBurgersCreated] = useState(0);
+  const [burgerTarget, setBurgerTarget] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -80,7 +86,7 @@ function GameContent() {
 
   // Nuevos estados
   const [lives, setLives] = useState(MAX_LIVES);
-  const [globalMoney, setGlobalMoney] = useState(0);
+  const [globalMoney, setGlobalMoney] = useState(200);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [nextLifeTime, setNextLifeTime] = useState(LIFE_RECOVERY_TIME);
   const [lastLifeGainTime, setLastLifeGainTime] = useState<number>(Date.now());
@@ -92,12 +98,25 @@ function GameContent() {
   const [discoveredRecipes, setDiscoveredRecipes] = useState<string[]>([]);
   const [isRecipeListVisible, setIsRecipeListVisible] = useState(false);
 
+  // Inicializar Firebase Analytics y AdMob al montar el componente
+  useEffect(() => {
+    initializeAds();
+  }, []);
+
+  // Registrar cambios de pantalla en Analytics
+  useEffect(() => {
+    logScreenView(screen);
+  }, [screen]);
+
   // Power-ups
   const [timeBoostCount, setTimeBoostCount] = useState<number>(0);
   const [destructionPackCount, setDestructionPackCount] = useState<number>(0);
   const [useTimeBoost, setUseTimeBoost] = useState<boolean>(false);
   const [useDestructionPack, setUseDestructionPack] = useState<boolean>(false);
   const [destructionsUsed, setDestructionsUsed] = useState<number>(0);
+  const [maxDestructions, setMaxDestructions] = useState<number>(25);
+  const [shouldBlinkDestructions, setShouldBlinkDestructions] = useState<boolean>(false);
+  const [helpText, setHelpText] = useState<string>('');
 
   const soundPool = useRef<Audio.Sound[]>([]);
   const poolIndex = useRef(0);
@@ -153,7 +172,12 @@ function GameContent() {
         if (savedLevel) setUnlockedLevel(parseInt(savedLevel));
         if (savedArcadeLevel) setArcadeUnlockedLevel(parseInt(savedArcadeLevel));
         if (savedScore) setArcadeHighScore(parseInt(savedScore));
-        if (savedMoney) setGlobalMoney(parseInt(savedMoney));
+        if (savedMoney) {
+          const moneyValue = parseInt(savedMoney);
+          setGlobalMoney(moneyValue > 0 ? moneyValue : 200);
+        } else {
+          setGlobalMoney(200);
+        }
         if (savedSound) setIsSoundEnabled(savedSound === 'true');
         if (savedLastLifeTime) setLastLifeGainTime(parseInt(savedLastLifeTime));
         if (savedRecipes) setDiscoveredRecipes(JSON.parse(savedRecipes));
@@ -328,6 +352,23 @@ function GameContent() {
     } catch (e) {}
   };
 
+  const playUIButtonSound = async () => {
+    if (soundPool.current.length === 0 || !isSoundEnabled) return;
+    try {
+      const sound = soundPool.current[poolIndex.current];
+      poolIndex.current = (poolIndex.current + 1) % soundPool.current.length;
+      
+      // Sonido sintético suave para botones UI (nota más baja que los clicks del juego)
+      await sound.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        rate: 0.8, // Tono más bajo y suave
+        shouldCorrectPitch: false,
+        volume: 0.3, // Volumen más bajo para UI
+      });
+    } catch (e) {}
+  };
+
   const initGrid = useCallback((level: Level, mode: GameMode, currentUnlockedLevel: number) => {
     const initialGrid: Cell[] = [];
     const gridSize = getGridSize(level.id, mode);
@@ -366,6 +407,11 @@ function GameContent() {
       if (recipe) {
         setCurrentOrder(recipe.ingredients);
         setCurrentPrice(recipe.price);
+        // Calculate burger target for campaign mode
+        if (currentMode === 'CAMPAIGN' && currentLevel) {
+          const targetBurgers = Math.floor(currentLevel.targetMoney / recipe.price);
+          setBurgerTarget(targetBurgers);
+        }
         return;
       } else {
         // Fallback de seguridad por si no hay receta definida, pero forzamos una básica
@@ -460,26 +506,31 @@ function GameContent() {
       setArcadeUnlockedLevel(prev => Math.max(prev, level.id));
     }
 
-    // Verificar y consumir power-ups activados
-    const timeBoostToUse = useTimeBoost && timeBoostCount > 0;
-    const destructionPackToUse = useDestructionPack && destructionPackCount > 0;
+    // Verificar y consumir power-ups activados - Solo en modo campaña
+    const timeBoostToUse = mode === 'CAMPAIGN' && useTimeBoost && timeBoostCount > 0;
+    const destructionPackToUse = mode === 'CAMPAIGN' && useDestructionPack && destructionPackCount > 0;
 
-    // Consumir power-ups solo si están activados y disponibles
-    if (useTimeBoost && timeBoostCount > 0) {
-      setTimeBoostCount(prev => Math.max(0, prev - 1));
-    }
-    if (useDestructionPack && destructionPackCount > 0) {
-      setDestructionPackCount(prev => Math.max(0, prev - 1));
+    // Consumir power-ups solo si están activados y disponibles y estamos en modo campaña
+    if (mode === 'CAMPAIGN') {
+      if (useTimeBoost && timeBoostCount > 0) {
+        setTimeBoostCount(prev => Math.max(0, prev - 1));
+      }
+      if (useDestructionPack && destructionPackCount > 0) {
+        setDestructionPackCount(prev => Math.max(0, prev - 1));
+      }
     }
 
     const initialGrid = initGrid(level, mode, mode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel);
     setMoney(0);
+    setBurgersCreated(0);
     setTimeLeft(60 + (timeBoostToUse ? 10 : 0)); // 60 segundos base + 10 si tiene time boost
     setIsGameOver(false);
     setIsGameStarted(false);
     setArcadeDifficultyStep(0);
     setCurrentOrder([]);
     setDestructionsUsed(0); // Resetear contador de eliminaciones
+    setMaxDestructions(destructionPackToUse ? 75 : 25); // Guardar el máximo de eliminaciones
+    setShouldBlinkDestructions(false); // Resetear parpadeo
     setScreen('GAME');
 
     // Resetear toggles de power-ups
@@ -513,23 +564,13 @@ function GameContent() {
     Vibration.vibrate(50);
   };
 
-  const skipOrder = () => {
-    if (isGameOver) return;
-    if (gameMode === 'ARCADE') {
-      const nextStep = (arcadeDifficultyStep + 1) % 3;
-      setArcadeDifficultyStep(nextStep);
-      const complexities: ('simpler' | 'medium' | 'harder')[] = ['simpler', 'medium', 'harder'];
-      generateNewOrder(grid, complexities[nextStep]);
-    } else {
-      generateNewOrder(grid);
-    }
-    Vibration.vibrate(20);
-  };
 
   const destroyPiece = (index: number) => {
-    const maxDestructions = useDestructionPack ? 30 : 10;
     if (destructionsUsed >= maxDestructions) {
-      Alert.alert(t.powerup_destruction_limit || "Límite alcanzado", t.powerup_destruction_limit_msg || "Has usado todas tus eliminaciones");
+      // Activar parpadeo en vez de mostrar alerta
+      setShouldBlinkDestructions(true);
+      Vibration.vibrate([0, 100, 50, 100]);
+      setTimeout(() => setShouldBlinkDestructions(false), 2000); // Parpadear por 2 segundos
       return;
     }
 
@@ -698,7 +739,8 @@ function GameContent() {
       Vibration.vibrate([0, 100, 50, 100]);
       playSuccessSound();
       const newMoney = money + currentPrice;
-      const isLevelComplete = gameMode === 'CAMPAIGN' && newMoney >= selectedLevel.targetMoney;
+      const newBurgersCreated = burgersCreated + 1;
+      const isLevelComplete = gameMode === 'CAMPAIGN' && newBurgersCreated >= burgerTarget;
 
       // FASE 1: DESVANECER (Efecto visual de los usados)
       // Solo animamos si NO vamos a cambiar de pantalla inmediatamente
@@ -714,8 +756,10 @@ function GameContent() {
         // Si el nivel se ha completado, cambiamos de pantalla SIN animación de layout
         if (isLevelComplete) {
           setMoney(newMoney);
+          setBurgersCreated(newBurgersCreated);
           setGlobalMoney(prev => prev + currentPrice);
-          setIsGameOver(true); 
+          setHelpText(''); // Ocultar ayuda al completar nivel
+          setIsGameOver(true);
           setScreen('RESULT');
           if (selectedLevel.id === unlockedLevel) {
             setUnlockedLevel(unlockedLevel + 1);
@@ -758,7 +802,9 @@ function GameContent() {
         });
 
         setMoney(newMoney);
+        setBurgersCreated(newBurgersCreated);
         setGlobalMoney(prev => prev + currentPrice);
+        setHelpText(''); // Ocultar ayuda cuando se completa una receta
       }, 400);
     } else {
       if (currentSelection.length > 0) playCancelSound();
@@ -772,6 +818,7 @@ function GameContent() {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
+          setHelpText(''); // Ocultar ayuda cuando se acaba el tiempo
           setIsGameOver(true);
           setScreen('RESULT');
           return 0;
@@ -811,6 +858,53 @@ function GameContent() {
     }
   };
 
+  const handleWatchAdForLives = async () => {
+    if (lives >= MAX_LIVES) {
+      return;
+    }
+
+    try {
+      const rewarded = await showRewardedAd(() => {
+        // Recompensa: Recargar todas las vidas
+        setLives(MAX_LIVES);
+        setLastLifeGainTime(Date.now());
+        setNextLifeTime(LIFE_RECOVERY_TIME);
+        
+        // Registrar evento en Analytics
+        logGameEvent('lives_recovered_from_ad', {
+          lives_gained: MAX_LIVES - lives,
+        });
+        
+        // En desarrollo, mostrar mensaje informativo
+        if (__DEV__) {
+          Alert.alert(
+            t.success || "¡Éxito!",
+            (t.lives_recovered || "¡Vidas recargadas!") + "\n\n(Modo desarrollo: En producción se mostrará un anuncio real)"
+          );
+        } else {
+          Alert.alert(
+            t.success || "¡Éxito!",
+            t.lives_recovered || "¡Vidas recargadas!"
+          );
+        }
+      });
+
+      if (!rewarded) {
+        // El usuario cerró el anuncio sin completarlo
+        Alert.alert(
+          t.info || "Información",
+          t.ad_not_completed || "Debes ver el anuncio completo para recibir las vidas."
+        );
+      }
+    } catch (error) {
+      console.error('Error al mostrar anuncio:', error);
+      Alert.alert(
+        t.error || "Error",
+        t.ad_error || "No se pudo cargar el anuncio. Inténtalo más tarde."
+      );
+    }
+  };
+
   const handleResultAction = () => {
     const isWin = gameMode === 'ARCADE' ? true : money >= selectedLevel.targetMoney;
     if (isWin && gameMode === 'CAMPAIGN') {
@@ -841,10 +935,10 @@ function GameContent() {
             isSoundEnabled={isSoundEnabled}
             onToggleSound={() => setIsSoundEnabled(!isSoundEnabled)}
             onResetProgress={resetProgress}
-            onLoginGoogle={() => Alert.alert(t.account, "Coming soon...")}
             onBack={() => setScreen('MENU')}
             language={language}
             onToggleLanguage={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            onPlaySound={playUIButtonSound}
             t={t}
           />
         );
@@ -857,6 +951,7 @@ function GameContent() {
             onBuyTimeBoost={buyTimeBoost}
             onBuyDestructionPack={buyDestructionPack}
             onBack={() => setScreen('MENU')}
+            onPlaySound={playUIButtonSound}
             t={t}
           />
         );
@@ -881,9 +976,11 @@ function GameContent() {
               setSelectedLevel(l); 
               setScreen('INTRO'); 
             }}
-            onStartArcade={() => playGame('ARCADE')}
+            onStartArcade={() => setScreen('ARCADE_INTRO')}
             onOptions={() => setScreen('OPTIONS')}
             onShop={() => setScreen('SHOP')}
+            onWatchAdForLives={handleWatchAdForLives}
+            onPlaySound={playUIButtonSound}
             t={t}
           />
         );
@@ -903,8 +1000,25 @@ function GameContent() {
             description={selectedLevel.description}
             targetMoney={selectedLevel.targetMoney} 
             timeLimit={60}
+            timeBoostCount={timeBoostCount}
+            destructionPackCount={destructionPackCount}
+            useTimeBoost={useTimeBoost}
+            useDestructionPack={useDestructionPack}
+            onToggleTimeBoost={setUseTimeBoost}
+            onToggleDestructionPack={setUseDestructionPack}
             onPlay={() => playGame('CAMPAIGN')}
             onBack={() => setScreen('MENU')}
+            onPlaySound={playUIButtonSound}
+            t={t}
+          />
+        );
+      case 'ARCADE_INTRO':
+        return (
+          <ArcadeIntroScreen 
+            highScore={arcadeHighScore}
+            onPlay={() => playGame('ARCADE')}
+            onBack={() => setScreen('MENU')}
+            onPlaySound={playUIButtonSound}
             t={t}
           />
         );
@@ -913,6 +1027,7 @@ function GameContent() {
           <ResultScreen gameMode={gameMode} money={money} targetMoney={selectedLevel.targetMoney}
             arcadeHighScore={arcadeHighScore} onBack={() => setScreen('MENU')}
             onRetry={handleResultAction}
+            onPlaySound={playUIButtonSound}
             t={t}
           />
         );
@@ -921,12 +1036,37 @@ function GameContent() {
         return (
           <View style={styles.container}>
             <View style={styles.statsRow}>
-              <StatCard label={t.time} value={`${timeLeft}s`} type="time" isLowTime={timeLeft < 10} />
-              <StatCard 
-                label={t.money} 
-                value={gameMode === 'CAMPAIGN' ? `${money}/${selectedLevel.targetMoney}€` : `${money}€`} 
-                type="money" 
-              />
+              <TouchableOpacity
+                style={styles.statTouchable}
+                onPress={() => gameMode === 'CAMPAIGN' && setHelpText('Tiempo restante de juego')}
+                activeOpacity={0.7}
+              >
+                <StatCard value={`${timeLeft}s`} type="time" isLowTime={timeLeft < 10} verticalLayout={true} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.statTouchable}
+                onPress={() => gameMode === 'CAMPAIGN' && setHelpText('Hamburguesas a completar')}
+                activeOpacity={0.7}
+              >
+                <StatCard
+                  value={gameMode === 'CAMPAIGN' ? `${burgersCreated}/${burgerTarget}` : `${money}`}
+                  type={gameMode === 'CAMPAIGN' ? "burgers" : "money"}
+                  verticalLayout={true}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.statTouchable}
+                onPress={() => gameMode === 'CAMPAIGN' && setHelpText('Usos de eliminación de ingrediente')}
+                activeOpacity={0.7}
+              >
+                <StatCard
+                  value={`${maxDestructions - destructionsUsed}`}
+                  type="destruction"
+                  isLowTime={(maxDestructions - destructionsUsed) <= 3}
+                  shouldBlink={shouldBlinkDestructions}
+                  verticalLayout={true}
+                />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.orderCard}>
@@ -935,7 +1075,7 @@ function GameContent() {
                   <Text style={styles.countdownText}>{countdown}</Text>
                 </View>
               ) : !isGameStarted ? (
-                <TouchableOpacity style={styles.waitingContainer} onPress={() => startGame(grid, gameMode, selectedLevel)}>
+                <TouchableOpacity style={styles.waitingContainer} onPress={() => { playUIButtonSound(); startGame(grid, gameMode, selectedLevel); }}>
                   <Image source={require('./assets/Iconos/play.png')} style={styles.largePlayIcon} resizeMode="contain" />
                   <Text style={styles.waitingText}>{t.press_to_start}</Text>
                 </TouchableOpacity>
@@ -975,11 +1115,6 @@ function GameContent() {
                               ))}
                             </View>
                           </View>
-                          <View style={styles.recipePriceContainer}>
-                            <Text style={styles.recipePrice}>
-                              {isDiscovered ? `${recipe.price}€` : '??€'}
-                            </Text>
-                          </View>
                         </View>
                       );
                     })}
@@ -991,12 +1126,6 @@ function GameContent() {
                     <View>
                       <Text style={styles.orderLabel}>{t.current_order}</Text>
                       <Text style={styles.burgerNameText}>{getBurgerName(currentOrder, language)}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                      <Text style={styles.priceLabel}>{currentPrice}€</Text>
-                      <TouchableOpacity style={styles.iconButton} onPress={() => skipOrder()}>
-                        <Image source={require('./assets/Iconos/reset.png')} style={styles.skipIcon} resizeMode="contain" />
-                      </TouchableOpacity>
                     </View>
                   </View>
                   <View style={styles.orderPieces}>
@@ -1023,6 +1152,15 @@ function GameContent() {
               )}
             </View>
 
+            {/* Panel de ayuda centrado - solo visible en modo campaña */}
+            {gameMode === 'CAMPAIGN' && helpText ? (
+              <View style={styles.helpTextContainerCenter}>
+                <TouchableOpacity onPress={() => { playUIButtonSound(); setHelpText(''); }}>
+                  <Text style={styles.helpText}>{helpText}</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
             <View style={styles.boardWrapper}>
               <GameBoard 
                 grid={grid} 
@@ -1040,84 +1178,26 @@ function GameContent() {
     }
   };
 
+  // Determinar colores del degradado según el modo
+  const gradientColors = screen === 'GAME' && gameMode === 'ARCADE' 
+    ? ['#CC7A52', '#CC4A4E'] // Degradado más oscuro para modo arcade
+    : ['#FF9966', '#FF5E62']; // Naranjas/rojos para otros modos
+
   return (
-    <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+    <View style={styles.safeArea}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
       {screen !== 'SPLASH' && (
-        <LinearGradient
-          colors={['#FF9966', '#FF5E62']}
-          style={StyleSheet.absoluteFill}
-        />
+        <>
+          <LinearGradient
+            colors={gradientColors}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
+            {renderScreen()}
+          </View>
+        </>
       )}
-      {renderScreen()}
+      {screen === 'SPLASH' && renderScreen()}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: 'transparent' },
-  container: { 
-    flex: 1, 
-    padding: 15, 
-    alignItems: 'center',
-    paddingTop: 10, // Un pequeño margen extra tras el notch
-  },
-  iconButton: { padding: 5 },
-  largePlayIcon: { width: 60, height: 60, marginBottom: 5 },
-  skipIcon: { width: 30, height: 30 },
-  mathIcon: { width: 28, height: 28 },
-  complexityButton: { width: 45, height: 45, alignItems: 'center', justifyContent: 'center' },
-  statsRow: { flexDirection: 'row', gap: 10, width: '100%', marginBottom: 15 },
-  orderCard: { 
-    backgroundColor: 'white', 
-    padding: 15, 
-    borderRadius: 24, 
-    width: '100%', 
-    marginBottom: 15, 
-    elevation: 6,
-    shadowColor: '#d2b48c',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    zIndex: 1000,
-    overflow: 'hidden' // Recorte para que el scroll del recetario no se salga
-  },
-  orderHeader: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 8, alignItems: 'center' },
-  orderLabel: { fontSize: 10, fontWeight: '800', color: '#adb5bd', letterSpacing: 1 },
-  burgerNameText: { fontSize: 14, fontWeight: '900', color: '#4a4a4a', marginTop: 2 },
-  priceLabel: { fontSize: 18, fontWeight: '900', color: '#27ae60' },
-  orderPieces: { 
-    flexDirection: 'row-reverse', 
-    alignItems: 'center', 
-    height: 80, 
-    justifyContent: 'center', 
-    width: '100%',
-    paddingHorizontal: 5,
-    overflow: 'visible' 
-  },
-  waitingContainer: { height: 100, justifyContent: 'center', alignItems: 'center', width: '100%' },
-  waitingText: { fontSize: 12, fontWeight: '900', color: '#adb5bd', letterSpacing: 1 },
-  countdownText: { fontSize: 32, fontWeight: '900', color: '#ff922b', letterSpacing: 2 },
-  boardWrapper: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', width: '100%', paddingBottom: 0 },
-  // Estilos Modo Arcade Integrado
-  arcadeRecipeContainer: { width: '100%', height: 220 },
-  recipeLabelIntegrated: { fontSize: 10, fontWeight: '900', color: '#adb5bd', letterSpacing: 1, marginBottom: 8, textAlign: 'center' },
-  recipeListIntegrated: { flex: 1 },
-  recipeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f1f3f5',
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginBottom: 5,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-  recipeName: { fontSize: 11, fontWeight: '900', color: '#4a4a4a', width: 80, marginRight: 5 },
-  recipeIngredients: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  recipeIngredientIcon: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center', marginRight: -4 },
-  recipePriceContainer: { backgroundColor: 'white', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: '#27ae60' },
-  recipePrice: { fontSize: 12, fontWeight: '900', color: '#27ae60' },
-  secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' }
-});

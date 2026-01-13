@@ -2,6 +2,7 @@
   "expo": {
     "name": "CasualGameMobile",
     "slug": "CasualGameMobile",
+    "scheme": "burgermatch",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
@@ -16,7 +17,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.casualgame.foodforfun",
+      "package": "com.cetroalce.burgermatch",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FF9966"
@@ -33,6 +34,30 @@
       "eas": {
         "projectId": "fc0f1a0c-787e-499e-9074-fe04ae4be6a2"
       }
-    }
+    },
+    "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3929193083951309~4619622382",
+          "iosAppId": "ca-app-pub-3929193083951309~4619622382"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0",
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
+    ]
   }
 }

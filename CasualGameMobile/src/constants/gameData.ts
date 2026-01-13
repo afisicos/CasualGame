@@ -17,18 +17,21 @@ export const INGREDIENT_IMAGES: Record<PieceType, any> = {
 
 export const BASE_RECIPES: Recipe[] = [
   { id: 'classic', name: 'r_pure', ingredients: ['BREAD', 'MEAT', 'BREAD'], price: 5, isSecret: false },
-  { id: 'cheese', name: 'r_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'BREAD'], price: 7, isSecret: false },
-  { id: 'double_cheese', name: 'r_double_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE','CHEESE', 'BREAD'], price: 11, isSecret: true },
-  { id: 'tomatomato', name: 'r_tomatomato', ingredients: ['BREAD', 'MEAT', 'TOMATO','TOMATO', 'TOMATO', 'BREAD'], price: 13, isSecret: false },
+  { id: 'cheese', name: 'r_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'BREAD'], price: 8, isSecret: false },
+  { id: 'double_cheese', name: 'r_double_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE','CHEESE', 'BREAD'], price: 12, isSecret: true },
+  { id: 'tomatomato', name: 'r_tomatomato', ingredients: ['BREAD', 'MEAT', 'TOMATO','TOMATO', 'TOMATO', 'BREAD'], price: 14, isSecret: false },
   { id: 'tomato_burger', name: 'r_tomato_burger', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'BREAD'], price: 8, isSecret: false },
-  { id: 'cheese_tomato', name: 'r_cheese_tomato', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'BREAD'], price: 10, isSecret: false },
-  { id: 'veggie', name: 'r_garden', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'BREAD'], price: 10, isSecret: false },
+  { id: 'cheese_tomato', name: 'r_cheese_tomato', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'BREAD'], price: 12, isSecret: false },
+  { id: 'veggie', name: 'r_garden', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'BREAD'], price: 12, isSecret: false },
   { id: 'lettuce_burger', name: 'r_lettuce_burger', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'BREAD'], price: 8, isSecret: true },
-  { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 15, isSecret: true },
-  { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 12, isSecret: false },
-  { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 11, isSecret: true },
-  { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 13, isSecret: true },
-  { id: 'ketchup_lettuce', name: 'r_ketchup_lettuce', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'KETCHUP', 'BREAD'], price: 11, isSecret: true },
+  { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 23, isSecret: true },
+  { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 14, isSecret: false },
+  { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 12, isSecret: true },
+  { id: 'antivegetal', name: 'r_antivegetal', ingredients: ['BREAD', 'MEAT', 'MEAT', 'CHEESE', 'BACON', 'BREAD'], price: 16, isSecret: false },
+  { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 7, isSecret: true },
+  { id: 'ketchup_lettuce', name: 'r_ketchup_lettuce', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'KETCHUP', 'BREAD'], price: 12, isSecret: true },
+  { id: 'onioner', name: 'r_onioner', ingredients: ['BREAD', 'MEAT', 'ONION', 'ONION', 'BREAD'], price: 12, isSecret: false },
+  { id: 'tonion_burger', name: 'r_tonion_burger', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE','TOMATO','ONION', 'BREAD'], price: 35, isSecret: false },
   { id: 'dirty_one', name: 'r_dirty_one', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'BREAD'], price: 11, isSecret: true },
 
 ];
@@ -102,6 +105,34 @@ export const LEVELS: Level[] = [
     newRecipe: 'ketchup_lettuce',
     description: "l7_desc" 
   },
+  { 
+    id: 8, 
+    name: "l8_name", 
+    targetMoney: 60, 
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'LETTUCE'], 
+    showNewIngredient: false,
+    newRecipe: 'antivegetal',
+    description: "l8_desc" 
+  },
+  { 
+    id: 9, 
+    name: "l9_name", 
+    targetMoney: 70, 
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'ONION'], 
+    newIngredient: 'ONION',
+    showNewIngredient: true,
+    newRecipe: 'tonion_burger',
+    description: "l9_desc" 
+  },
+  { 
+    id: 10, 
+    name: "l10_name", 
+    targetMoney: 100, 
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION'], 
+    showNewIngredient: false,
+    newRecipe: 'onioner',
+    description: "l10_desc" 
+  },
 ];
 
 // Mapeo de qué recetas están desbloqueadas según el nivel superado
@@ -131,6 +162,15 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
     recipes.push('ketchup_lettuce');
     recipes.push('dirty_one');
   }
+  if (arcadeUnlockedLevel >= 8) {
+    recipes.push('antivegetal');
+  }
+  if (arcadeUnlockedLevel >= 9) {
+    recipes.push('tonion_burger');
+  }
+  if (arcadeUnlockedLevel >= 10) {
+    recipes.push('onioner');
+  }
   return recipes;
 };
 
@@ -142,15 +182,17 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => 
   if (arcadeUnlockedLevel >= 3) ingredients.push('LETTUCE');
   if (arcadeUnlockedLevel >= 5) ingredients.push('BACON');
   if (arcadeUnlockedLevel >= 7) ingredients.push('KETCHUP');
+  if (arcadeUnlockedLevel >= 9) ingredients.push('ONION');
   return ingredients;
 };
 
 export const TRANSLATIONS = {
   es: {
     recipes: "RECETAS",
-    current_order: "PEDIDO ACTUAL",
+    current_order: "RECETA",
     time: "Tiempo",
     money: "Dinero",
+    burgers: "Hamburguesas",
     press_to_start: "PULSA PARA EMPEZAR",
     go: "¡A TRABAJAR!",
     secret_burger: "Hamburguesa Secreta",
@@ -158,7 +200,11 @@ export const TRANSLATIONS = {
     discovery_msg: "Has descubierto la ",
     level_prefix: "Nivel",
     objective: "Objetivo",
+    arcade_title: "ARCADE",
     arcade_btn: "¡MINUTO EXPRESS!",
+    arcade_desc: "Consigue monedas haciendo hamburguesas libremente en un minuto, y bate tu propio récord.",
+    arcade_intro_desc: "¡Ponte a prueba! Prepara todas las hamburguesas que puedas antes de que se acabe el tiempo. Cuantos más pedidos completes, más dinero ganarás. Además, podras descubrir nuevas recetas probando combinaciones.",
+    campaign_desc: "Supera los niveles y desbloquea nuevas recetas e ingredientes",
     record: "RÉCORD",
     options: "OPCIONES",
     sound: "SONIDO",
@@ -173,7 +219,7 @@ export const TRANSLATIONS = {
     delete_all: "BORRAR TODO",
     language: "IDIOMA",
     lang_name: "Español",
-    back: "Volver al mapa",
+    back: "Volver",
     cook: "¡A COCINAR!",
     new_ingredient: "Nuevo Ingrediente",
     new_recipe: "Nueva Receta",
@@ -194,11 +240,23 @@ export const TRANSLATIONS = {
     powerup_time_name: "Tiempo Extra",
     powerup_time_desc: "Empieza con 10 segundos adicionales",
     powerup_destruction_name: "Pack de Eliminaciones",
-    powerup_destruction_desc: "30 eliminaciones en vez de 10",
+    powerup_destruction_desc: "75 eliminaciones en vez de 25",
     powerup_activate_time: "Tiempo Extra",
     powerup_activate_destruction: "Pack Eliminaciones",
     powerup_destruction_limit: "Límite alcanzado",
     powerup_destruction_limit_msg: "Has usado todas tus eliminaciones",
+    destructions: "Eliminaciones",
+    welcome_subtitle: "¡Te esperan desafíos deliciosos!",
+    login_google: "Iniciar sesión con Google",
+    login_footer: "Conéctate para guardar tu progreso",
+    logout: "Cerrar sesión",
+    success: "Éxito",
+    reset_success: "Progreso reiniciado correctamente",
+    lives_recovered: "¡Vidas recargadas!",
+    ad_not_completed: "Debes ver el anuncio completo para recibir las vidas.",
+    ad_error: "No se pudo cargar el anuncio. Inténtalo más tarde.",
+    info: "Información",
+    error: "Error",
     // Ingredientes
     ing_BREAD: "Pan",
     ing_MEAT: "Carne",
@@ -212,22 +270,26 @@ export const TRANSLATIONS = {
     // Recetas
     r_pure: "Hamburguesa Pura",
     r_double: "Doble de Carne",
-    r_cheese: "Cheeseburger Simple",
+    r_cheese: "Cheeseburger",
     r_double_cheese: "Doble de Queso",
     r_garden: "Burger del Huerto",
     r_bacon_cheese: "Bacon & Cheese",
     r_super_bacon: "Super Bacon",
+    r_onioner: "Cebollera",
     r_ketchup_lettuce: "Ketchuga",
+    r_dirty_one: "La Sucia",
     r_classic_usa: "Clásica Americana",
     r_viking: "La Vikinga",
     r_monster: "La Mega Monster",
     r_gourmet: "La Gran Gourmet",
     r_veggie_full: "La Huerta Completa",
+    r_antivegetal: "Anti-Vegetal",
     r_bacon_bbq: "Bacon BBQ Style",
     r_cheese_fresh: "Cheeseburger Fresh",
     r_pickled: "La Encurtida",
     r_tomato_burger: "Burger con Tomate",
     r_tomatomato: "Toma Tomate Tómalo",
+    r_tonion_burger: "Tonion Burger",
     r_cheese_tomato: "Cheeseburger con Tomate",
     r_lettuce_burger: "Burger con Lechuga",
     r_cheese_onion: "Queso y Cebolla Crunch",
@@ -250,7 +312,9 @@ export const TRANSLATIONS = {
     l5_name: "Se viene el Bacon",
     l6_name: "Toma tomate!",
     l7_name: "¡Ketchup!",
-    l8_name: "El Final",
+    l8_name: "Verde no",
+    l9_name: "Cebollita fresca",
+    l10_name: "Cebollera",
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
     l2_desc: "¡La mezcla perfecta! Combina el QUESO y el TOMATE para superar este nivel.",
     l3_desc: "¡El Huerto! Has desbloqueado la LECHUGA. Prepara la Hamburguesa Vegetal con tomate y lechuga.",
@@ -258,13 +322,16 @@ export const TRANSLATIONS = {
     l5_desc: "¡BACON desbloqueado! Añade un toque crujiente.",
     l6_desc: "Para los amantes del TOMATE, añade más TOMATE.",
     l7_desc: "No hacía falta tanto tomate, ¿verdad?",
-    l8_desc: "¡CEBOLLA desbloqueada! La hamburguesa definitiva."
+    l8_desc: "Las verduras no son lo tuyo, ¿verdad? ¡No hay problema!",
+    l9_desc: "A todos nos gusta la cebolla, ¿no?",
+    l10_desc: "¡La cebolla es la reina de las hamburguesas! Añade dos cebollas para crear la Cebollera.",
   },
   en: {
     recipes: "RECIPES",
-    current_order: "CURRENT ORDER",
+    current_order: "RECIPE",
     time: "Time",
     money: "Money",
+    burgers: "Burgers",
     press_to_start: "TAP TO START",
     go: "GO!",
     secret_burger: "Secret Burger",
@@ -272,7 +339,11 @@ export const TRANSLATIONS = {
     discovery_msg: "You have discovered the ",
     level_prefix: "Level",
     objective: "Target",
+    arcade_title: "ARCADE",
     arcade_btn: "EXPRESS MINUTE!",
+    arcade_desc: "Earn coins by making burgers freely in one minute, and beat your own record.",
+    arcade_intro_desc: "Test your skills! Prepare as many burgers as you can before time runs out. The more orders you complete, the more money you'll earn. Also, you can discover new recipes by trying combinations.",
+    campaign_desc: "Complete levels to unlock new recipes and ingredients",
     record: "BEST",
     options: "OPTIONS",
     sound: "SOUND",
@@ -287,7 +358,7 @@ export const TRANSLATIONS = {
     delete_all: "DELETE ALL",
     language: "LANGUAGE",
     lang_name: "English",
-    back: "Back to map",
+    back: "Back",
     cook: "COOK!",
     new_ingredient: "New Ingredient",
     new_recipe: "New Recipe",
@@ -308,11 +379,23 @@ export const TRANSLATIONS = {
     powerup_time_name: "Time Boost",
     powerup_time_desc: "Start with 10 extra seconds",
     powerup_destruction_name: "Destruction Pack",
-    powerup_destruction_desc: "30 destructions instead of 10",
+    powerup_destruction_desc: "75 destructions instead of 25",
     powerup_activate_time: "Time Boost",
     powerup_activate_destruction: "Destruction Pack",
     powerup_destruction_limit: "Limit reached",
     powerup_destruction_limit_msg: "You've used all your destructions",
+    destructions: "Destructions",
+    welcome_subtitle: "Delicious challenges await!",
+    login_google: "Sign in with Google",
+    login_footer: "Connect to save your progress",
+    logout: "Log out",
+    success: "Success",
+    reset_success: "Progress reset successfully",
+    lives_recovered: "Lives recovered!",
+    ad_not_completed: "You must watch the ad completely to receive lives.",
+    ad_error: "Could not load the ad. Please try again later.",
+    info: "Information",
+    error: "Error",
     // Ingredients
     ing_BREAD: "Bread",
     ing_MEAT: "Meat",
@@ -331,9 +414,13 @@ export const TRANSLATIONS = {
     r_garden: "Garden Burger",
     r_bacon_cheese: "Bacon & Cheese",
     r_super_bacon: "Super Bacon",
+    r_onioner: "Onioner",
     r_ketchup_lettuce: "Ketchuga",
+    r_dirty_one: "The Dirty One",
+    r_antivegetal: "Anti-Vegetarian",
     r_classic_usa: "American Classic",
     r_viking: "The Viking",
+    r_tonion_burger: "Tonion Burger",
     r_monster: "The Mega Monster",
     r_gourmet: "The Grand Gourmet",
     r_veggie_full: "The Full Orchard",
@@ -364,7 +451,9 @@ export const TRANSLATIONS = {
     l5_name: "Bacon is coming",
     l6_name: "Toma Tomato!",
     l7_name: "Ketchup!",
-    l8_name: "The Final",
+    l8_name: "No green",
+    l9_name: "Fresh Onion",
+    l10_name: "Onioner",
     l1_desc: "Welcome! Learn to use TOMATO. In this level, we'll only serve tomato burgers.",
     l2_desc: "The perfect mix! Combine CHEESE and TOMATO to clear this level.",
     l3_desc: "The Orchard! You've unlocked LETTUCE. Prepare the Veggie Burger with tomato and lettuce.",
@@ -372,7 +461,9 @@ export const TRANSLATIONS = {
     l5_desc: "BACON unlocked! Add a crunchy touch.",
     l6_desc: "For tomato lovers, add more tomato.",
     l7_desc: "No need for so much tomato, right?",
-    l8_desc: "ONION unlocked! The ultimate burger."
+    l8_desc: "No green, no problem",
+    l9_desc: "We all like onions, right?",
+    l10_desc: "The onion is the queen of burgers! Add two onions to create the Onioner.",
   }
 };
 

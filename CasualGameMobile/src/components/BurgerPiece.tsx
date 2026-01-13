@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Image, Dimensions, Animated } from 'react-native';
+import { Image, Dimensions, Animated } from 'react-native';
 import { PieceType } from '../types';
+import { styles } from '../styles/BurgerPiece.styles';
 
 const { width } = Dimensions.get('window');
 const BOARD_PADDING = 10;
@@ -77,12 +78,5 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  }
-});
 
 export default BurgerPiece;

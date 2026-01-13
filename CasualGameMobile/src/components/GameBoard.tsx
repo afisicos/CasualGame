@@ -1,12 +1,9 @@
 import React, { useRef, useEffect, useMemo } from 'react';
-import { View, StyleSheet, Dimensions, PanResponder, Vibration } from 'react-native';
+import { View, PanResponder, StyleSheet } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 import BurgerPiece from './BurgerPiece';
 import { Cell } from '../types';
-
-const { width } = Dimensions.get('window');
-const BOARD_PADDING = 10;
-const BOARD_SIZE = width * 0.95;
+import { styles, BOARD_PADDING, BOARD_SIZE, BOARD_BORDER_WIDTH } from '../styles/GameBoard.styles';
 
 interface GameBoardProps {
   grid: Cell[];
@@ -19,7 +16,7 @@ interface GameBoardProps {
 
 const GameBoard: React.FC<GameBoardProps> = (props) => {
   const { grid, currentSelection, gridSize, onSelectionUpdate, onSelectionEnd } = props;
-  const cellSize = (BOARD_SIZE - (BOARD_PADDING * 2)) / gridSize;
+  const cellSize = (BOARD_SIZE - (BOARD_PADDING * 2) - (BOARD_BORDER_WIDTH * 2)) / gridSize;
   
   const propsRef = useRef(props);
   useEffect(() => { propsRef.current = props; }, [props]);
@@ -34,8 +31,9 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
   }), [gridSize]);
 
   const handleGesture = (x: number, y: number, isGrant: boolean) => {
-    const col = Math.floor((x - BOARD_PADDING) / cellSize);
-    const row = Math.floor((y - BOARD_PADDING) / cellSize);
+    const offset = BOARD_PADDING + BOARD_BORDER_WIDTH;
+    const col = Math.floor((x - offset) / cellSize);
+    const row = Math.floor((y - offset) / cellSize);
     if (col >= 0 && col < gridSize && row >= 0 && row < gridSize) {
       propsRef.current.onSelectionUpdate(row * gridSize + col, isGrant);
     }
@@ -56,13 +54,22 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
     <View style={styles.board} {...panResponder.panHandlers}>
       {/* Capa 1: Fondo de selección */}
       <View style={styles.gridBackground} pointerEvents="none">
-        {Array.from({ length: gridSize * gridSize }).map((_, i) => (
-          <View key={`bg-${i}`} style={[
-            styles.cellBase, 
-            { width: cellSize, height: cellSize },
-            currentSelection.includes(i) && styles.selectedCell,
-          ]} />
-        ))}
+        {Array.from({ length: gridSize * gridSize }).map((_, i) => {
+          const row = Math.floor(i / gridSize);
+          const col = i % gridSize;
+          return (
+            <View key={`bg-${i}`} style={[
+              styles.cellBase, 
+              { 
+                width: cellSize, 
+                height: cellSize,
+                left: col * cellSize,
+                top: row * cellSize
+              },
+              currentSelection.includes(i) && styles.selectedCell,
+            ]} />
+          );
+        })}
       </View>
 
       {/* Capa 2: Ingredientes */}
@@ -99,12 +106,13 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
           const sRow = Math.floor(currentSelection[i - 1] / gridSize);
           const eCol = idx % gridSize;
           const eRow = Math.floor(idx / gridSize);
+          const offset = BOARD_PADDING + BOARD_BORDER_WIDTH;
           return (
             <Line key={i}
-              x1={BOARD_PADDING + sCol * cellSize + cellSize / 2}
-              y1={BOARD_PADDING + sRow * cellSize + cellSize / 2}
-              x2={BOARD_PADDING + eCol * cellSize + cellSize / 2}
-              y2={BOARD_PADDING + eRow * cellSize + cellSize / 2}
+              x1={offset + sCol * cellSize + cellSize / 2}
+              y1={offset + sRow * cellSize + cellSize / 2}
+              x2={offset + eCol * cellSize + cellSize / 2}
+              y2={offset + eRow * cellSize + cellSize / 2}
               stroke="#40c057" strokeWidth="6" strokeLinecap="round" opacity={0.8}
             />
           );
@@ -113,37 +121,5 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  board: { 
-    width: BOARD_SIZE, 
-    height: BOARD_SIZE, 
-    backgroundColor: '#efe5d9', 
-    borderRadius: 30, 
-    padding: BOARD_PADDING, 
-    elevation: 12,
-    shadowColor: '#8b4513',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    overflow: 'hidden'
-  },
-  piecesLayer: {
-    ...StyleSheet.absoluteFillObject,
-    margin: BOARD_PADDING,
-    overflow: 'hidden' // Doble recorte para seguridad
-  },
-  gridBackground: { 
-    flex: 1, 
-    flexDirection: 'row', 
-    flexWrap: 'wrap',
-  },
-  cellBase: { 
-    backgroundColor: 'transparent', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-  },
-  selectedCell: { backgroundColor: 'rgba(64, 192, 87, 0.2)', borderRadius: 15 }
-});
 
 export default GameBoard;
