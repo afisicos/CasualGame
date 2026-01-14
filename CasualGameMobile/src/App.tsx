@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef, Component } from 'react';
+import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, ImageBackground, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -38,18 +38,53 @@ import { styles } from './styles/App.styles';
 import { initializeAds, showRewardedAd } from './utils/ads';
 import { logScreenView, logGameEvent } from './utils/analytics';
 
-const { width, height } = Dimensions.get('window');
-
 // Habilitar animaciones de layout en Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// Error Boundary para capturar errores de React
+class ErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('❌ Error capturado por ErrorBoundary:', error);
+    console.error('❌ Stack:', error.stack);
+    console.error('❌ ErrorInfo:', errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FF9966' }}>
+          <Text style={{ color: 'white', fontSize: 18, marginBottom: 10 }}>Error al cargar la aplicación</Text>
+          <Text style={{ color: 'white', fontSize: 14, textAlign: 'center', paddingHorizontal: 20 }}>
+            {this.state.error?.message || 'Error desconocido'}
+          </Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <GameContent />
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <GameContent />
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -58,7 +93,13 @@ function GameContent() {
   const [screen, setScreen] = useState<Screen>('SPLASH');
   const [unlockedLevel, setUnlockedLevel] = useState<number>(1);
   const [arcadeUnlockedLevel, setArcadeUnlockedLevel] = useState<number>(0);
-  const [selectedLevel, setSelectedLevel] = useState<Level>(LEVELS[0]);
+  const [selectedLevel, setSelectedLevel] = useState<Level>(LEVELS && LEVELS.length > 0 ? LEVELS[0] : {
+    id: 1,
+    name: 'level_1',
+    targetMoney: 100,
+    ingredients: ['BREAD', 'MEAT'],
+    description: 'level_1_desc'
+  });
   const [gameMode, setGameMode] = useState<GameMode>('CAMPAIGN');
   const [arcadeHighScore, setArcadeHighScore] = useState<number>(0);
   const [grid, setGrid] = useState<Cell[]>([]);
@@ -100,12 +141,23 @@ function GameContent() {
 
   // Inicializar Firebase Analytics y AdMob al montar el componente
   useEffect(() => {
-    initializeAds();
+    // Envolver en try-catch para evitar crashes
+    try {
+      initializeAds().catch((error) => {
+        console.warn('Error al inicializar ads (no crítico):', error);
+      });
+    } catch (error) {
+      console.warn('Error al inicializar ads (no crítico):', error);
+    }
   }, []);
 
   // Registrar cambios de pantalla en Analytics
   useEffect(() => {
-    logScreenView(screen);
+    try {
+      logScreenView(screen);
+    } catch (error) {
+      console.warn('Error al registrar screen view (no crítico):', error);
+    }
   }, [screen]);
 
   // Power-ups
@@ -117,6 +169,9 @@ function GameContent() {
   const [maxDestructions, setMaxDestructions] = useState<number>(25);
   const [shouldBlinkDestructions, setShouldBlinkDestructions] = useState<boolean>(false);
   const [helpText, setHelpText] = useState<string>('');
+  const helpTextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
+  const expandRecipeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const soundPool = useRef<Audio.Sound[]>([]);
   const poolIndex = useRef(0);
@@ -157,6 +212,8 @@ function GameContent() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Añadir un pequeño delay para asegurar que todo esté inicializado
+        await new Promise(resolve => setTimeout(resolve, 100));
         const savedLevel = await AsyncStorage.getItem('unlockedLevel');
         const savedArcadeLevel = await AsyncStorage.getItem('arcadeUnlockedLevel');
         const savedScore = await AsyncStorage.getItem('arcadeHighScore');
@@ -550,12 +607,14 @@ function GameContent() {
         setCountdown(count);
       } else if (count === 0) {
         setCountdown(t.go);
-      } else {
+        // Detener el intervalo y esperar un poco más para empezar el juego
         clearInterval(interval);
-        setCountdown(null);
-        startGame(currentGrid, mode, level);
+        setTimeout(() => {
+          setCountdown(null);
+          startGame(currentGrid, mode, level);
+        }, 550); // 250ms del intervalo original + 300ms extra solicitados = 550ms
       }
-    }, 250); // Reducido a la mitad (0.25s por número)
+    }, 250); // 0.25s por número
   };
 
   const startGame = (currentGrid: Cell[], mode: GameMode, level: Level) => {
@@ -567,79 +626,94 @@ function GameContent() {
 
   const destroyPiece = (index: number) => {
     if (destructionsUsed >= maxDestructions) {
-      // Activar parpadeo en vez de mostrar alerta
       setShouldBlinkDestructions(true);
       Vibration.vibrate([0, 100, 50, 100]);
-      setTimeout(() => setShouldBlinkDestructions(false), 2000); // Parpadear por 2 segundos
+      setTimeout(() => setShouldBlinkDestructions(false), 2000);
       return;
     }
+
+    if (!grid[index] || !grid[index].piece) return;
 
     setDestructionsUsed(prev => prev + 1);
     Vibration.vibrate(60);
     playDestroySound();
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
     
-    setGrid(currentGrid => {
-      const size = Math.sqrt(currentGrid.length);
-      const nextGrid = currentGrid.map(c => ({ ...c }));
-      const col = index % size;
-      const row = Math.floor(index / size);
+    // Fase 1: Marcar la pieza para eliminación (activar animación de explosión)
+    const targetPieceId = grid[index].piece.id;
+    setGrid(prev => prev.map(c => 
+      c.piece && c.piece.id === targetPieceId ? { ...c, piece: { ...c.piece, isRemoving: true } } : c
+    ));
 
-      // Mover los de arriba hacia abajo
-      for (let r = row; r > 0; r--) {
-        const targetIdx = r * size + col;
-        const sourceIdx = (r - 1) * size + col;
-        nextGrid[targetIdx].piece = nextGrid[sourceIdx].piece;
-      }
+    // Fase 2: Ejecutar la lógica de gravedad después de la animación
+    setTimeout(() => {
+      setGrid(currentGrid => {
+        const size = Math.sqrt(currentGrid.length);
+        const nextGrid = currentGrid.map(c => ({ ...c }));
+        
+        // Encontrar la posición actual de la pieza (por si se movió)
+        const currentPos = nextGrid.findIndex(c => c.piece?.id === targetPieceId);
+        if (currentPos === -1) return currentGrid;
 
-      // Nueva pieza arriba
-    const ingredients = gameMode === 'ARCADE' 
-      ? getUnlockedIngredientsForArcade(unlockedLevel) 
-      : selectedLevel.ingredients;
-    nextGrid[col].piece = createPiece(ingredients);
+        const col = currentPos % size;
+        const row = Math.floor(currentPos / size);
 
-      // Comprobar si el pedido sigue siendo posible
-      setTimeout(() => generateNewOrder(nextGrid), 50);
-      
-      return nextGrid;
-    });
+        // Mover los de arriba hacia abajo
+        for (let r = row; r > 0; r--) {
+          const targetIdx = r * size + col;
+          const sourceIdx = (r - 1) * size + col;
+          nextGrid[targetIdx].piece = nextGrid[sourceIdx].piece;
+        }
+
+        // Nueva pieza arriba
+        const ingredients = gameMode === 'ARCADE' 
+          ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel) 
+          : selectedLevel.ingredients;
+        nextGrid[col].piece = createPiece(ingredients);
+
+        setTimeout(() => generateNewOrder(nextGrid), 50);
+        return nextGrid;
+      });
+    }, 300); // Tiempo ligeramente menor que la animación completa para fluidez
   };
 
   const handleSelectionUpdate = (index: number, isGrant: boolean = false) => {
     if (isGameOver || !isGameStarted || !grid[index]) return;
     
-    // Guardamos el inicio del toque para detectar si es un "tap" rápido al soltar
     if (isGrant) {
       lastTapRef.current = { index, time: Date.now() };
     }
 
-    const gridSize = Math.sqrt(grid.length);
-    
-    const currentSelection = selectionRef.current; // Usar el ref para tener el estado real inmediato
+    const currentSelection = selectionRef.current;
 
     if (currentSelection.length === 0) {
-      if (grid[index].piece?.type === 'BREAD') {
+      if (grid[index].piece?.type === 'BREAD' && !grid[index].piece?.isRemoving) {
         updateSelection([index]);
         Vibration.vibrate(40);
         playClickSound(0);
       }
       return;
     }
+
     const lastIdx = currentSelection[currentSelection.length - 1];
     if (index === lastIdx) return;
+
     if (currentSelection.length > 1 && currentSelection[currentSelection.length - 2] === index) {
       const newSelection = currentSelection.slice(0, -1);
       updateSelection(newSelection);
       Vibration.vibrate(20);
-      playClickSound(newSelection.length - 1); // El tono baja al deseleccionar
+      playClickSound(newSelection.length - 1);
       return;
     }
+
     const lastCell = grid[lastIdx];
     const currentCell = grid[index];
+    if (!lastCell || !currentCell) return;
+
     const rowDiff = Math.abs(lastCell.row - currentCell.row);
     const colDiff = Math.abs(lastCell.col - currentCell.col);
     const isAdjacent = (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
-    if (isAdjacent && currentCell.piece && !currentSelection.includes(index)) {
+    
+    if (isAdjacent && currentCell.piece && !currentCell.piece.isRemoving && !currentSelection.includes(index)) {
       const hasClosingBread = currentSelection.some((idx, i) => i > 0 && grid[idx].piece?.type === 'BREAD');
       if (hasClosingBread) return;
       const newSelection = [...currentSelection, index];
@@ -652,11 +726,10 @@ function GameContent() {
   const handleSelectionEnd = async () => {
     if (!isGameStarted) return;
 
-    const currentSelection = selectionRef.current; // Usar el ref para consistencia
-
-    // --- NUEVA LÓGICA: DESTRUCCIÓN POR TOQUE RÁPIDO (< 0.3s) ---
+    const currentSelection = [...selectionRef.current];
     const now = Date.now();
     const duration = now - lastTapRef.current.time;
+
     if (duration < 300 && currentSelection.length <= 1 && lastTapRef.current.index !== -1) {
       destroyPiece(lastTapRef.current.index);
       lastTapRef.current = { index: -1, time: 0 };
@@ -665,100 +738,58 @@ function GameContent() {
     }
     lastTapRef.current = { index: -1, time: 0 };
 
-    const selectionTypes = currentSelection.map(idx => grid[idx].piece?.type).filter(t => t !== undefined) as PieceType[];
+    if (currentSelection.length === 0) return;
+
+    const selectionPieces = currentSelection.map(idx => grid[idx]?.piece).filter(Boolean);
+    const selectionTypes = selectionPieces.map(p => p!.type);
+    const selectionIds = selectionPieces.map(p => p!.id);
     
-    // --- LÓGICA ARCADE: VALIDAR CONTRA RECETARIO ---
-    if (gameMode === 'ARCADE') {
+    const isArcade = gameMode === 'ARCADE';
+    let match = null;
+
+    if (isArcade) {
       const unlockedIds = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
-      const match = BASE_RECIPES.find(r => {
+      match = BASE_RECIPES.find(r => {
         if (!unlockedIds.includes(r.id) && !r.isSecret) return false;
         return isRecipeMatch(selectionTypes, r.ingredients);
       });
-
-      if (match) {
-        // Si es secreta y no descubierta, la descubrimos
-        if (match.isSecret && !discoveredRecipes.includes(match.id)) {
-          setDiscoveredRecipes(prev => [...prev, match.id]);
-          const discoveredName = t[match.name as keyof typeof t] || match.name;
-          playDiscoverSound();
-          Alert.alert(t.new_discovery, `${t.discovery_msg}${discoveredName}`);
-        }
-        
-        Vibration.vibrate([0, 100, 50, 100]);
-        playSuccessSound();
-        const newMoney = money + match.price;
-        setMoney(newMoney);
-        setGlobalMoney(prev => prev + match.price);
-        if (newMoney > arcadeHighScore) setArcadeHighScore(newMoney);
-
-        // Animación de desaparición y relleno
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setGrid(prev => prev.map((c, i) => 
-          currentSelection.includes(i) && c.piece ? { ...c, piece: { ...c.piece, isRemoving: true } } : c
-        ));
-
-        setTimeout(() => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-          setGrid(currentGrid => {
-            const size = Math.sqrt(currentGrid.length);
-            const nextGrid = currentGrid.map(c => ({ ...c }));
-            currentSelection.forEach(idx => { if (nextGrid[idx]) nextGrid[idx].piece = null; });
-            for (let col = 0; col < size; col++) {
-              let emptyRow = size - 1;
-              for (let row = size - 1; row >= 0; row--) {
-                const idx = row * size + col;
-                if (nextGrid[idx].piece !== null) {
-                  if (row !== emptyRow) {
-                    nextGrid[emptyRow * size + col].piece = nextGrid[idx].piece;
-                    nextGrid[idx].piece = null;
-                  }
-                  emptyRow--;
-                }
-              }
-            }
-          const ingredients = gameMode === 'ARCADE' 
-            ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel) 
-            : selectedLevel.ingredients;
-          for (let i = 0; i < nextGrid.length; i++) {
-            if (nextGrid[i].piece === null) nextGrid[i].piece = createPiece(ingredients);
-          }
-            return nextGrid;
-          });
-        }, 400);
-      } else {
-        if (currentSelection.length > 0) playCancelSound();
+    } else {
+      if (isRecipeMatch(selectionTypes, currentOrder)) {
+        match = { price: currentPrice };
       }
-      updateSelection([]);
-      return;
     }
 
-    // --- LÓGICA CAMPAÑA: VALIDAR CONTRA PEDIDO ---
-    const isMatch = isRecipeMatch(selectionTypes, currentOrder);
-    
-    if (isMatch) {
+    if (match) {
       Vibration.vibrate([0, 100, 50, 100]);
       playSuccessSound();
-      const newMoney = money + currentPrice;
-      const newBurgersCreated = burgersCreated + 1;
-      const isLevelComplete = gameMode === 'CAMPAIGN' && newBurgersCreated >= burgerTarget;
 
-      // FASE 1: DESVANECER (Efecto visual de los usados)
-      // Solo animamos si NO vamos a cambiar de pantalla inmediatamente
-      if (!isLevelComplete) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      if (isArcade && (match as Recipe).isSecret && !discoveredRecipes.includes((match as Recipe).id)) {
+        setDiscoveredRecipes(prev => [...prev, (match as Recipe).id]);
+        const discoveredName = t[(match as Recipe).name as keyof typeof t] || (match as Recipe).name;
+        playDiscoverSound();
+        Alert.alert(t.new_discovery, `${t.discovery_msg}${discoveredName}`);
       }
-      
-      setGrid(prev => prev.map((c, i) => 
-        currentSelection.includes(i) && c.piece ? { ...c, piece: { ...c.piece, isRemoving: true } } : c
+
+      const matchPrice = isArcade ? (match as Recipe).price : currentPrice;
+      const newMoney = money + matchPrice;
+      const newBurgersCreated = burgersCreated + 1;
+      const isLevelComplete = !isArcade && newBurgersCreated >= burgerTarget;
+
+      setGrid(prev => prev.map(c => 
+        c.piece && selectionIds.includes(c.piece.id) ? { ...c, piece: { ...c.piece, isRemoving: true } } : c
       ));
 
       setTimeout(() => {
-        // Si el nivel se ha completado, cambiamos de pantalla SIN animación de layout
         if (isLevelComplete) {
           setMoney(newMoney);
           setBurgersCreated(newBurgersCreated);
-          setGlobalMoney(prev => prev + currentPrice);
-          setHelpText(''); // Ocultar ayuda al completar nivel
+          setGlobalMoney(prev => prev + matchPrice);
+          // Limpiar timeout de ayuda si existe
+          if (helpTextTimeoutRef.current) {
+            clearTimeout(helpTextTimeoutRef.current);
+            helpTextTimeoutRef.current = null;
+          }
+          setHelpText('');
           setIsGameOver(true);
           setScreen('RESULT');
           if (selectedLevel.id === unlockedLevel) {
@@ -767,14 +798,15 @@ function GameContent() {
           return;
         }
 
-        // Si el juego sigue, animamos el movimiento de las piezas
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-
         setGrid(currentGrid => {
           const size = Math.sqrt(currentGrid.length);
           const nextGrid = currentGrid.map(c => ({ ...c }));
           
-          currentSelection.forEach(idx => { if (nextGrid[idx]) nextGrid[idx].piece = null; });
+          nextGrid.forEach(cell => {
+            if (cell.piece && selectionIds.includes(cell.piece.id)) {
+              cell.piece = null;
+            }
+          });
 
           for (let col = 0; col < size; col++) {
             let emptyRow = size - 1;
@@ -790,12 +822,15 @@ function GameContent() {
             }
           }
 
-        const ingredients = selectedLevel.ingredients;
-        for (let i = 0; i < nextGrid.length; i++) {
-          if (nextGrid[i].piece === null) {
-            nextGrid[i].piece = createPiece(ingredients);
+          const ingredients = isArcade 
+            ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel) 
+            : selectedLevel.ingredients;
+            
+          for (let i = 0; i < nextGrid.length; i++) {
+            if (nextGrid[i].piece === null) {
+              nextGrid[i].piece = createPiece(ingredients);
+            }
           }
-        }
 
           setTimeout(() => generateNewOrder(nextGrid), 50);
           return nextGrid;
@@ -803,12 +838,18 @@ function GameContent() {
 
         setMoney(newMoney);
         setBurgersCreated(newBurgersCreated);
-        setGlobalMoney(prev => prev + currentPrice);
-        setHelpText(''); // Ocultar ayuda cuando se completa una receta
+        setGlobalMoney(prev => prev + matchPrice);
+        // Limpiar timeout de ayuda si existe
+        if (helpTextTimeoutRef.current) {
+          clearTimeout(helpTextTimeoutRef.current);
+          helpTextTimeoutRef.current = null;
+        }
+        setHelpText('');
       }, 400);
     } else {
       if (currentSelection.length > 0) playCancelSound();
     }
+    
     updateSelection([]);
   };
 
@@ -818,6 +859,11 @@ function GameContent() {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
+          // Limpiar timeout de ayuda si existe
+          if (helpTextTimeoutRef.current) {
+            clearTimeout(helpTextTimeoutRef.current);
+            helpTextTimeoutRef.current = null;
+          }
           setHelpText(''); // Ocultar ayuda cuando se acaba el tiempo
           setIsGameOver(true);
           setScreen('RESULT');
@@ -896,17 +942,37 @@ function GameContent() {
           t.ad_not_completed || "Debes ver el anuncio completo para recibir las vidas."
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al mostrar anuncio:', error);
+      const errorMsg = error?.message || String(error);
+      
+      // Usar el mensaje del error si ya es amigable, sino usar uno genérico
+      let userMessage = errorMsg;
+      
+      // Si el mensaje del error ya es descriptivo (viene de showRewardedAd), usarlo directamente
+      if (errorMsg.includes('Intenta más tarde') || errorMsg.includes('Intenta de nuevo') || errorMsg.includes('Verifica tu conexión')) {
+        userMessage = errorMsg;
+      } else {
+        // Mensajes más amigables según el tipo de error
+        userMessage = t.ad_error || "No se pudo cargar el anuncio.";
+        if (errorMsg.includes('network') || errorMsg.includes('internet') || errorMsg.includes('conexión')) {
+          userMessage = "Verifica tu conexión a internet e intenta de nuevo.";
+        } else if (errorMsg.includes('not available') || errorMsg.includes('no fill') || errorMsg.includes('disponibles')) {
+          userMessage = "No hay anuncios disponibles en este momento. Intenta más tarde.";
+        } else if (errorMsg.includes('timeout') || errorMsg.includes('tardó demasiado')) {
+          userMessage = "El anuncio tardó demasiado en cargar. Intenta de nuevo.";
+        }
+      }
+      
       Alert.alert(
         t.error || "Error",
-        t.ad_error || "No se pudo cargar el anuncio. Inténtalo más tarde."
+        userMessage
       );
     }
   };
 
   const handleResultAction = () => {
-    const isWin = gameMode === 'ARCADE' ? true : money >= selectedLevel.targetMoney;
+    const isWin = gameMode === 'ARCADE' ? true : burgersCreated >= burgerTarget;
     if (isWin && gameMode === 'CAMPAIGN') {
       // Asegurar que el nivel se desbloquea
       if (selectedLevel.id >= unlockedLevel && selectedLevel.id < LEVELS.length) {
@@ -1024,8 +1090,14 @@ function GameContent() {
         );
       case 'RESULT':
         return (
-          <ResultScreen gameMode={gameMode} money={money} targetMoney={selectedLevel.targetMoney}
-            arcadeHighScore={arcadeHighScore} onBack={() => setScreen('MENU')}
+          <ResultScreen 
+            gameMode={gameMode} 
+            money={money} 
+            targetMoney={selectedLevel.targetMoney}
+            burgersCreated={burgersCreated}
+            burgerTarget={burgerTarget}
+            arcadeHighScore={arcadeHighScore} 
+            onBack={() => setScreen('MENU')}
             onRetry={handleResultAction}
             onPlaySound={playUIButtonSound}
             t={t}
@@ -1038,14 +1110,40 @@ function GameContent() {
             <View style={styles.statsRow}>
               <TouchableOpacity
                 style={styles.statTouchable}
-                onPress={() => gameMode === 'CAMPAIGN' && setHelpText('Tiempo restante de juego')}
+                onPress={() => {
+                  if (gameMode === 'CAMPAIGN') {
+                    // Limpiar timeout anterior si existe
+                    if (helpTextTimeoutRef.current) {
+                      clearTimeout(helpTextTimeoutRef.current);
+                    }
+                    setHelpText('Tiempo restante de juego');
+                    // Ocultar después de 2 segundos
+                    helpTextTimeoutRef.current = setTimeout(() => {
+                      setHelpText('');
+                      helpTextTimeoutRef.current = null;
+                    }, 2000);
+                  }
+                }}
                 activeOpacity={0.7}
               >
                 <StatCard value={`${timeLeft}s`} type="time" isLowTime={timeLeft < 10} verticalLayout={true} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.statTouchable}
-                onPress={() => gameMode === 'CAMPAIGN' && setHelpText('Hamburguesas a completar')}
+                onPress={() => {
+                  if (gameMode === 'CAMPAIGN') {
+                    // Limpiar timeout anterior si existe
+                    if (helpTextTimeoutRef.current) {
+                      clearTimeout(helpTextTimeoutRef.current);
+                    }
+                    setHelpText('Hamburguesas a completar');
+                    // Ocultar después de 2 segundos
+                    helpTextTimeoutRef.current = setTimeout(() => {
+                      setHelpText('');
+                      helpTextTimeoutRef.current = null;
+                    }, 2000);
+                  }
+                }}
                 activeOpacity={0.7}
               >
                 <StatCard
@@ -1056,7 +1154,20 @@ function GameContent() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.statTouchable}
-                onPress={() => gameMode === 'CAMPAIGN' && setHelpText('Usos de eliminación de ingrediente')}
+                onPress={() => {
+                  if (gameMode === 'CAMPAIGN') {
+                    // Limpiar timeout anterior si existe
+                    if (helpTextTimeoutRef.current) {
+                      clearTimeout(helpTextTimeoutRef.current);
+                    }
+                    setHelpText('Usos de eliminación de ingrediente');
+                    // Ocultar después de 2 segundos
+                    helpTextTimeoutRef.current = setTimeout(() => {
+                      setHelpText('');
+                      helpTextTimeoutRef.current = null;
+                    }, 2000);
+                  }
+                }}
                 activeOpacity={0.7}
               >
                 <StatCard
@@ -1098,26 +1209,60 @@ function GameContent() {
                              // Ya está filtrado arriba, así que siempre debería mostrarse
 
                              return (
-                               <View key={recipe.id} style={styles.recipeItem}>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                              <Text style={styles.recipeName} numberOfLines={1}>
-                                {isDiscovered ? t[recipe.name as keyof typeof t] || recipe.name : '???'}
-                              </Text>
-                            <View style={styles.recipeIngredients}>
-                              {recipe.ingredients.map((ing, idx) => (
-                                <View key={idx} style={styles.recipeIngredientIcon}>
-                                  {isDiscovered ? (
-                                    <BurgerPiece type={ing} scale={0.6} gridSize={8} />
-                                  ) : (
-                                    <Text style={styles.secretTextSmall}>?</Text>
-                                  )}
-                                </View>
-                              ))}
-                            </View>
-                          </View>
-                        </View>
-                      );
-                    })}
+                               <TouchableOpacity 
+                                 key={recipe.id} 
+                                 style={styles.recipeItem}
+                                 onPressIn={() => {
+                                   // Limpiar timeout anterior si existe
+                                   if (expandRecipeTimeoutRef.current) {
+                                     clearTimeout(expandRecipeTimeoutRef.current);
+                                     expandRecipeTimeoutRef.current = null;
+                                   }
+                                   // Iniciar timeout de 500ms para mostrar el overlay
+                                   expandRecipeTimeoutRef.current = setTimeout(() => {
+                                     playUIButtonSound();
+                                     setExpandedRecipeId(recipe.id);
+                                     expandRecipeTimeoutRef.current = null;
+                                   }, 500);
+                                 }}
+                                 onPressOut={() => {
+                                   // Cancelar timeout si se suelta antes de tiempo
+                                   if (expandRecipeTimeoutRef.current) {
+                                     clearTimeout(expandRecipeTimeoutRef.current);
+                                     expandRecipeTimeoutRef.current = null;
+                                   }
+                                   // Ocultar overlay si estaba visible
+                                   setExpandedRecipeId(null);
+                                 }}
+                                 activeOpacity={0.7}
+                               >
+                                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                   <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                                     <Text style={styles.recipeName} numberOfLines={1}>
+                                       {isDiscovered ? t[recipe.name as keyof typeof t] || recipe.name : '???'}
+                                     </Text>
+                                     <View style={styles.recipeIngredients}>
+                                       {recipe.ingredients.map((ing, idx) => (
+                                         <View key={idx} style={styles.recipeIngredientIcon}>
+                                           {isDiscovered ? (
+                                             <BurgerPiece type={ing} scale={0.6} gridSize={8} />
+                                           ) : (
+                                             <Text style={styles.secretTextSmall}>?</Text>
+                                           )}
+                                         </View>
+                                       ))}
+                                     </View>
+                                   </View>
+                                   {isDiscovered && (
+                                     <View style={styles.recipePriceContainer}>
+                                       <Text style={styles.recipePrice}>{recipe.price}</Text>
+                                       <Image source={require('./assets/Iconos/coin.png')} style={styles.recipeCoin} resizeMode="contain" />
+                                     </View>
+                                   )}
+                                 </View>
+                               </TouchableOpacity>
+                             );
+                           })}
                   </ScrollView>
                 </View>
               ) : (
@@ -1148,6 +1293,7 @@ function GameContent() {
                       );
                     })}
                   </View>
+                  <Text style={styles.recipeInstruction}>{t.recipe_instruction}</Text>
                 </>
               )}
             </View>
@@ -1155,11 +1301,52 @@ function GameContent() {
             {/* Panel de ayuda centrado - solo visible en modo campaña */}
             {gameMode === 'CAMPAIGN' && helpText ? (
               <View style={styles.helpTextContainerCenter}>
-                <TouchableOpacity onPress={() => { playUIButtonSound(); setHelpText(''); }}>
+                <TouchableOpacity onPress={() => { 
+                  playUIButtonSound(); 
+                  // Limpiar timeout si se cierra manualmente
+                  if (helpTextTimeoutRef.current) {
+                    clearTimeout(helpTextTimeoutRef.current);
+                    helpTextTimeoutRef.current = null;
+                  }
+                  setHelpText(''); 
+                }}>
                   <Text style={styles.helpText}>{helpText}</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
+
+            {/* Panel expandido de receta - solo visible en modo arcade */}
+            {isArcade && expandedRecipeId ? (() => {
+              const expandedRecipe = BASE_RECIPES.find(r => r.id === expandedRecipeId);
+              if (!expandedRecipe) return null;
+              const isDiscovered = !expandedRecipe.isSecret || discoveredRecipes.includes(expandedRecipe.id);
+              return (
+                <View style={styles.recipeExpandedOverlay}>
+                  <View style={styles.recipeExpandedContent}>
+                    <Text style={styles.recipeNameExpanded} numberOfLines={2}>
+                      {isDiscovered ? t[expandedRecipe.name as keyof typeof t] || expandedRecipe.name : '???'}
+                    </Text>
+                    <View style={styles.recipeIngredientsExpanded}>
+                      {expandedRecipe.ingredients.map((ing, idx) => (
+                        <View key={idx} style={styles.recipeIngredientIconExpanded}>
+                          {isDiscovered ? (
+                            <BurgerPiece type={ing} scale={0.8} gridSize={8} />
+                          ) : (
+                            <Text style={styles.secretTextSmall}>?</Text>
+                          )}
+                        </View>
+                      ))}
+                    </View>
+                    {isDiscovered && (
+                      <View style={styles.recipePriceContainerExpanded}>
+                        <Text style={styles.recipePriceExpanded}>{expandedRecipe.price}</Text>
+                        <Image source={require('./assets/Iconos/coin.png')} style={styles.recipeCoinExpanded} resizeMode="contain" />
+                      </View>
+                    )}
+                  </View>
+                </View>
+              );
+            })() : null}
 
             <View style={styles.boardWrapper}>
               <GameBoard 
@@ -1179,23 +1366,39 @@ function GameContent() {
   };
 
   // Determinar colores del degradado según el modo
-  const gradientColors = screen === 'GAME' && gameMode === 'ARCADE' 
+  const gradientColors: [string, string] = screen === 'GAME' && gameMode === 'ARCADE' 
     ? ['#CC7A52', '#CC4A4E'] // Degradado más oscuro para modo arcade
     : ['#FF9966', '#FF5E62']; // Naranjas/rojos para otros modos
 
   return (
     <View style={styles.safeArea}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-      {screen !== 'SPLASH' && (
-        <>
+      {screen === 'GAME' && (
+        <View style={{ flex: 1, backgroundColor: '#FF9966' }}>
+          <View style={{ height: insets.top + 10 }} />
+          <ImageBackground
+            source={require('./assets/Iconos/Fondo2.png')}
+            style={{ flex: 1 }}
+            resizeMode="cover"
+          >
+            <View style={{ flex: 1, paddingBottom: insets.bottom }}>
+              {renderScreen()}
+            </View>
+          </ImageBackground>
+        </View>
+      )}
+      {screen !== 'SPLASH' && screen !== 'GAME' && (
+        <View style={{ flex: 1, backgroundColor: '#FF9966' }}>
+          <View style={{ height: insets.top + 10 }} />
           <LinearGradient
             colors={gradientColors}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
-            {renderScreen()}
-          </View>
-        </>
+            style={{ flex: 1 }}
+          >
+            <View style={{ flex: 1, paddingBottom: insets.bottom }}>
+              {renderScreen()}
+            </View>
+          </LinearGradient>
+        </View>
       )}
       {screen === 'SPLASH' && renderScreen()}
     </View>

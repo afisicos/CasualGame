@@ -3,7 +3,15 @@ import { Image, Dimensions, Animated } from 'react-native';
 import { PieceType } from '../types';
 import { styles } from '../styles/BurgerPiece.styles';
 
-const { width } = Dimensions.get('window');
+const getWindowWidth = () => {
+  try {
+    return Dimensions.get('window').width || 375;
+  } catch {
+    return 375; // Valor por defecto
+  }
+};
+
+const width = getWindowWidth();
 const BOARD_PADDING = 10;
 const BOARD_SIZE = width * 0.95;
 
@@ -21,26 +29,60 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
 
   const opacity = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isRemoving) {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 450,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 0.5,
-          duration: 450,
-          useNativeDriver: true,
-        }),
+      // Animación de "Explosión"
+      Animated.sequence([
+        // Paso 1: Pop rápido hacia afuera con rotación
+        Animated.parallel([
+          Animated.timing(scaleAnim, {
+            toValue: 1.4,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(rotateAnim, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]),
+        // Paso 2: Desaparecer encogiendo y siguiendo la rotación
+        Animated.parallel([
+          Animated.timing(scaleAnim, {
+            toValue: 0,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(rotateAnim, {
+            toValue: 2,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+        ]),
       ]).start();
     } else {
       opacity.setValue(1);
       scaleAnim.setValue(1);
+      rotateAnim.setValue(0);
     }
   }, [isRemoving]);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 2],
+    outputRange: ['0deg', '45deg'],
+  });
 
   const getImage = () => {
     switch (type) {
@@ -66,7 +108,8 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
         opacity: opacity,
         transform: [
           { scale: scale },
-          { scale: scaleAnim }
+          { scale: scaleAnim },
+          { rotate: spin }
         ] 
       }
     ]}>

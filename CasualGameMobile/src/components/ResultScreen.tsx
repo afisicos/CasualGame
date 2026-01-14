@@ -8,6 +8,8 @@ interface ResultScreenProps {
   gameMode: GameMode;
   money: number;
   targetMoney: number;
+  burgersCreated: number;
+  burgerTarget: number;
   arcadeHighScore: number;
   onBack: () => void;
   onRetry: () => void;
@@ -15,9 +17,20 @@ interface ResultScreenProps {
   t: any;
 }
 
-const ResultScreen: React.FC<ResultScreenProps> = ({ gameMode, money, targetMoney, arcadeHighScore, onBack, onRetry, onPlaySound, t }) => {
+const ResultScreen: React.FC<ResultScreenProps> = ({ 
+  gameMode, 
+  money, 
+  targetMoney, 
+  burgersCreated,
+  burgerTarget,
+  arcadeHighScore, 
+  onBack, 
+  onRetry, 
+  onPlaySound, 
+  t 
+}) => {
   const isCampaign = gameMode === 'CAMPAIGN';
-  const isWin = isCampaign ? money >= targetMoney : false;
+  const isWin = isCampaign ? burgersCreated >= burgerTarget : false;
   const isNewRecord = !isCampaign && money >= arcadeHighScore && money > 0;
   
   return (
@@ -38,22 +51,30 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ gameMode, money, targetMone
         </Text>
         
         <View style={styles.resultBox}>
-          <Text style={styles.resultLabel}>{t.money_earned}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.money}>{money}</Text>
-            <Image source={require('../assets/Iconos/coin.png')} style={styles.resultCoin} resizeMethod="resize" />
-          </View>
-          
           {isCampaign ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-              <Text style={styles.targetLabel}>{t.objective}: {targetMoney} </Text>
-              <Image source={require('../assets/Iconos/coin.png')} style={styles.targetCoin} resizeMethod="resize" />
-            </View>
+            <>
+              <Text style={styles.resultLabel}>{t.burgers}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.money}>{burgersCreated}</Text>
+                <Image source={require('../assets/Iconos/burger.png')} style={styles.resultCoin} resizeMode="contain" />
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                <Text style={styles.targetLabel}>{t.objective}: {burgerTarget} </Text>
+                <Image source={require('../assets/Iconos/burger.png')} style={styles.targetCoin} resizeMode="contain" />
+              </View>
+            </>
           ) : (
-            <View style={styles.recordRow}>
-              <Text style={styles.recordLabelSmall}>{t.record}: {arcadeHighScore} </Text>
-              <Image source={require('../assets/Iconos/coin.png')} style={styles.recordCoin} resizeMethod="resize" />
-            </View>
+            <>
+              <Text style={styles.resultLabel}>{t.money_earned}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.money}>{money}</Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.resultCoin} resizeMethod="resize" />
+              </View>
+              <View style={styles.recordRow}>
+                <Text style={styles.recordLabelSmall}>{t.record}: {arcadeHighScore} </Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.recordCoin} resizeMethod="resize" />
+              </View>
+            </>
           )}
         </View>
 

@@ -5,7 +5,8 @@ export const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center',
-    padding: 20 
+    padding: 20,
+    paddingTop: 50, 
   },
   card: { 
     backgroundColor: 'white', 
@@ -94,7 +95,7 @@ export const styles = StyleSheet.create({
   },
   recordValueSmall: {
     fontSize: 14,
-    color: '#4dabf7',
+    color: '#ff9500',
     fontWeight: '900'
   },
   button: { 

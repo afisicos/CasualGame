@@ -33,9 +33,6 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
       
       <View style={styles.header}>
         <Text style={styles.title}>{t.shop_title}</Text>
-        <TouchableOpacity onPress={() => { onPlaySound?.(); onBack(); }} style={styles.backButton}>
-          <Text style={styles.backText}>✕</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.moneyDisplay}>

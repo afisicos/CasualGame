@@ -7,8 +7,11 @@ export const styles = StyleSheet.create({
     backgroundColor: '#efe5d9', // Mismo color que el fondo del tablero
     padding: 10, 
     borderRadius: 15, 
-    borderLeftWidth: 5, 
-    elevation: 3,
+    elevation: 12,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     minHeight: 60,
   },
   cardVertical: {
@@ -18,6 +21,11 @@ export const styles = StyleSheet.create({
     padding: 8,
     minHeight: 80,
     height: 80,
+    elevation: 12,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
   iconContainer: { 
     width: 40,

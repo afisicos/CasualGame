@@ -24,11 +24,7 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => { onPlaySound?.(); onBack(); }} style={styles.backButton}>
-          <Text style={styles.backText}>←</Text>
-        </TouchableOpacity>
         <Text style={styles.title}>{t.options}</Text>
-        <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.content}>

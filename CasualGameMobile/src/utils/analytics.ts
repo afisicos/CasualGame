@@ -3,10 +3,14 @@ import { analytics } from '../config/firebase';
 
 // Eventos de Analytics
 export const logGameEvent = (eventName: string, params?: Record<string, any>) => {
-  if (analytics) {
-    logEvent(analytics, eventName, params);
-  } else {
-    console.log(`[Analytics] ${eventName}`, params);
+  try {
+    if (analytics) {
+      logEvent(analytics, eventName, params);
+    } else {
+      console.log(`[Analytics] ${eventName}`, params);
+    }
+  } catch (error) {
+    console.warn(`[Analytics] Error logging event ${eventName}:`, error);
   }
 };
 

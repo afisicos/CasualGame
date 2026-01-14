@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo } from 'react';
-import { View, PanResponder, StyleSheet } from 'react-native';
+import { View, PanResponder, StyleSheet, Animated } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 import BurgerPiece from './BurgerPiece';
 import { Cell } from '../types';
@@ -13,6 +13,53 @@ interface GameBoardProps {
   onSelectionUpdate: (index: number, isGrant?: boolean) => void;
   onSelectionEnd: () => void;
 }
+
+// Componente memoizado para animar cada pieza individualmente fuera del render principal
+const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, cellSize: number, gridSize: number }) => {
+  // Calculamos la posición inicial: solo si es nueva de verdad empezamos arriba
+  const initialY = piece.isNew ? -cellSize * 2 : piece.row * cellSize;
+  const animX = useRef(new Animated.Value(piece.col * cellSize)).current;
+  const animY = useRef(new Animated.Value(initialY)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(animX, {
+        toValue: piece.col * cellSize,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 40,
+      }),
+      Animated.spring(animY, {
+        toValue: piece.row * cellSize,
+        useNativeDriver: true,
+        friction: 8,
+        tension: 40,
+      })
+    ]).start();
+  }, [piece.row, piece.col, cellSize]);
+
+  return (
+    <Animated.View 
+      style={{
+        position: 'absolute',
+        width: cellSize,
+        height: cellSize,
+        transform: [
+          { translateX: animX },
+          { translateY: animY }
+        ],
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <BurgerPiece 
+        type={piece.type} 
+        gridSize={gridSize} 
+        isRemoving={piece.isRemoving}
+      />
+    </Animated.View>
+  );
+});
 
 const GameBoard: React.FC<GameBoardProps> = (props) => {
   const { grid, currentSelection, gridSize, onSelectionUpdate, onSelectionEnd } = props;
@@ -74,28 +121,14 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
 
       {/* Capa 2: Ingredientes */}
       <View style={styles.piecesLayer} pointerEvents="none">
-        {activePieces.map((piece) => {
-          return (
-            <View 
-              key={piece.id} 
-              style={{
-                position: 'absolute',
-                width: cellSize,
-                height: cellSize,
-                left: piece.col * cellSize,
-                top: piece.row * cellSize,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <BurgerPiece 
-                type={piece.type} 
-                gridSize={gridSize} 
-                isRemoving={piece.isRemoving}
-              />
-            </View>
-          );
-        })}
+        {activePieces.map((piece) => (
+          <AnimatedPiece 
+            key={piece.id} 
+            piece={piece} 
+            cellSize={cellSize} 
+            gridSize={gridSize} 
+          />
+        ))}
       </View>
 
       {/* Capa 3: Líneas de selección */}

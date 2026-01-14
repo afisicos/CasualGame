@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     paddingRight: 15,
     paddingBottom: 15,
     alignItems: 'center',
-    paddingTop: 35, // Margen extra para el notch y barra de estado de Android
+    paddingTop: 40, // Bajamos los componentes un poco más
   },
   iconButton: { padding: 5 },
   largePlayIcon: { width: 60, height: 60, marginBottom: 5 },
@@ -29,11 +29,11 @@ export const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 25,
     marginTop: 15,
-    elevation: 6,
-    shadowColor: '#d2b48c',
-    shadowOffset: { width: 0, height: 3 },
+    elevation: 12,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.2,
-    shadowRadius: 5,
+    shadowRadius: 10,
     zIndex: 100,
     overflow: 'hidden' // Recorte para que el scroll del recetario no se salga
   },
@@ -62,24 +62,88 @@ export const styles = StyleSheet.create({
   recipeItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#efe5d9', // Mismo color que el fondo del tablero
+    backgroundColor: '#e0d5c8', // Un tono más oscuro que el fondo del panel (#efe5d9)
     borderRadius: 12,
     paddingVertical: 4,
     paddingHorizontal: 8,
     marginBottom: 5,
-    borderWidth: 1,
-    borderColor: '#343a40',
+    elevation: 12,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
-  recipeName: { fontSize: 11, fontWeight: '900', color: '#4a4a4a', width: 100, marginRight: 8 },
+  recipeExpandedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#efe5d9',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    elevation: 15,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    zIndex: 2000,
+  },
+  recipeExpandedContent: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 12,
+  },
+  recipeNameExpanded: { 
+    fontSize: 14, 
+    fontWeight: '900', 
+    color: '#4a4a4a', 
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  recipeIngredientsExpanded: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  recipeIngredientIconExpanded: { 
+    width: 28, 
+    height: 35, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  recipePriceContainerExpanded: { 
+    backgroundColor: 'white', 
+    paddingHorizontal: 10, 
+    paddingVertical: 6, 
+    borderRadius: 10, 
+    borderWidth: 2, 
+    borderColor: '#27ae60', 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 6,
+    marginTop: 4,
+  },
+  recipePriceExpanded: { 
+    fontSize: 16, 
+    fontWeight: '900', 
+    color: '#27ae60' 
+  },
+  recipeCoinExpanded: { 
+    width: 18, 
+    height: 18 
+  },
+  recipeName: { fontSize: 11, fontWeight: '900', color: '#4a4a4a', width: 100, marginRight: 15 },
   recipeIngredients: { flexDirection: 'row', alignItems: 'center', flex: 1, flexWrap: 'nowrap' },
   recipeIngredientIcon: { width: 18, height: 22, alignItems: 'center', justifyContent: 'center', marginRight: -10 },
-  recipePriceContainer: { backgroundColor: 'white', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: '#27ae60' },
-  recipeCoin: { width: 14, height: 14, marginTop: 1 },
+  recipePriceContainer: { backgroundColor: 'white', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: '#27ae60', flexDirection: 'row', alignItems: 'center', gap: 4 },
+  recipeCoin: { width: 14, height: 14 },
   recipePrice: { fontSize: 12, fontWeight: '900', color: '#27ae60' },
   secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' },
   helpTextContainerCenter: {
     position: 'absolute',
-    top: '40%',
+    top: '48%',
     left: 0,
     right: 0,
     backgroundColor: '#f8f9fa',
@@ -108,6 +172,15 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'stretch',
     justifyContent: 'center'
+  },
+  recipeInstruction: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#adb5bd',
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 14,
+    paddingHorizontal: 10
   }
 });
 

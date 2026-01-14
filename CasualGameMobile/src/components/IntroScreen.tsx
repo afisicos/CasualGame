@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BurgerPiece from './BurgerPiece';
 import { PieceType } from '../types';
 import { styles } from '../styles/IntroScreen.styles';
@@ -48,8 +49,10 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
   onPlaySound,
   t 
 }) => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <LinearGradient
         colors={['#f39c12', '#e67e22']}
         style={StyleSheet.absoluteFill}

@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 15
   },
   titleBadge: {
-    backgroundColor: '#339af0',
+    backgroundColor: '#ff9500',
     color: 'white',
     paddingHorizontal: 15,
     paddingVertical: 5,
@@ -33,16 +33,16 @@ export const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginBottom: 20,
-    backgroundColor: '#e7f5ff',
+    backgroundColor: '#fff4e6',
     padding: 20,
     borderRadius: 25,
     borderWidth: 1,
-    borderColor: '#d0ebff'
+    borderColor: '#ffd0a3'
   },
   sectionLabel: {
     fontSize: 10,
     fontWeight: '900',
-    color: '#339af0',
+    color: '#ff9500',
     letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: 10
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#339af0'
+    color: '#ff9500'
   },
   recordRow: {
     flexDirection: 'row',
@@ -126,12 +126,12 @@ export const styles = StyleSheet.create({
   },
   playButtonInline: { 
     flex: 3,
-    backgroundColor: '#339af0', 
+    backgroundColor: '#ff9500', 
     paddingVertical: 18, 
     borderRadius: 20, 
     alignItems: 'center',
     elevation: 5,
-    shadowColor: '#339af0',
+    shadowColor: '#ff9500',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5

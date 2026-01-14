@@ -1,4 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const getWindowWidth = () => {
+  try {
+    return Dimensions.get('window').width || 375;
+  } catch {
+    return 375; // Valor por defecto
+  }
+};
+
+const width = getWindowWidth();
 
 export const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -7,7 +17,7 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     paddingBottom: 5,
-    marginBottom: 15
+    marginBottom: 40 // Aumentado para dar más espacio antes del panel arcade
   },
   topBar: {
     flexDirection: 'row',
@@ -96,6 +106,16 @@ export const styles = StyleSheet.create({
     gap: 0,
   },
   content: { flex: 1 },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    marginBottom: 5,
+  },
+  logo: {
+    width: width * 0.25,
+    height: width * 0.25,
+  },
   arcadeSection: { 
     marginHorizontal: 20,
     borderRadius: 24, 

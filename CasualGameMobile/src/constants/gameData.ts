@@ -40,7 +40,7 @@ export const LEVELS: Level[] = [
   { 
     id: 1, 
     name: "l1_name", 
-    targetMoney: 30, 
+    targetMoney: 45, 
     ingredients: ['BREAD', 'MEAT', 'TOMATO'], 
     newIngredient: 'TOMATO', 
     showNewIngredient: true,
@@ -89,7 +89,7 @@ export const LEVELS: Level[] = [
   { 
     id: 6, 
     name: "l6_name", 
-    targetMoney: 60, 
+    targetMoney: 45, 
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO','LETTUCE'], 
     showNewIngredient: false,
     newRecipe: 'tomatomato',
@@ -257,6 +257,7 @@ export const TRANSLATIONS = {
     ad_error: "No se pudo cargar el anuncio. Inténtalo más tarde.",
     info: "Información",
     error: "Error",
+    recipe_instruction: "No hace falta que los ingredientes estén en el orden mostrado, pero tiene que empezar y acabar con pan siempre",
     // Ingredientes
     ing_BREAD: "Pan",
     ing_MEAT: "Carne",
@@ -396,6 +397,7 @@ export const TRANSLATIONS = {
     ad_error: "Could not load the ad. Please try again later.",
     info: "Information",
     error: "Error",
+    recipe_instruction: "Ingredients don't need to be in the order shown, but must always start and end with bread",
     // Ingredients
     ing_BREAD: "Bread",
     ing_MEAT: "Meat",

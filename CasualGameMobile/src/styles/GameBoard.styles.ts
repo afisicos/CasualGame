@@ -1,9 +1,17 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const getWindowWidth = () => {
+  try {
+    return Dimensions.get('window').width || 375;
+  } catch {
+    return 375; // Valor por defecto
+  }
+};
+
+const width = getWindowWidth();
 export const BOARD_PADDING = 12;
 export const BOARD_SIZE = width * 0.95;
-export const BOARD_BORDER_WIDTH = 3;
+export const BOARD_BORDER_WIDTH = 0;
 
 export const styles = StyleSheet.create({
   board: { 
@@ -11,8 +19,6 @@ export const styles = StyleSheet.create({
     height: BOARD_SIZE, 
     backgroundColor: '#efe5d9', 
     borderRadius: 30, 
-    borderWidth: BOARD_BORDER_WIDTH,
-    borderColor: '#4e342e',
     elevation: 12,
     shadowColor: '#8b4513',
     shadowOffset: { width: 0, height: 6 },

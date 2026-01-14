@@ -1,34 +1,31 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const getWindowWidth = () => {
+  try {
+    return Dimensions.get('window').width || 375;
+  } catch {
+    return 375; // Valor por defecto
+  }
+};
+
+const width = getWindowWidth();
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF9966', // Fallback color
   },
   content: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  logoShadow: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 15,
-  },
-  logo: {
-    width: width * 0.65,
-    height: width * 0.65,
-    marginBottom: 10,
+    flex: 1,
   },
   titleFood: {
     fontSize: 72,
     fontWeight: '900',
     color: 'white',
+    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.4)',
     textShadowOffset: { width: 4, height: 4 },
     textShadowRadius: 12,
@@ -37,6 +34,7 @@ export const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
     color: 'white',
+    textAlign: 'center',
     letterSpacing: 10,
     marginTop: -10,
     textShadowColor: 'rgba(0, 0, 0, 0.2)',

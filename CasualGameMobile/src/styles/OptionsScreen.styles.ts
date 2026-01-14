@@ -1,17 +1,22 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, paddingTop: 0 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    marginTop: 20
+    justifyContent: 'center',
+    padding: 15,
+    marginTop: 0,
   },
-  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  backText: { fontSize: 30, color: 'white', fontWeight: 'bold' },
-  title: { fontSize: 24, fontWeight: '900', color: 'white' },
+  title: { 
+    fontSize: 28, 
+    fontWeight: '900', 
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
   content: { flex: 1, padding: 20 },
   section: {
     backgroundColor: 'white',

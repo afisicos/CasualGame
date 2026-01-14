@@ -56,7 +56,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, type, isLowTime, shou
   return (
     <View style={[
       styles.card, 
-      { borderLeftColor: borderColors[type], flex },
+      { flex },
       verticalLayout && styles.cardVertical
     ]}>
       <Animated.View style={[

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { styles } from '../styles/ArcadeIntroScreen.styles';
 
 interface ArcadeIntroScreenProps {
@@ -18,10 +19,12 @@ const ArcadeIntroScreen: React.FC<ArcadeIntroScreenProps> = ({
   onPlaySound,
   t 
 }) => {
+  const insets = useSafeAreaInsets();
+  
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       <LinearGradient
-        colors={['#4dabf7', '#1971c2']}
+        colors={['#ffa94d', '#ff9500']}
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.card}>

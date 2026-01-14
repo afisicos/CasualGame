@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, Animated, Switch, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Animated, Switch, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
 import { styles } from '../styles/MenuScreen.styles';
-
-const { width } = Dimensions.get('window');
 
 interface MenuScreenProps {
   levels: Level[];
@@ -109,7 +107,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       <View style={styles.content}>
         <View style={styles.arcadeSection}>
                 <LinearGradient
-                  colors={['#4dabf7', '#339af0']}
+                  colors={['#ffa94d', '#ff9500']}
                   style={styles.arcadeGradient}
                 >
                   <View style={styles.arcadeHeader}>
