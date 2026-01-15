@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, Animated, Switch, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
@@ -9,10 +9,10 @@ interface MenuScreenProps {
   unlockedLevel: number;
   arcadeUnlockedLevel: number;
   arcadeHighScore: number;
-  lives: number;
-  maxLives: number;
+  energy: number;
+  maxEnergy: number;
   globalMoney: number;
-  nextLifeTime: number;
+  nextEnergyTime: number;
   timeBoostCount: number;
   destructionPackCount: number;
   useTimeBoost: boolean;
@@ -23,17 +23,66 @@ interface MenuScreenProps {
   onStartArcade: () => void;
   onOptions: () => void;
   onShop: () => void;
-  onWatchAdForLives?: () => void;
+  onWatchAdForEnergy?: () => void;
   onPlaySound?: () => void;
   t: any;
 }
 
 const MenuScreen: React.FC<MenuScreenProps> = ({ 
-  levels, unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, lives, maxLives, globalMoney, nextLifeTime,
+  levels, unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, maxEnergy, globalMoney, nextEnergyTime,
   timeBoostCount, destructionPackCount, useTimeBoost, useDestructionPack,
   onToggleTimeBoost, onToggleDestructionPack,
-  onStartLevel, onStartArcade, onOptions, onShop, onWatchAdForLives, onPlaySound, t
+  onStartLevel, onStartArcade, onOptions, onShop, onWatchAdForEnergy, onPlaySound, t
 }) => {
+  // Animaciones de pulso para los botones redondos
+  const playButtonScale = useRef(new Animated.Value(1)).current;
+  const arcadeButtonScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Animación para el botón de Play
+    const playAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(playButtonScale, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(playButtonScale, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Animación para el botón de Arcade
+    const arcadeAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(arcadeButtonScale, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(arcadeButtonScale, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Iniciar animaciones con un pequeño delay entre ellas para que no estén sincronizadas
+    playAnimation.start();
+    setTimeout(() => {
+      arcadeAnimation.start();
+    }, 500);
+
+    return () => {
+      playAnimation.stop();
+      arcadeAnimation.stop();
+    };
+  }, []);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -56,23 +105,19 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
             <TouchableOpacity 
               style={styles.statPill}
               onPress={() => {
-                if (lives < maxLives && onWatchAdForLives) {
+                if (energy < maxEnergy && onWatchAdForEnergy) {
                   onPlaySound?.();
-                  onWatchAdForLives();
+                  onWatchAdForEnergy();
                 }
               }}
-              disabled={lives >= maxLives || !onWatchAdForLives}
-              activeOpacity={lives < maxLives && onWatchAdForLives ? 0.7 : 1}
+              disabled={energy >= maxEnergy || !onWatchAdForEnergy}
+              activeOpacity={energy < maxEnergy && onWatchAdForEnergy ? 0.7 : 1}
             >
-              <Text style={styles.statEmoji}>❤️</Text>
-              <Text style={styles.statValue}>{lives}/{maxLives}</Text>
-              {lives < maxLives && (
+              <Text style={styles.statEmoji}>⚡</Text>
+              <Text style={styles.statValue}>{energy}/{maxEnergy}</Text>
+              {energy < maxEnergy && (
                 <View style={styles.timeBadge}>
-                  {onWatchAdForLives ? (
-                    <Text style={styles.timeBadgeText}>📺</Text>
-                  ) : (
-                    <Text style={styles.timeBadgeText}>{formatTime(nextLifeTime)}</Text>
-                  )}
+                  <Text style={styles.timeBadgeText}>{formatTime(nextEnergyTime)}</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -105,33 +150,47 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       </View>
 
       <View style={styles.content}>
-        <View style={styles.arcadeSection}>
-                <LinearGradient
-                  colors={['#ffa94d', '#ff9500']}
-                  style={styles.arcadeGradient}
-                >
-                  <View style={styles.arcadeHeader}>
-                    <View style={styles.arcadeTitleContainer}>
-                      <Text style={styles.arcadeTitle}>{t.arcade_title}</Text>
-                    </View>
+        <TouchableOpacity 
+          style={styles.arcadeSection}
+          onPress={() => { onPlaySound?.(); onStartArcade(); }}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#ffa94d', '#ff9500']}
+            style={styles.arcadeGradient}
+          >
+            <View style={styles.arcadeHeader}>
+              <View style={styles.arcadeTitleContainer}>
+                <Text style={styles.arcadeTitle}>{t.arcade_title}</Text>
+              </View>
 
-                    <View style={styles.arcadeRecordCenter}>
-                      <Text style={styles.arcadeRecordLabel}>{t.record}</Text>
-                      <View style={styles.arcadeRecordValueRow}>
-                        <Text style={styles.arcadeRecordValue}>{arcadeHighScore}</Text>
-                        <Image source={require('../assets/Iconos/coin.png')} style={styles.arcadeRecordCoin} resizeMethod="resize" />
-                      </View>
-                    </View>
+              <View style={styles.arcadeRecordCenter}>
+                <Text style={styles.arcadeRecordLabel}>{t.record}</Text>
+                <View style={styles.arcadeRecordValueRow}>
+                  <Text style={styles.arcadeRecordValue}>{arcadeHighScore}</Text>
+                  <Image source={require('../assets/Iconos/coin.png')} style={styles.arcadeRecordCoin} resizeMethod="resize" />
+                </View>
+              </View>
 
-                    <TouchableOpacity style={styles.arcadeButton} onPress={() => { onPlaySound?.(); onStartArcade(); }}>
-                      <Image source={require('../assets/Iconos/arcade.png')} style={styles.arcadeIcon} resizeMode="contain" />
-                    </TouchableOpacity>
+              <Animated.View style={{ transform: [{ scale: arcadeButtonScale }] }}>
+                <View style={styles.arcadeButton}>
+                  <Image source={require('../assets/Iconos/arcade.png')} style={styles.arcadeIcon} resizeMode="contain" />
+                  <View style={styles.costBadge}>
+                    <Text style={styles.costBadgeText}>1</Text>
+                    <Text style={styles.costEnergyIcon}>⚡</Text>
                   </View>
-                  <Text style={styles.arcadeDescription}>{t.arcade_desc}</Text>
-                </LinearGradient>
-        </View>
+                </View>
+              </Animated.View>
+            </View>
+            <Text style={styles.arcadeDescription}>{t.arcade_desc}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-        <View style={styles.campaignSection}>
+        <TouchableOpacity 
+          style={styles.campaignSection}
+          onPress={() => { onPlaySound?.(); onStartLevel(currentLevelData); }}
+          activeOpacity={0.8}
+        >
           <LinearGradient
             colors={['#fcc419', '#fab005']}
             style={styles.arcadeGradient}
@@ -141,16 +200,19 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
                 <Text style={styles.campaignTitle}>{t.level_prefix} {currentLevelData.id}</Text>
                 <Text style={styles.campaignLevelName}>{t[currentLevelData.name as keyof typeof t] || currentLevelData.name}</Text>
               </View>
-              <TouchableOpacity 
-                style={styles.playLevelButton} 
-                onPress={() => { onPlaySound?.(); onStartLevel(currentLevelData); }}
-              >
-                <Image source={require('../assets/Iconos/play.png')} style={styles.playLevelIcon} resizeMode="contain" />
-              </TouchableOpacity>
+              <Animated.View style={{ transform: [{ scale: playButtonScale }] }}>
+                <View style={styles.playLevelButton}>
+                  <Image source={require('../assets/Iconos/play.png')} style={styles.playLevelIcon} resizeMode="contain" />
+                  <View style={styles.costBadge}>
+                    <Text style={styles.costBadgeText}>1</Text>
+                    <Text style={styles.costEnergyIcon}>⚡</Text>
+                  </View>
+                </View>
+              </Animated.View>
             </View>
             <Text style={styles.arcadeDescription}>{t.campaign_desc}</Text>
           </LinearGradient>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

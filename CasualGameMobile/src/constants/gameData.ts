@@ -1,7 +1,7 @@
 import { PieceType, Level, Recipe } from '../types';
 
-export const LIFE_RECOVERY_TIME = 120; // 2 minutos en segundos
-export const MAX_LIVES = 10;
+export const ENERGY_RECOVERY_TIME = 300; // 5 minutos en segundos
+export const MAX_ENERGY = 10;
 
 export const INGREDIENT_IMAGES: Record<PieceType, any> = {
   BREAD: require('../assets/Ingredientes/bread.png'),
@@ -252,12 +252,16 @@ export const TRANSLATIONS = {
     logout: "Cerrar sesión",
     success: "Éxito",
     reset_success: "Progreso reiniciado correctamente",
-    lives_recovered: "¡Vidas recargadas!",
-    ad_not_completed: "Debes ver el anuncio completo para recibir las vidas.",
+    energy_recovered: "¡Energía recargada!",
+    ad_not_completed: "Debes ver el anuncio completo para recibir la energía.",
     ad_error: "No se pudo cargar el anuncio. Inténtalo más tarde.",
     info: "Información",
     error: "Error",
+    strange_burger: "Hamburguesa extraña",
     recipe_instruction: "No hace falta que los ingredientes estén en el orden mostrado, pero tiene que empezar y acabar con pan siempre",
+    help_time_remaining: "Tiempo restante de juego",
+    help_burgers_to_complete: "Hamburguesas a completar",
+    help_tap_to_destroy: "Haz un toque rápido en un ingrediente para eliminarlo",
     // Ingredientes
     ing_BREAD: "Pan",
     ing_MEAT: "Carne",
@@ -392,12 +396,16 @@ export const TRANSLATIONS = {
     logout: "Log out",
     success: "Success",
     reset_success: "Progress reset successfully",
-    lives_recovered: "Lives recovered!",
-    ad_not_completed: "You must watch the ad completely to receive lives.",
+    energy_recovered: "Energy recovered!",
+    ad_not_completed: "You must watch the ad completely to receive energy.",
     ad_error: "Could not load the ad. Please try again later.",
     info: "Information",
     error: "Error",
+    strange_burger: "Strange Burger",
     recipe_instruction: "Ingredients don't need to be in the order shown, but must always start and end with bread",
+    help_time_remaining: "Remaining game time",
+    help_burgers_to_complete: "Burgers to complete",
+    help_tap_to_destroy: "Tap quickly on an ingredient to remove it",
     // Ingredients
     ing_BREAD: "Bread",
     ing_MEAT: "Meat",

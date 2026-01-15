@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
   secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' },
   helpTextContainerCenter: {
     position: 'absolute',
-    top: '48%',
+    top: '42%',
     left: 0,
     right: 0,
     backgroundColor: '#f8f9fa',
@@ -181,6 +181,47 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     lineHeight: 14,
     paddingHorizontal: 10
-  }
+  },
+  recipeToast: {
+    position: 'absolute',
+    top: '50%',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#ff922b',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 5000,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    minWidth: 160,
+  },
+  recipeToastName: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#4a4a4a',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  recipeToastPriceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  recipeToastPrice: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#27ae60',
+  },
+  recipeToastCoin: {
+    width: 20,
+    height: 20,
+  },
 });
 

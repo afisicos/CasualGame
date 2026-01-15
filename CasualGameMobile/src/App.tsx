@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, Component } from 'react';
-import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, ImageBackground, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated } from 'react-native';
+import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, ImageBackground, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,10 +16,16 @@ import OptionsScreen from './components/OptionsScreen';
 import ShopScreen from './components/ShopScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe } from './types';
+
+interface RecipeToastData {
+  id: string;
+  name: string;
+  price: number;
+}
 import { 
   TRANSLATIONS, 
-  LIFE_RECOVERY_TIME, 
-  MAX_LIVES, 
+  ENERGY_RECOVERY_TIME, 
+  MAX_ENERGY, 
   BASE_RECIPES, 
   LEVELS, 
   getUnlockedRecipesForArcade, 
@@ -88,9 +94,65 @@ export default function App() {
   );
 }
 
+const RecipeToastItem: React.FC<{ toast: RecipeToastData; onComplete: (id: string) => void; t: any }> = ({ toast, onComplete, t }) => {
+  const translateY = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 200, // Más rápido al aparecer
+          useNativeDriver: true,
+        }),
+        Animated.delay(600), // Menos tiempo estático
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 300, // Se desvanece más rápido
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.timing(translateY, {
+        toValue: -250, // Sube mucho más arriba
+        duration: 1200, // Un poco más rápido el movimiento total
+        useNativeDriver: true,
+      }),
+    ]).start(() => onComplete(toast.id));
+  }, []);
+
+  return (
+    <Animated.View 
+      style={[
+        styles.recipeToast, 
+        { 
+          opacity, 
+          transform: [{ translateY }] 
+        }
+      ]}
+    >
+      <Text style={styles.recipeToastName}>{t[toast.name as keyof typeof t] || toast.name}</Text>
+      <View style={styles.recipeToastPriceRow}>
+        <Text style={styles.recipeToastPrice}>+{toast.price}</Text>
+        <Image source={require('./assets/Iconos/coin.png')} style={styles.recipeToastCoin} resizeMode="contain" />
+      </View>
+    </Animated.View>
+  );
+};
+
 function GameContent() {
   const insets = useSafeAreaInsets();
   const [screen, setScreen] = useState<Screen>('SPLASH');
+  const [toasts, setToasts] = useState<RecipeToastData[]>([]);
+
+  const showRecipeToast = (name: string, price: number) => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, name, price }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
   const [unlockedLevel, setUnlockedLevel] = useState<number>(1);
   const [arcadeUnlockedLevel, setArcadeUnlockedLevel] = useState<number>(0);
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVELS && LEVELS.length > 0 ? LEVELS[0] : {
@@ -126,11 +188,11 @@ function GameContent() {
   const lastTapRef = useRef({ index: -1, time: 0 });
 
   // Nuevos estados
-  const [lives, setLives] = useState(MAX_LIVES);
+  const [energy, setEnergy] = useState(MAX_ENERGY);
   const [globalMoney, setGlobalMoney] = useState(200);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const [nextLifeTime, setNextLifeTime] = useState(LIFE_RECOVERY_TIME);
-  const [lastLifeGainTime, setLastLifeGainTime] = useState<number>(Date.now());
+  const [nextEnergyTime, setNextEnergyTime] = useState(ENERGY_RECOVERY_TIME);
+  const [lastEnergyGainTime, setLastEnergyGainTime] = useState<number>(Date.now());
   const [language, setLanguage] = useState<'es' | 'en'>('es');
   
   const t = TRANSLATIONS[language];
@@ -172,6 +234,38 @@ function GameContent() {
   const helpTextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
   const expandRecipeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const appState = useRef(AppState.currentState);
+
+  // Función para calcular recuperación de energía basada en tiempo
+  const refreshEnergy = useCallback((currentEnergy: number, lastGain: number) => {
+    if (currentEnergy >= MAX_ENERGY) return { energy: MAX_ENERGY, lastGain: Date.now() };
+
+    const now = Date.now();
+    const diffSeconds = Math.floor((now - lastGain) / 1000);
+    
+    if (diffSeconds >= ENERGY_RECOVERY_TIME) {
+      const recovered = Math.floor(diffSeconds / ENERGY_RECOVERY_TIME);
+      const newEnergy = Math.min(MAX_ENERGY, currentEnergy + recovered);
+      
+      let newLastGain = lastGain;
+      if (newEnergy >= MAX_ENERGY) {
+        newLastGain = now;
+      } else {
+        newLastGain = lastGain + (recovered * ENERGY_RECOVERY_TIME * 1000);
+      }
+      return { energy: newEnergy, lastGain: newLastGain };
+    }
+    
+    return { energy: currentEnergy, lastGain: lastGain };
+  }, []);
+
+  // Actualizar High Score de Arcade cuando termina el juego
+  useEffect(() => {
+    if (isGameOver && gameMode === 'ARCADE' && money > arcadeHighScore) {
+      setArcadeHighScore(money);
+    }
+  }, [isGameOver, gameMode, money, arcadeHighScore]);
 
   const soundPool = useRef<Audio.Sound[]>([]);
   const poolIndex = useRef(0);
@@ -226,7 +320,13 @@ function GameContent() {
         const savedTimeBoost = await AsyncStorage.getItem('timeBoostCount');
         const savedDestructionPack = await AsyncStorage.getItem('destructionPackCount');
 
-        if (savedLevel) setUnlockedLevel(parseInt(savedLevel));
+        if (savedLevel) {
+          const lvId = parseInt(savedLevel);
+          setUnlockedLevel(lvId);
+          // Al cargar, seleccionamos el último nivel desbloqueado por defecto
+          const levelToSelect = LEVELS.find(l => l.id === lvId);
+          if (levelToSelect) setSelectedLevel(levelToSelect);
+        }
         if (savedArcadeLevel) setArcadeUnlockedLevel(parseInt(savedArcadeLevel));
         if (savedScore) setArcadeHighScore(parseInt(savedScore));
         if (savedMoney) {
@@ -236,61 +336,90 @@ function GameContent() {
           setGlobalMoney(200);
         }
         if (savedSound) setIsSoundEnabled(savedSound === 'true');
-        if (savedLastLifeTime) setLastLifeGainTime(parseInt(savedLastLifeTime));
         if (savedRecipes) setDiscoveredRecipes(JSON.parse(savedRecipes));
         if (savedLang) setLanguage(savedLang as 'es' | 'en');
         if (savedTimeBoost) setTimeBoostCount(parseInt(savedTimeBoost));
         if (savedDestructionPack) setDestructionPackCount(parseInt(savedDestructionPack));
 
-        // Si las vidas guardadas son menos que el nuevo MAX_LIVES, las subimos a MAX_LIVES por esta vez
-        if (savedLives) {
-          const val = parseInt(savedLives);
-          setLives(val < MAX_LIVES ? MAX_LIVES : val);
-        } else {
-          setLives(MAX_LIVES);
-        }
-      } catch (e) {}
+        // Cargar energía y calcular recuperación offline
+        let initialEnergy = MAX_ENERGY;
+        let initialLastGain = Date.now();
+
+        if (savedLives) initialEnergy = parseInt(savedLives);
+        if (savedLastLifeTime) initialLastGain = parseInt(savedLastLifeTime);
+
+        const result = refreshEnergy(initialEnergy, initialLastGain);
+        setEnergy(result.energy);
+        setLastEnergyGainTime(result.lastGain);
+        
+        setIsDataLoaded(true);
+      } catch (e) {
+        setIsDataLoaded(true);
+      }
     };
     loadData();
-  }, []);
+  }, [refreshEnergy]);
+
+  // Usar refs para tener acceso a los valores actuales dentro de listeners
+  const energyRef = useRef(energy);
+  const lastEnergyGainTimeRef = useRef(lastEnergyGainTime);
+  useEffect(() => { energyRef.current = energy; }, [energy]);
+  useEffect(() => { lastEnergyGainTimeRef.current = lastEnergyGainTime; }, [lastEnergyGainTime]);
+
+  // Listener para cuando la app vuelve del background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        const result = refreshEnergy(energyRef.current, lastEnergyGainTimeRef.current);
+        if (result.energy !== energyRef.current) {
+          setEnergy(result.energy);
+          setLastEnergyGainTime(result.lastGain);
+        }
+      }
+      appState.current = nextAppState;
+    });
+    return () => subscription.remove();
+  }, [refreshEnergy]);
 
   // Guardar datos persistentes al cambiar
   useEffect(() => {
+    if (!isDataLoaded) return;
+    
     AsyncStorage.setItem('unlockedLevel', unlockedLevel.toString());
     AsyncStorage.setItem('arcadeUnlockedLevel', arcadeUnlockedLevel.toString());
     AsyncStorage.setItem('arcadeHighScore', arcadeHighScore.toString());
-    AsyncStorage.setItem('lives', lives.toString());
+    AsyncStorage.setItem('lives', energy.toString()); // Mantener clave 'lives' para compatibilidad
     AsyncStorage.setItem('globalMoney', globalMoney.toString());
     AsyncStorage.setItem('isSoundEnabled', isSoundEnabled.toString());
-    AsyncStorage.setItem('lastLifeGainTime', lastLifeGainTime.toString());
+    AsyncStorage.setItem('lastLifeGainTime', lastEnergyGainTime.toString()); // Mantener clave para compatibilidad
     AsyncStorage.setItem('discoveredRecipes', JSON.stringify(discoveredRecipes));
     AsyncStorage.setItem('language', language);
     AsyncStorage.setItem('timeBoostCount', timeBoostCount.toString());
     AsyncStorage.setItem('destructionPackCount', destructionPackCount.toString());
-  }, [unlockedLevel, arcadeHighScore, lives, globalMoney, isSoundEnabled, lastLifeGainTime, discoveredRecipes, language, timeBoostCount, destructionPackCount]);
+  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, destructionPackCount]);
 
-  // Sistema de recuperación de vidas
+  // Sistema de recuperación de energía
   useEffect(() => {
     const timer = setInterval(() => {
-      if (lives < MAX_LIVES) {
+      if (energy < MAX_ENERGY) {
         const now = Date.now();
-        const diff = Math.floor((now - lastLifeGainTime) / 1000);
+        const diff = Math.floor((now - lastEnergyGainTime) / 1000);
         
-        if (diff >= LIFE_RECOVERY_TIME) {
-          const livesToGain = Math.floor(diff / LIFE_RECOVERY_TIME);
-          const newLives = Math.min(MAX_LIVES, lives + livesToGain);
-          setLives(newLives);
-          setLastLifeGainTime(now - (diff % LIFE_RECOVERY_TIME) * 1000);
-          setNextLifeTime(LIFE_RECOVERY_TIME - (diff % LIFE_RECOVERY_TIME));
+        if (diff >= ENERGY_RECOVERY_TIME) {
+          const energyToGain = Math.floor(diff / ENERGY_RECOVERY_TIME);
+          const newEnergy = Math.min(MAX_ENERGY, energy + energyToGain);
+          setEnergy(newEnergy);
+          setLastEnergyGainTime(now - (diff % ENERGY_RECOVERY_TIME) * 1000);
+          setNextEnergyTime(ENERGY_RECOVERY_TIME - (diff % ENERGY_RECOVERY_TIME));
         } else {
-          setNextLifeTime(LIFE_RECOVERY_TIME - diff);
+          setNextEnergyTime(ENERGY_RECOVERY_TIME - diff);
         }
       } else {
-        setNextLifeTime(LIFE_RECOVERY_TIME);
+        setNextEnergyTime(ENERGY_RECOVERY_TIME);
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [lives, lastLifeGainTime]);
+  }, [energy, lastEnergyGainTime]);
 
   useEffect(() => {
     async function setupAudio() {
@@ -544,15 +673,15 @@ function GameContent() {
   }, [gameMode, selectedLevel, arcadeUnlockedLevel, unlockedLevel, initGrid]);
 
   const playGame = (mode: GameMode = gameMode, level: Level = selectedLevel) => {
-    if (lives <= 0) {
-      Alert.alert("¡Sin Vidas!", "Espera a recuperar vidas o mira un anuncio para jugar.");
+    if (energy <= 0) {
+      Alert.alert("¡Sin Energía!", "Espera a recuperar energía o mira un anuncio para jugar.");
       return;
     }
     
-    setLives(prev => {
-      const newLives = prev - 1;
-      if (prev === MAX_LIVES) setLastLifeGainTime(Date.now());
-      return newLives;
+    setEnergy(prev => {
+      const newEnergy = prev - 1;
+      if (prev === MAX_ENERGY) setLastEnergyGainTime(Date.now());
+      return newEnergy;
     });
 
     setGameMode(mode);
@@ -753,6 +882,21 @@ function GameContent() {
         if (!unlockedIds.includes(r.id) && !r.isSecret) return false;
         return isRecipeMatch(selectionTypes, r.ingredients);
       });
+
+      // Si no es una receta oficial, pero es una hamburguesa válida (pan al inicio y fin y con carne)
+      if (!match && selectionTypes.length >= 2 && selectionTypes[0] === 'BREAD' && selectionTypes[selectionTypes.length - 1] === 'BREAD') {
+        const hasMeat = selectionTypes.includes('MEAT');
+        if (hasMeat) {
+          const uniqueIngredients = new Set(selectionTypes).size;
+          match = { 
+            id: 'strange', 
+            name: 'strange_burger', 
+            price: 2 + uniqueIngredients,
+            ingredients: [],
+            isSecret: false
+          } as Recipe;
+        }
+      }
     } else {
       if (isRecipeMatch(selectionTypes, currentOrder)) {
         match = { price: currentPrice };
@@ -775,6 +919,11 @@ function GameContent() {
       const newBurgersCreated = burgersCreated + 1;
       const isLevelComplete = !isArcade && newBurgersCreated >= burgerTarget;
 
+      // Mostrar toast si es modo arcade
+      if (isArcade) {
+        showRecipeToast((match as Recipe).name, (match as Recipe).price);
+      }
+
       setGrid(prev => prev.map(c => 
         c.piece && selectionIds.includes(c.piece.id) ? { ...c, piece: { ...c.piece, isRemoving: true } } : c
       ));
@@ -792,9 +941,7 @@ function GameContent() {
           setHelpText('');
           setIsGameOver(true);
           setScreen('RESULT');
-          if (selectedLevel.id === unlockedLevel) {
-            setUnlockedLevel(unlockedLevel + 1);
-          }
+          setUnlockedLevel(prev => Math.max(prev, selectedLevel.id + 1));
           return;
         }
 
@@ -880,7 +1027,7 @@ function GameContent() {
     setArcadeUnlockedLevel(0);
     setArcadeHighScore(0);
     setGlobalMoney(0);
-    setLives(MAX_LIVES);
+    setEnergy(MAX_ENERGY);
     setDiscoveredRecipes([]);
     setTimeBoostCount(0);
     setDestructionPackCount(0);
@@ -904,33 +1051,33 @@ function GameContent() {
     }
   };
 
-  const handleWatchAdForLives = async () => {
-    if (lives >= MAX_LIVES) {
+  const handleWatchAdForEnergy = async () => {
+    if (energy >= MAX_ENERGY) {
       return;
     }
 
     try {
       const rewarded = await showRewardedAd(() => {
-        // Recompensa: Recargar todas las vidas
-        setLives(MAX_LIVES);
-        setLastLifeGainTime(Date.now());
-        setNextLifeTime(LIFE_RECOVERY_TIME);
+        // Recompensa: Recargar toda la energía
+        setEnergy(MAX_ENERGY);
+        setLastEnergyGainTime(Date.now());
+        setNextEnergyTime(ENERGY_RECOVERY_TIME);
         
         // Registrar evento en Analytics
-        logGameEvent('lives_recovered_from_ad', {
-          lives_gained: MAX_LIVES - lives,
+        logGameEvent('energy_recovered_from_ad', {
+          energy_gained: MAX_ENERGY - energy,
         });
         
         // En desarrollo, mostrar mensaje informativo
         if (__DEV__) {
           Alert.alert(
             t.success || "¡Éxito!",
-            (t.lives_recovered || "¡Vidas recargadas!") + "\n\n(Modo desarrollo: En producción se mostrará un anuncio real)"
+            (t.energy_recovered || "¡Energía recargada!") + "\n\n(Modo desarrollo: En producción se mostrará un anuncio real)"
           );
         } else {
           Alert.alert(
             t.success || "¡Éxito!",
-            t.lives_recovered || "¡Vidas recargadas!"
+            t.energy_recovered || "¡Energía recargada!"
           );
         }
       });
@@ -939,7 +1086,7 @@ function GameContent() {
         // El usuario cerró el anuncio sin completarlo
         Alert.alert(
           t.info || "Información",
-          t.ad_not_completed || "Debes ver el anuncio completo para recibir las vidas."
+          t.ad_not_completed || "Debes ver el anuncio completo para recibir la energía."
         );
       }
     } catch (error: any) {
@@ -975,9 +1122,7 @@ function GameContent() {
     const isWin = gameMode === 'ARCADE' ? true : burgersCreated >= burgerTarget;
     if (isWin && gameMode === 'CAMPAIGN') {
       // Asegurar que el nivel se desbloquea
-      if (selectedLevel.id >= unlockedLevel && selectedLevel.id < LEVELS.length) {
-        setUnlockedLevel(selectedLevel.id + 1);
-      }
+      setUnlockedLevel(prev => Math.max(prev, selectedLevel.id + 1));
       
       const nextLevel = LEVELS.find(l => l.id === selectedLevel.id + 1);
       if (nextLevel) { 
@@ -1028,10 +1173,10 @@ function GameContent() {
             unlockedLevel={unlockedLevel} 
             arcadeUnlockedLevel={arcadeUnlockedLevel}
             arcadeHighScore={arcadeHighScore}
-            lives={lives}
-            maxLives={MAX_LIVES}
+            energy={energy}
+            maxEnergy={MAX_ENERGY}
             globalMoney={globalMoney}
-            nextLifeTime={nextLifeTime}
+            nextEnergyTime={nextEnergyTime}
             timeBoostCount={timeBoostCount}
             destructionPackCount={destructionPackCount}
             useTimeBoost={useTimeBoost}
@@ -1045,7 +1190,7 @@ function GameContent() {
             onStartArcade={() => setScreen('ARCADE_INTRO')}
             onOptions={() => setScreen('OPTIONS')}
             onShop={() => setScreen('SHOP')}
-            onWatchAdForLives={handleWatchAdForLives}
+            onWatchAdForEnergy={handleWatchAdForEnergy}
             onPlaySound={playUIButtonSound}
             t={t}
           />
@@ -1116,7 +1261,7 @@ function GameContent() {
                     if (helpTextTimeoutRef.current) {
                       clearTimeout(helpTextTimeoutRef.current);
                     }
-                    setHelpText('Tiempo restante de juego');
+                    setHelpText(t.help_time_remaining);
                     // Ocultar después de 2 segundos
                     helpTextTimeoutRef.current = setTimeout(() => {
                       setHelpText('');
@@ -1124,7 +1269,8 @@ function GameContent() {
                     }, 2000);
                   }
                 }}
-                activeOpacity={0.7}
+                activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
+                disabled={gameMode !== 'CAMPAIGN'}
               >
                 <StatCard value={`${timeLeft}s`} type="time" isLowTime={timeLeft < 10} verticalLayout={true} />
               </TouchableOpacity>
@@ -1136,7 +1282,7 @@ function GameContent() {
                     if (helpTextTimeoutRef.current) {
                       clearTimeout(helpTextTimeoutRef.current);
                     }
-                    setHelpText('Hamburguesas a completar');
+                    setHelpText(t.help_burgers_to_complete);
                     // Ocultar después de 2 segundos
                     helpTextTimeoutRef.current = setTimeout(() => {
                       setHelpText('');
@@ -1144,7 +1290,8 @@ function GameContent() {
                     }, 2000);
                   }
                 }}
-                activeOpacity={0.7}
+                activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
+                disabled={gameMode !== 'CAMPAIGN'}
               >
                 <StatCard
                   value={gameMode === 'CAMPAIGN' ? `${burgersCreated}/${burgerTarget}` : `${money}`}
@@ -1160,7 +1307,7 @@ function GameContent() {
                     if (helpTextTimeoutRef.current) {
                       clearTimeout(helpTextTimeoutRef.current);
                     }
-                    setHelpText('Usos de eliminación de ingrediente');
+                    setHelpText(t.help_tap_to_destroy);
                     // Ocultar después de 2 segundos
                     helpTextTimeoutRef.current = setTimeout(() => {
                       setHelpText('');
@@ -1168,7 +1315,8 @@ function GameContent() {
                     }, 2000);
                   }
                 }}
-                activeOpacity={0.7}
+                activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
+                disabled={gameMode !== 'CAMPAIGN'}
               >
                 <StatCard
                   value={`${maxDestructions - destructionsUsed}`}
@@ -1358,6 +1506,16 @@ function GameContent() {
                 onSelectionEnd={handleSelectionEnd} 
               />
             </View>
+
+            {/* Toasts de recetas en modo arcade */}
+            {isArcade && toasts.map(toast => (
+              <RecipeToastItem 
+                key={toast.id} 
+                toast={toast} 
+                onComplete={removeToast} 
+                t={t}
+              />
+            ))}
           </View>
         );
       default:
