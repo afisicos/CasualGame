@@ -5,10 +5,13 @@ import { styles } from '../styles/ShopScreen.styles';
 
 interface ShopScreenProps {
   globalMoney: number;
+  energy: number;
+  maxEnergy: number;
   timeBoostCount: number;
   destructionPackCount: number;
   onBuyTimeBoost: () => void;
   onBuyDestructionPack: () => void;
+  onBuyEnergy: () => void;
   onBack: () => void;
   onPlaySound?: () => void;
   t: any;
@@ -16,10 +19,13 @@ interface ShopScreenProps {
 
 const ShopScreen: React.FC<ShopScreenProps> = ({
   globalMoney,
+  energy,
+  maxEnergy,
   timeBoostCount,
   destructionPackCount,
   onBuyTimeBoost,
   onBuyDestructionPack,
+  onBuyEnergy,
   onBack,
   onPlaySound,
   t
@@ -44,6 +50,35 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Energy Refill */}
+        <View style={styles.powerUpCard}>
+          <View style={styles.powerUpHeader}>
+            <Text style={styles.powerUpEmoji}>⚡</Text>
+            <View style={styles.powerUpInfo}>
+              <Text style={styles.powerUpName}>{t.shop_energy_name}</Text>
+              <Text style={styles.powerUpDesc}>{t.shop_energy_desc}</Text>
+            </View>
+          </View>
+          <View style={styles.powerUpFooter}>
+            <View style={styles.countBadge}>
+              <Text style={styles.countText}>⚡ {energy}/{maxEnergy}</Text>
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.buyButton, 
+                (globalMoney < 100 || energy >= maxEnergy) && styles.buyButtonDisabled
+              ]}
+              onPress={() => { onPlaySound?.(); onBuyEnergy(); }}
+              disabled={globalMoney < 100 || energy >= maxEnergy}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <Text style={styles.buyButtonText}>100</Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.buyBtnCoin} resizeMethod="resize" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Time Boost */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>

@@ -7,33 +7,89 @@ interface StatCardProps {
   value: string | number;
   type: 'time' | 'money' | 'record' | 'destruction' | 'burgers';
   isLowTime?: boolean;
+  isVeryLowTime?: boolean;
   shouldBlink?: boolean;
   flex?: number;
   verticalLayout?: boolean;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, type, isLowTime, shouldBlink = false, flex = 1, verticalLayout = false }) => {
+const StatCard: React.FC<StatCardProps> = ({ label, value, type, isLowTime, isVeryLowTime, shouldBlink = false, flex = 1, verticalLayout = false }) => {
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const blinkAnim = React.useRef(new Animated.Value(1)).current;
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
 
   React.useEffect(() => {
     if (shouldBlink) {
-      // Animación de crecimiento rápido: crece a 1.4 y vuelve a 1 en 300ms total
+      // Animación de crecimiento rápido (flash)
       Animated.sequence([
         Animated.timing(scaleAnim, {
-          toValue: 1.4,
+          toValue: 1.3,
           duration: 100,
           useNativeDriver: true,
         }),
         Animated.timing(scaleAnim, {
           toValue: 1,
-          duration: 200,
+          duration: 150,
           useNativeDriver: true,
         }),
       ]).start();
-    } else {
-      scaleAnim.setValue(1);
     }
-  }, [shouldBlink]);
+  }, [shouldBlink, value]);
+
+  React.useEffect(() => {
+    let animation: Animated.CompositeAnimation;
+    if (isLowTime || isVeryLowTime) {
+      // Animación de parpadeo continuo
+      animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(blinkAnim, {
+            toValue: 0.4,
+            duration: isVeryLowTime ? 250 : 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(blinkAnim, {
+            toValue: 1,
+            duration: isVeryLowTime ? 250 : 400,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+    } else {
+      blinkAnim.setValue(1);
+    }
+    return () => {
+      if (animation) animation.stop();
+    };
+  }, [isLowTime, isVeryLowTime]);
+
+  React.useEffect(() => {
+    let animation: Animated.CompositeAnimation;
+    if (isVeryLowTime) {
+      // Animación de pulso continuo (agrandarse y empequeñecerse)
+      animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.3,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+    return () => {
+      if (animation) animation.stop();
+    };
+  }, [isVeryLowTime]);
+
   const borderColors = {
     time: '#e74c3c',
     money: '#27ae60',
@@ -62,7 +118,13 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, type, isLowTime, shou
       <Animated.View style={[
         (type === 'money' || type === 'burgers') ? styles.moneyIconContainer : styles.iconContainer,
         verticalLayout && styles.iconContainerVertical,
-        { transform: [{ scale: scaleAnim }] }
+        { 
+          opacity: (type === 'time' && (isLowTime || isVeryLowTime)) ? blinkAnim : 1,
+          transform: [
+            { scale: scaleAnim },
+            { scale: (type === 'time' && isVeryLowTime) ? pulseAnim : 1 }
+          ] 
+        }
       ]}>
         {typeof getIcon() === 'string' ? (
           <Text style={[styles.iconImage, { fontSize: verticalLayout ? 18 : 20 }]}>{getIcon()}</Text>
@@ -78,7 +140,10 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, type, isLowTime, shou
               ? ((type === 'money' || type === 'burgers') ? styles.moneyValueVertical : styles.valueVertical)
               : ((type === 'money' || type === 'burgers') ? styles.moneyValue : styles.value),
             isLowTime && styles.lowTimeValue,
-            { transform: [{ scale: scaleAnim }] }
+            { 
+              opacity: blinkAnim,
+              transform: [{ scale: scaleAnim }] 
+            }
           ]}
           numberOfLines={1}
           adjustsFontSizeToFit

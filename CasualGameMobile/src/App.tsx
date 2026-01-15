@@ -230,6 +230,7 @@ function GameContent() {
   const [destructionsUsed, setDestructionsUsed] = useState<number>(0);
   const [maxDestructions, setMaxDestructions] = useState<number>(25);
   const [shouldBlinkDestructions, setShouldBlinkDestructions] = useState<boolean>(false);
+  const [shouldBlinkBurgers, setShouldBlinkBurgers] = useState<boolean>(false);
   const [helpText, setHelpText] = useState<string>('');
   const helpTextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
@@ -764,6 +765,11 @@ function GameContent() {
     if (!grid[index] || !grid[index].piece) return;
 
     setDestructionsUsed(prev => prev + 1);
+    
+    // Destello visual al gastar
+    setShouldBlinkDestructions(true);
+    setTimeout(() => setShouldBlinkDestructions(false), 200);
+
     Vibration.vibrate(60);
     playDestroySound();
     
@@ -932,6 +938,8 @@ function GameContent() {
         if (isLevelComplete) {
           setMoney(newMoney);
           setBurgersCreated(newBurgersCreated);
+          setShouldBlinkBurgers(true);
+          setTimeout(() => setShouldBlinkBurgers(false), 200);
           setGlobalMoney(prev => prev + matchPrice);
           // Limpiar timeout de ayuda si existe
           if (helpTextTimeoutRef.current) {
@@ -985,6 +993,8 @@ function GameContent() {
 
         setMoney(newMoney);
         setBurgersCreated(newBurgersCreated);
+        setShouldBlinkBurgers(true);
+        setTimeout(() => setShouldBlinkBurgers(false), 200);
         setGlobalMoney(prev => prev + matchPrice);
         // Limpiar timeout de ayuda si existe
         if (helpTextTimeoutRef.current) {
@@ -1048,6 +1058,18 @@ function GameContent() {
     if (globalMoney >= 100) {
       setGlobalMoney(prev => prev - 100);
       setDestructionPackCount(prev => prev + 1);
+    }
+  };
+
+  const buyEnergy = () => {
+    if (globalMoney >= 100 && energy < MAX_ENERGY) {
+      setGlobalMoney(prev => prev - 100);
+      setEnergy(prev => Math.min(MAX_ENERGY, prev + 1));
+      // Si el jugador estaba al mínimo, reiniciamos el tiempo de recuperación
+      if (energy === 0) {
+        setLastEnergyGainTime(Date.now());
+        setNextEnergyTime(ENERGY_RECOVERY_TIME);
+      }
     }
   };
 
@@ -1157,10 +1179,13 @@ function GameContent() {
         return (
           <ShopScreen
             globalMoney={globalMoney}
+            energy={energy}
+            maxEnergy={MAX_ENERGY}
             timeBoostCount={timeBoostCount}
             destructionPackCount={destructionPackCount}
             onBuyTimeBoost={buyTimeBoost}
             onBuyDestructionPack={buyDestructionPack}
+            onBuyEnergy={buyEnergy}
             onBack={() => setScreen('MENU')}
             onPlaySound={playUIButtonSound}
             t={t}
@@ -1272,7 +1297,13 @@ function GameContent() {
                 activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
                 disabled={gameMode !== 'CAMPAIGN'}
               >
-                <StatCard value={`${timeLeft}s`} type="time" isLowTime={timeLeft < 10} verticalLayout={true} />
+              <StatCard 
+                value={`${timeLeft}s`} 
+                type="time" 
+                isLowTime={timeLeft < 10} 
+                isVeryLowTime={timeLeft <= 5}
+                verticalLayout={true} 
+              />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.statTouchable}
@@ -1296,6 +1327,7 @@ function GameContent() {
                 <StatCard
                   value={gameMode === 'CAMPAIGN' ? `${burgersCreated}/${burgerTarget}` : `${money}`}
                   type={gameMode === 'CAMPAIGN' ? "burgers" : "money"}
+                  shouldBlink={shouldBlinkBurgers}
                   verticalLayout={true}
                 />
               </TouchableOpacity>
@@ -1321,7 +1353,7 @@ function GameContent() {
                 <StatCard
                   value={`${maxDestructions - destructionsUsed}`}
                   type="destruction"
-                  isLowTime={(maxDestructions - destructionsUsed) <= 3}
+                  isLowTime={(maxDestructions - destructionsUsed) < 10}
                   shouldBlink={shouldBlinkDestructions}
                   verticalLayout={true}
                 />
