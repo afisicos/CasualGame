@@ -215,6 +215,10 @@ export const styles = StyleSheet.create({
   powerUpEmoji: {
     fontSize: 20
   },
+  powerUpIcon: {
+    width: 20,
+    height: 20
+  },
   powerUpLabel: {
     fontSize: 13,
     fontWeight: '700',

@@ -177,7 +177,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
             )}
             {destructionPackCount > 0 && (
               <View style={styles.powerUpToggle}>
-                <Text style={styles.powerUpEmoji}>💥</Text>
+                <Image source={require('../assets/Iconos/rubber.png')} style={styles.powerUpIcon} resizeMethod="resize" />
                 <Text style={styles.powerUpLabel}>{t.powerup_destruction_name}</Text>
                 <Switch
                   value={useDestructionPack}

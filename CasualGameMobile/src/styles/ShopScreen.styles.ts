@@ -87,6 +87,11 @@ export const styles = StyleSheet.create({
     fontSize: 30,
     marginRight: 12,
   },
+  powerUpIcon: {
+    width: 30,
+    height: 30,
+    marginRight: 12,
+  },
   powerUpInfo: {
     flex: 1,
   },
@@ -119,6 +124,11 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     color: '#1864ab',
+  },
+  countIcon: {
+    width: 12,
+    height: 12,
+    marginRight: 4,
   },
   buyButton: {
     backgroundColor: '#ff922b',

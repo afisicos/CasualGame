@@ -59,7 +59,7 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
         {/* Energy Refill */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>
-            <Text style={styles.powerUpEmoji}>⚡</Text>
+            <Image source={require('../assets/Iconos/Lighting.png')} style={styles.powerUpIcon} resizeMethod="resize" />
             <View style={styles.powerUpInfo}>
               <Text style={styles.powerUpName}>{t.shop_energy_name}</Text>
               <Text style={styles.powerUpDesc}>{t.shop_energy_desc}</Text>
@@ -67,7 +67,8 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
           </View>
           <View style={styles.powerUpFooter}>
             <View style={styles.countBadge}>
-              <Text style={styles.countText}>⚡ {energy}/{maxEnergy}</Text>
+              <Image source={require('../assets/Iconos/Lighting.png')} style={styles.countIcon} resizeMethod="resize" />
+              <Text style={styles.countText}>{energy}/{maxEnergy}</Text>
             </View>
             <TouchableOpacity
               style={[
@@ -88,8 +89,8 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
         {/* Time Boost */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>
-            <Text style={styles.powerUpEmoji}>⏱️</Text>
-            <View style={styles.powerUpInfo}>
+          <Image source={require('../assets/Iconos/time.png')} style={styles.powerUpIcon} resizeMethod="resize" />
+          <View style={styles.powerUpInfo}>
               <Text style={styles.powerUpName}>{t.powerup_time_name}</Text>
               <Text style={styles.powerUpDesc}>{t.powerup_time_desc}</Text>
             </View>
@@ -114,7 +115,7 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
         {/* Super Time Boost */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>
-            <Text style={styles.powerUpEmoji}>⏳</Text>
+          <Image source={require('../assets/Iconos/time.png')} style={styles.powerUpIcon} resizeMethod="resize" />
             <View style={styles.powerUpInfo}>
               <Text style={styles.powerUpName}>{t.powerup_super_time_name}</Text>
               <Text style={styles.powerUpDesc}>{t.powerup_super_time_desc}</Text>
@@ -140,7 +141,7 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
         {/* Destruction Pack */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>
-            <Text style={styles.powerUpEmoji}>💥</Text>
+            <Image source={require('../assets/Iconos/rubber.png')} style={styles.powerUpIcon} resizeMethod="resize" />
             <View style={styles.powerUpInfo}>
               <Text style={styles.powerUpName}>{t.powerup_destruction_name}</Text>
               <Text style={styles.powerUpDesc}>{t.powerup_destruction_desc}</Text>
@@ -166,8 +167,8 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
         {/* Super Destruction Pack */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>
-            <Text style={styles.powerUpEmoji}>🔥</Text>
-            <View style={styles.powerUpInfo}>
+          <Image source={require('../assets/Iconos/rubber.png')} style={styles.powerUpIcon} resizeMethod="resize" />
+          <View style={styles.powerUpInfo}>
               <Text style={styles.powerUpName}>{t.powerup_super_destruction_name}</Text>
               <Text style={styles.powerUpDesc}>{t.powerup_super_destruction_desc}</Text>
             </View>

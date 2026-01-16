@@ -103,7 +103,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, type, isLowTime, isVe
       case 'time': return require('../assets/Iconos/time.png');
       case 'money': return require('../assets/Iconos/coin.png');
       case 'record': return require('../assets/Iconos/arcade.png');
-      case 'destruction': return '💥'; // Emoji de explosión como en la tienda
+      case 'destruction': return require('../assets/Iconos/rubber.png');
       case 'burgers': return require('../assets/Iconos/burger.png');
       default: return null;
     }

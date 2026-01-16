@@ -145,7 +145,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
               disabled={energy >= maxEnergy || !onWatchAdForEnergy}
               activeOpacity={energy < maxEnergy && onWatchAdForEnergy ? 0.7 : 1}
             >
-              <Text style={styles.statEmoji}>⚡</Text>
+              <Image source={require('../assets/Iconos/Lighting.png')} style={styles.statIcon} resizeMethod="resize" />
               <Text style={styles.statValue}>{energy}/{maxEnergy}</Text>
               {energy < maxEnergy && (
                 <View style={styles.timeBadge}>
@@ -171,7 +171,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
             )}
             {destructionPackCount > 0 && (
               <View style={[styles.statPill, { marginLeft: 3 }]}>
-                <Text style={styles.statEmoji}>💥</Text>
+                <Image source={require('../assets/Iconos/rubber.png')} style={styles.statIcon} resizeMethod="resize" />
                 <Text style={styles.statValue}>{destructionPackCount}</Text>
               </View>
             )}
@@ -184,7 +184,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           </View>
           <View style={styles.rightButtons}>
             <TouchableOpacity style={styles.shopBtn} onPress={() => { onPlaySound?.(); onShop(); }}>
-              <Image source={require('../assets/Iconos/shop.png')} style={styles.buttonIcon} resizeMethod="resize" />
+              <Image source={require('../assets/Iconos/power.png')} style={styles.buttonIcon} resizeMethod="resize" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.settingsBtn} onPress={() => { onPlaySound?.(); onOptions(); }}>
               <Image source={require('../assets/Iconos/settings.png')} style={styles.buttonIcon} resizeMethod="resize" />
@@ -255,8 +255,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
                 <View style={styles.arcadeButton}>
                   <Image source={require('../assets/Iconos/arcade.png')} style={styles.arcadeIcon} resizeMode="contain" />
                   <View style={styles.costBadge}>
-                    <Text style={styles.costBadgeText}>1</Text>
-                    <Text style={styles.costEnergyIcon}>⚡</Text>
+                    <Image source={require('../assets/Iconos/Lighting.png')} style={styles.costEnergyIconImage} resizeMethod="resize" />
                   </View>
                 </View>
               </Animated.View>
@@ -290,8 +289,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
                 <View style={styles.playLevelButton}>
                   <Image source={require('../assets/Iconos/play.png')} style={styles.playLevelIcon} resizeMode="contain" />
                   <View style={styles.costBadge}>
-                    <Text style={styles.costBadgeText}>1</Text>
-                    <Text style={styles.costEnergyIcon}>⚡</Text>
+                    <Image source={require('../assets/Iconos/Lighting.png')} style={styles.costEnergyIconImage} resizeMethod="resize" />
                   </View>
                 </View>
               </Animated.View>
@@ -320,7 +318,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
               </View>
               <Animated.View style={[{ transform: [{ scale: recipesButtonScale }] }]}>
                 <View style={styles.playLevelButton}>
-                  <Text style={{ fontSize: 24 }}>📖</Text>
+                  <Image source={require('../assets/Iconos/book.png')} style={styles.playLevelIcon} resizeMode="contain" />
                 </View>
               </Animated.View>
             </View>
