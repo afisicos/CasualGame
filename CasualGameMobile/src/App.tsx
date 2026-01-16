@@ -14,6 +14,7 @@ import BurgerPiece from './components/BurgerPiece';
 import SplashScreen from './components/SplashScreen';
 import OptionsScreen from './components/OptionsScreen';
 import ShopScreen from './components/ShopScreen';
+import RecipesBookScreen from './components/RecipesBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe } from './types';
 
@@ -224,9 +225,13 @@ function GameContent() {
 
   // Power-ups
   const [timeBoostCount, setTimeBoostCount] = useState<number>(0);
+  const [superTimeBoostCount, setSuperTimeBoostCount] = useState<number>(0);
   const [destructionPackCount, setDestructionPackCount] = useState<number>(0);
+  const [superDestructionPackCount, setSuperDestructionPackCount] = useState<number>(0);
   const [useTimeBoost, setUseTimeBoost] = useState<boolean>(false);
+  const [useSuperTimeBoost, setUseSuperTimeBoost] = useState<boolean>(false);
   const [useDestructionPack, setUseDestructionPack] = useState<boolean>(false);
+  const [useSuperDestructionPack, setUseSuperDestructionPack] = useState<boolean>(false);
   const [destructionsUsed, setDestructionsUsed] = useState<number>(0);
   const [maxDestructions, setMaxDestructions] = useState<number>(25);
   const [shouldBlinkDestructions, setShouldBlinkDestructions] = useState<boolean>(false);
@@ -319,7 +324,9 @@ function GameContent() {
         const savedRecipes = await AsyncStorage.getItem('discoveredRecipes');
         const savedLang = await AsyncStorage.getItem('language');
         const savedTimeBoost = await AsyncStorage.getItem('timeBoostCount');
+        const savedSuperTimeBoost = await AsyncStorage.getItem('superTimeBoostCount');
         const savedDestructionPack = await AsyncStorage.getItem('destructionPackCount');
+        const savedSuperDestructionPack = await AsyncStorage.getItem('superDestructionPackCount');
 
         if (savedLevel) {
           const lvId = parseInt(savedLevel);
@@ -340,7 +347,9 @@ function GameContent() {
         if (savedRecipes) setDiscoveredRecipes(JSON.parse(savedRecipes));
         if (savedLang) setLanguage(savedLang as 'es' | 'en');
         if (savedTimeBoost) setTimeBoostCount(parseInt(savedTimeBoost));
+        if (savedSuperTimeBoost) setSuperTimeBoostCount(parseInt(savedSuperTimeBoost));
         if (savedDestructionPack) setDestructionPackCount(parseInt(savedDestructionPack));
+        if (savedSuperDestructionPack) setSuperDestructionPackCount(parseInt(savedSuperDestructionPack));
 
         // Cargar energía y calcular recuperación offline
         let initialEnergy = MAX_ENERGY;
@@ -396,8 +405,10 @@ function GameContent() {
     AsyncStorage.setItem('discoveredRecipes', JSON.stringify(discoveredRecipes));
     AsyncStorage.setItem('language', language);
     AsyncStorage.setItem('timeBoostCount', timeBoostCount.toString());
+    AsyncStorage.setItem('superTimeBoostCount', superTimeBoostCount.toString());
     AsyncStorage.setItem('destructionPackCount', destructionPackCount.toString());
-  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, destructionPackCount]);
+    AsyncStorage.setItem('superDestructionPackCount', superDestructionPackCount.toString());
+  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount]);
 
   // Sistema de recuperación de energía
   useEffect(() => {
@@ -694,15 +705,23 @@ function GameContent() {
     }
 
     // Verificar y consumir power-ups activados - Solo en modo campaña
-    const timeBoostToUse = mode === 'CAMPAIGN' && useTimeBoost && timeBoostCount > 0;
-    const destructionPackToUse = mode === 'CAMPAIGN' && useDestructionPack && destructionPackCount > 0;
+    const superTimeBoostToUse = mode === 'CAMPAIGN' && useSuperTimeBoost && superTimeBoostCount > 0;
+    const timeBoostToUse = mode === 'CAMPAIGN' && useTimeBoost && timeBoostCount > 0 && !superTimeBoostToUse;
+    
+    const superDestructionPackToUse = mode === 'CAMPAIGN' && useSuperDestructionPack && superDestructionPackCount > 0;
+    const destructionPackToUse = mode === 'CAMPAIGN' && useDestructionPack && destructionPackCount > 0 && !superDestructionPackToUse;
 
     // Consumir power-ups solo si están activados y disponibles y estamos en modo campaña
     if (mode === 'CAMPAIGN') {
-      if (useTimeBoost && timeBoostCount > 0) {
+      if (superTimeBoostToUse) {
+        setSuperTimeBoostCount(prev => Math.max(0, prev - 1));
+      } else if (timeBoostToUse) {
         setTimeBoostCount(prev => Math.max(0, prev - 1));
       }
-      if (useDestructionPack && destructionPackCount > 0) {
+
+      if (superDestructionPackToUse) {
+        setSuperDestructionPackCount(prev => Math.max(0, prev - 1));
+      } else if (destructionPackToUse) {
         setDestructionPackCount(prev => Math.max(0, prev - 1));
       }
     }
@@ -710,19 +729,33 @@ function GameContent() {
     const initialGrid = initGrid(level, mode, mode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel);
     setMoney(0);
     setBurgersCreated(0);
-    setTimeLeft(60 + (timeBoostToUse ? 10 : 0)); // 60 segundos base + 10 si tiene time boost
+    
+    // Calcular tiempo: Super(20) > Normal(10) > Base(60)
+    let startTime = 60;
+    if (superTimeBoostToUse) startTime += 20;
+    else if (timeBoostToUse) startTime += 10;
+    
+    setTimeLeft(startTime);
     setIsGameOver(false);
     setIsGameStarted(false);
     setArcadeDifficultyStep(0);
     setCurrentOrder([]);
     setDestructionsUsed(0); // Resetear contador de eliminaciones
-    setMaxDestructions(destructionPackToUse ? 75 : 25); // Guardar el máximo de eliminaciones
+    
+    // Calcular eliminaciones: Super(150) > Normal(75) > Base(25)
+    let startDestructions = 25;
+    if (superDestructionPackToUse) startDestructions = 150;
+    else if (destructionPackToUse) startDestructions = 75;
+    
+    setMaxDestructions(startDestructions); // Guardar el máximo de eliminaciones
     setShouldBlinkDestructions(false); // Resetear parpadeo
     setScreen('GAME');
 
     // Resetear toggles de power-ups
     setUseTimeBoost(false);
+    setUseSuperTimeBoost(false);
     setUseDestructionPack(false);
+    setUseSuperDestructionPack(false);
 
     // Iniciar cuenta atrás con el grid recién creado
     startCountdown(initialGrid, mode, level);
@@ -1040,9 +1073,13 @@ function GameContent() {
     setEnergy(MAX_ENERGY);
     setDiscoveredRecipes([]);
     setTimeBoostCount(0);
+    setSuperTimeBoostCount(0);
     setDestructionPackCount(0);
+    setSuperDestructionPackCount(0);
     setUseTimeBoost(false);
+    setUseSuperTimeBoost(false);
     setUseDestructionPack(false);
+    setUseSuperDestructionPack(false);
     setScreen('MENU');
     await AsyncStorage.clear();
   };
@@ -1054,10 +1091,24 @@ function GameContent() {
     }
   };
 
+  const buySuperTimeBoost = () => {
+    if (globalMoney >= 150) {
+      setGlobalMoney(prev => prev - 150);
+      setSuperTimeBoostCount(prev => prev + 1);
+    }
+  };
+
   const buyDestructionPack = () => {
     if (globalMoney >= 100) {
       setGlobalMoney(prev => prev - 100);
       setDestructionPackCount(prev => prev + 1);
+    }
+  };
+
+  const buySuperDestructionPack = () => {
+    if (globalMoney >= 250) {
+      setGlobalMoney(prev => prev - 250);
+      setSuperDestructionPackCount(prev => prev + 1);
     }
   };
 
@@ -1182,11 +1233,22 @@ function GameContent() {
             energy={energy}
             maxEnergy={MAX_ENERGY}
             timeBoostCount={timeBoostCount}
+            superTimeBoostCount={superTimeBoostCount}
             destructionPackCount={destructionPackCount}
+            superDestructionPackCount={superDestructionPackCount}
             onBuyTimeBoost={buyTimeBoost}
+            onBuySuperTimeBoost={buySuperTimeBoost}
             onBuyDestructionPack={buyDestructionPack}
+            onBuySuperDestructionPack={buySuperDestructionPack}
             onBuyEnergy={buyEnergy}
-            onBack={() => setScreen('MENU')}
+            onPlaySound={playUIButtonSound}
+            t={t}
+          />
+        );
+      case 'RECIPES_BOOK':
+        return (
+          <RecipesBookScreen
+            discoveredRecipes={discoveredRecipes}
             onPlaySound={playUIButtonSound}
             t={t}
           />
@@ -1203,11 +1265,17 @@ function GameContent() {
             globalMoney={globalMoney}
             nextEnergyTime={nextEnergyTime}
             timeBoostCount={timeBoostCount}
+            superTimeBoostCount={superTimeBoostCount}
             destructionPackCount={destructionPackCount}
+            superDestructionPackCount={superDestructionPackCount}
             useTimeBoost={useTimeBoost}
+            useSuperTimeBoost={useSuperTimeBoost}
             useDestructionPack={useDestructionPack}
+            useSuperDestructionPack={useSuperDestructionPack}
             onToggleTimeBoost={setUseTimeBoost}
+            onToggleSuperTimeBoost={setUseSuperTimeBoost}
             onToggleDestructionPack={setUseDestructionPack}
+            onToggleSuperDestructionPack={setUseSuperDestructionPack}
             onStartLevel={(l) => { 
               setSelectedLevel(l); 
               setScreen('INTRO'); 
@@ -1215,6 +1283,7 @@ function GameContent() {
             onStartArcade={() => setScreen('ARCADE_INTRO')}
             onOptions={() => setScreen('OPTIONS')}
             onShop={() => setScreen('SHOP')}
+            onRecipesBook={() => setScreen('RECIPES_BOOK')}
             onWatchAdForEnergy={handleWatchAdForEnergy}
             onPlaySound={playUIButtonSound}
             t={t}
@@ -1237,11 +1306,17 @@ function GameContent() {
             targetMoney={selectedLevel.targetMoney} 
             timeLimit={60}
             timeBoostCount={timeBoostCount}
+            superTimeBoostCount={superTimeBoostCount}
             destructionPackCount={destructionPackCount}
+            superDestructionPackCount={superDestructionPackCount}
             useTimeBoost={useTimeBoost}
+            useSuperTimeBoost={useSuperTimeBoost}
             useDestructionPack={useDestructionPack}
+            useSuperDestructionPack={useSuperDestructionPack}
             onToggleTimeBoost={setUseTimeBoost}
+            onToggleSuperTimeBoost={setUseSuperTimeBoost}
             onToggleDestructionPack={setUseDestructionPack}
+            onToggleSuperDestructionPack={setUseSuperDestructionPack}
             onPlay={() => playGame('CAMPAIGN')}
             onBack={() => setScreen('MENU')}
             onPlaySound={playUIButtonSound}

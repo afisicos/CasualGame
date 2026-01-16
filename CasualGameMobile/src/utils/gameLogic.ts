@@ -1,4 +1,5 @@
-import { PieceType, TRANSLATIONS } from '../constants/gameData';
+import { TRANSLATIONS } from '../constants/gameData';
+import { PieceType } from '../types';
 import { Cell, Piece, GameMode } from '../types';
 
 export const getGridSize = (levelId: number, mode: GameMode) => {

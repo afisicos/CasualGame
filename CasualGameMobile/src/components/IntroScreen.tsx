@@ -17,11 +17,17 @@ interface IntroScreenProps {
   targetMoney: number;
   timeLimit: number;
   timeBoostCount: number;
+  superTimeBoostCount: number;
   destructionPackCount: number;
+  superDestructionPackCount: number;
   useTimeBoost: boolean;
+  useSuperTimeBoost: boolean;
   useDestructionPack: boolean;
+  useSuperDestructionPack: boolean;
   onToggleTimeBoost: (value: boolean) => void;
+  onToggleSuperTimeBoost: (value: boolean) => void;
   onToggleDestructionPack: (value: boolean) => void;
+  onToggleSuperDestructionPack: (value: boolean) => void;
   onPlay: () => void;
   onBack: () => void;
   onPlaySound?: () => void;
@@ -39,11 +45,17 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
   targetMoney, 
   timeLimit,
   timeBoostCount,
+  superTimeBoostCount,
   destructionPackCount,
+  superDestructionPackCount,
   useTimeBoost,
+  useSuperTimeBoost,
   useDestructionPack,
+  useSuperDestructionPack,
   onToggleTimeBoost,
+  onToggleSuperTimeBoost,
   onToggleDestructionPack,
+  onToggleSuperDestructionPack,
   onPlay, 
   onBack,
   onPlaySound,
@@ -113,17 +125,53 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         </View>
 
         {/* Power-ups Toggles */}
-        {(timeBoostCount > 0 || destructionPackCount > 0) && (
+        {(timeBoostCount > 0 || superTimeBoostCount > 0 || destructionPackCount > 0 || superDestructionPackCount > 0) && (
           <View style={styles.powerUpBar}>
+            {superTimeBoostCount > 0 && (
+              <View style={styles.powerUpToggle}>
+                <Text style={styles.powerUpEmoji}>⏳</Text>
+                <Text style={styles.powerUpLabel}>{t.powerup_super_time_name}</Text>
+                <Switch
+                  value={useSuperTimeBoost}
+                  onValueChange={(value) => { 
+                    onPlaySound?.(); 
+                    onToggleSuperTimeBoost(value);
+                    if (value) onToggleTimeBoost(false);
+                  }}
+                  trackColor={{ false: '#adb5bd', true: '#e8590c' }}
+                  thumbColor={useSuperTimeBoost ? '#fff' : '#f4f3f4'}
+                />
+              </View>
+            )}
             {timeBoostCount > 0 && (
               <View style={styles.powerUpToggle}>
                 <Text style={styles.powerUpEmoji}>⏱️</Text>
                 <Text style={styles.powerUpLabel}>{t.powerup_time_name}</Text>
                 <Switch
                   value={useTimeBoost}
-                  onValueChange={(value) => { onPlaySound?.(); onToggleTimeBoost(value); }}
+                  onValueChange={(value) => { 
+                    onPlaySound?.(); 
+                    onToggleTimeBoost(value);
+                    if (value) onToggleSuperTimeBoost(false);
+                  }}
                   trackColor={{ false: '#adb5bd', true: '#ff922b' }}
                   thumbColor={useTimeBoost ? '#fff' : '#f4f3f4'}
+                />
+              </View>
+            )}
+            {superDestructionPackCount > 0 && (
+              <View style={styles.powerUpToggle}>
+                <Text style={styles.powerUpEmoji}>🔥</Text>
+                <Text style={styles.powerUpLabel}>{t.powerup_super_destruction_name}</Text>
+                <Switch
+                  value={useSuperDestructionPack}
+                  onValueChange={(value) => { 
+                    onPlaySound?.(); 
+                    onToggleSuperDestructionPack(value);
+                    if (value) onToggleDestructionPack(false);
+                  }}
+                  trackColor={{ false: '#adb5bd', true: '#f03e3e' }}
+                  thumbColor={useSuperDestructionPack ? '#fff' : '#f4f3f4'}
                 />
               </View>
             )}
@@ -133,7 +181,11 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
                 <Text style={styles.powerUpLabel}>{t.powerup_destruction_name}</Text>
                 <Switch
                   value={useDestructionPack}
-                  onValueChange={(value) => { onPlaySound?.(); onToggleDestructionPack(value); }}
+                  onValueChange={(value) => { 
+                    onPlaySound?.(); 
+                    onToggleDestructionPack(value);
+                    if (value) onToggleSuperDestructionPack(false);
+                  }}
                   trackColor={{ false: '#adb5bd', true: '#ff922b' }}
                   thumbColor={useDestructionPack ? '#fff' : '#f4f3f4'}
                 />

@@ -8,11 +8,14 @@ interface ShopScreenProps {
   energy: number;
   maxEnergy: number;
   timeBoostCount: number;
+  superTimeBoostCount: number;
   destructionPackCount: number;
+  superDestructionPackCount: number;
   onBuyTimeBoost: () => void;
+  onBuySuperTimeBoost: () => void;
   onBuyDestructionPack: () => void;
+  onBuySuperDestructionPack: () => void;
   onBuyEnergy: () => void;
-  onBack: () => void;
   onPlaySound?: () => void;
   t: any;
 }
@@ -22,11 +25,14 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
   energy,
   maxEnergy,
   timeBoostCount,
+  superTimeBoostCount,
   destructionPackCount,
+  superDestructionPackCount,
   onBuyTimeBoost,
+  onBuySuperTimeBoost,
   onBuyDestructionPack,
+  onBuySuperDestructionPack,
   onBuyEnergy,
-  onBack,
   onPlaySound,
   t
 }) => {
@@ -105,6 +111,32 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
           </View>
         </View>
 
+        {/* Super Time Boost */}
+        <View style={styles.powerUpCard}>
+          <View style={styles.powerUpHeader}>
+            <Text style={styles.powerUpEmoji}>⏳</Text>
+            <View style={styles.powerUpInfo}>
+              <Text style={styles.powerUpName}>{t.powerup_super_time_name}</Text>
+              <Text style={styles.powerUpDesc}>{t.powerup_super_time_desc}</Text>
+            </View>
+          </View>
+          <View style={styles.powerUpFooter}>
+            <View style={[styles.countBadge, { backgroundColor: '#fff4e6' }]}>
+              <Text style={[styles.countText, { color: '#d9480f' }]}>{t.owned}: {superTimeBoostCount}</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.buyButton, { backgroundColor: '#e8590c' }, globalMoney < 150 && styles.buyButtonDisabled]}
+              onPress={() => { onPlaySound?.(); onBuySuperTimeBoost(); }}
+              disabled={globalMoney < 150}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <Text style={styles.buyButtonText}>150</Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.buyBtnCoin} resizeMethod="resize" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Destruction Pack */}
         <View style={styles.powerUpCard}>
           <View style={styles.powerUpHeader}>
@@ -125,6 +157,32 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Text style={styles.buyButtonText}>100</Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.buyBtnCoin} resizeMethod="resize" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Super Destruction Pack */}
+        <View style={styles.powerUpCard}>
+          <View style={styles.powerUpHeader}>
+            <Text style={styles.powerUpEmoji}>🔥</Text>
+            <View style={styles.powerUpInfo}>
+              <Text style={styles.powerUpName}>{t.powerup_super_destruction_name}</Text>
+              <Text style={styles.powerUpDesc}>{t.powerup_super_destruction_desc}</Text>
+            </View>
+          </View>
+          <View style={styles.powerUpFooter}>
+            <View style={[styles.countBadge, { backgroundColor: '#fff5f5' }]}>
+              <Text style={[styles.countText, { color: '#c92a2a' }]}>{t.owned}: {superDestructionPackCount}</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.buyButton, { backgroundColor: '#f03e3e' }, globalMoney < 250 && styles.buyButtonDisabled]}
+              onPress={() => { onPlaySound?.(); onBuySuperDestructionPack(); }}
+              disabled={globalMoney < 250}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <Text style={styles.buyButtonText}>250</Text>
                 <Image source={require('../assets/Iconos/coin.png')} style={styles.buyBtnCoin} resizeMethod="resize" />
               </View>
             </TouchableOpacity>

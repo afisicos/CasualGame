@@ -33,6 +33,19 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'onioner', name: 'r_onioner', ingredients: ['BREAD', 'MEAT', 'ONION', 'ONION', 'BREAD'], price: 12, isSecret: false },
   { id: 'tonion_burger', name: 'r_tonion_burger', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE','TOMATO','ONION', 'BREAD'], price: 35, isSecret: false },
   { id: 'dirty_one', name: 'r_dirty_one', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'BREAD'], price: 11, isSecret: true },
+  // --- Nuevas recetas (11+) ---
+  { id: 'loaded_bbq', name: 'r_loaded_bbq', ingredients: ['BREAD', 'MEAT', 'BACON', 'KETCHUP', 'ONION', 'BREAD'], price: 20, isSecret: false },
+  { id: 'cheese_onion_ketchup', name: 'r_cheese_onion_ketchup', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'ONION', 'KETCHUP', 'BREAD'], price: 19, isSecret: true },
+  { id: 'double_meat_bacon', name: 'r_double_meat_bacon', ingredients: ['BREAD', 'MEAT', 'MEAT', 'BACON', 'BREAD'], price: 16, isSecret: true },
+  { id: 'veggie_ketchup', name: 'r_veggie_ketchup', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'KETCHUP', 'BREAD'], price: 18, isSecret: false },
+
+  // Pepinillo (12+)
+  { id: 'cheese_pickle', name: 'r_cheese_pickle', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'PICKLE', 'BREAD'], price: 14, isSecret: false },
+  { id: 'ketchup_pickle', name: 'r_ketchup_pickle', ingredients: ['BREAD', 'MEAT', 'KETCHUP', 'PICKLE', 'BREAD'], price: 13, isSecret: false },
+  { id: 'pickle_onion', name: 'r_pickle_onion', ingredients: ['BREAD', 'MEAT', 'PICKLE', 'ONION', 'BREAD'], price: 14, isSecret: false },
+  { id: 'bacon_pickle', name: 'r_bacon_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'PICKLE', 'BREAD'], price: 15, isSecret: true },
+  { id: 'green_pickle', name: 'r_green_pickle', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'PICKLE', 'BREAD'], price: 19, isSecret: false },
+  { id: 'everything_pickle', name: 'r_everything_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'BREAD'], price: 28, isSecret: true },
 
 ];
 
@@ -127,11 +140,57 @@ export const LEVELS: Level[] = [
   { 
     id: 10, 
     name: "l10_name", 
-    targetMoney: 100, 
+    targetMoney: 70, 
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION'], 
     showNewIngredient: false,
     newRecipe: 'onioner',
     description: "l10_desc" 
+  },
+  {
+    id: 11,
+    name: "l11_name",
+    targetMoney: 85,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'LETTUCE', 'KETCHUP', 'ONION'],
+    showNewIngredient: false,
+    newRecipe: 'loaded_bbq',
+    description: "l11_desc"
+  },
+  {
+    id: 12,
+    name: "l12_name",
+    targetMoney: 120,
+    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'ONION', 'PICKLE'],
+    newIngredient: 'PICKLE',
+    showNewIngredient: true,
+    newRecipe: 'cheese_pickle',
+    description: "l12_desc"
+  },
+  {
+    id: 13,
+    name: "l13_name",
+    targetMoney: 130,
+    ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'KETCHUP', 'PICKLE'],
+    showNewIngredient: false,
+    newRecipe: 'green_pickle',
+    description: "l13_desc"
+  },
+  {
+    id: 14,
+    name: "l14_name",
+    targetMoney: 140,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'ONION', 'PICKLE', 'KETCHUP', 'CHEESE'],
+    showNewIngredient: false,
+    newRecipe: 'bacon_pickle',
+    description: "l14_desc"
+  },
+  {
+    id: 15,
+    name: "l15_name",
+    targetMoney: 160,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE'],
+    showNewIngredient: false,
+    newRecipe: 'everything_pickle',
+    description: "l15_desc"
   },
 ];
 
@@ -171,6 +230,26 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   if (arcadeUnlockedLevel >= 10) {
     recipes.push('onioner');
   }
+  if (arcadeUnlockedLevel >= 11) {
+    recipes.push('loaded_bbq');
+    recipes.push('cheese_onion_ketchup');
+    recipes.push('double_meat_bacon');
+    recipes.push('veggie_ketchup');
+  }
+  if (arcadeUnlockedLevel >= 12) {
+    recipes.push('cheese_pickle');
+    recipes.push('ketchup_pickle');
+    recipes.push('pickle_onion');
+  }
+  if (arcadeUnlockedLevel >= 13) {
+    recipes.push('green_pickle');
+  }
+  if (arcadeUnlockedLevel >= 14) {
+    recipes.push('bacon_pickle');
+  }
+  if (arcadeUnlockedLevel >= 15) {
+    recipes.push('everything_pickle');
+  }
   return recipes;
 };
 
@@ -183,6 +262,7 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => 
   if (arcadeUnlockedLevel >= 5) ingredients.push('BACON');
   if (arcadeUnlockedLevel >= 7) ingredients.push('KETCHUP');
   if (arcadeUnlockedLevel >= 9) ingredients.push('ONION');
+  if (arcadeUnlockedLevel >= 12) ingredients.push('PICKLE');
   return ingredients;
 };
 
@@ -239,12 +319,18 @@ export const TRANSLATIONS = {
     owned: "Tienes",
     powerup_time_name: "Tiempo Extra",
     powerup_time_desc: "Empieza con 10 segundos adicionales",
+    powerup_super_time_name: "Súper Tiempo Extra",
+    powerup_super_time_desc: "Empieza con 20 segundos adicionales",
     powerup_destruction_name: "Pack de Eliminaciones",
     powerup_destruction_desc: "75 eliminaciones en vez de 25",
+    powerup_super_destruction_name: "Súper Pack Eliminaciones",
+    powerup_super_destruction_desc: "150 eliminaciones en vez de 25",
     shop_energy_name: "Carga de Energía",
     shop_energy_desc: "Recupera 1 punto de energía inmediatamente",
     powerup_activate_time: "Tiempo Extra",
+    powerup_activate_super_time: "Súper Tiempo Extra",
     powerup_activate_destruction: "Pack Eliminaciones",
+    powerup_activate_super_destruction: "Súper Pack Eliminaciones",
     powerup_destruction_limit: "Límite alcanzado",
     powerup_destruction_limit_msg: "Has usado todas tus eliminaciones",
     destructions: "Eliminaciones",
@@ -311,6 +397,16 @@ export const TRANSLATIONS = {
     r_bacon_burger: "Bacon Burger",
     r_veggie_cheese: "Vegetal con Queso",
     r_carnivore: "Carnívora",
+    r_loaded_bbq: "Chisporroteante",
+    r_cheese_onion_ketchup: "Llora-Queso",
+    r_double_meat_bacon: "Doble Bestia",
+    r_veggie_ketchup: "Huertchup",
+    r_cheese_pickle: "Quesinilla",
+    r_ketchup_pickle: "Ketchinilla",
+    r_pickle_onion: "Lagrimilla",
+    r_bacon_pickle: "Cruji-Ácida",
+    r_green_pickle: "Verde Viciosa",
+    r_everything_pickle: "El Pepinillazo Final",
     // Niveles
     l1_name: "Rumbo al Tomate",
     l2_name: "Más Sabor",
@@ -322,6 +418,11 @@ export const TRANSLATIONS = {
     l8_name: "Verde no",
     l9_name: "Cebollita fresca",
     l10_name: "Cebollera",
+    l11_name: "Sabor a la Parrilla",
+    l12_name: "¡Pepinillo!",
+    l13_name: "Crujiente Verde",
+    l14_name: "Salado y Ácido",
+    l15_name: "La Gran Mezcla",
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
     l2_desc: "¡La mezcla perfecta! Combina el QUESO y el TOMATE para superar este nivel.",
     l3_desc: "¡El Huerto! Has desbloqueado la LECHUGA. Prepara la Hamburguesa Vegetal con tomate y lechuga.",
@@ -332,6 +433,11 @@ export const TRANSLATIONS = {
     l8_desc: "Las verduras no son lo tuyo, ¿verdad? ¡No hay problema!",
     l9_desc: "A todos nos gusta la cebolla, ¿no?",
     l10_desc: "¡La cebolla es la reina de las hamburguesas! Añade dos cebollas para crear la Cebollera.",
+    l11_desc: "Sin ingredientes nuevos, pero con combinaciones más exigentes. Domina bacon, cebolla y ketchup.",
+    l12_desc: "¡Nuevo ingrediente: PEPINILLO! Añade un toque ácido y crujiente a tus hamburguesas.",
+    l13_desc: "Mezcla pepinillo con verduras para recetas frescas y rápidas.",
+    l14_desc: "Pepinillo + bacon + cebolla: el equilibrio perfecto entre salado y ácido.",
+    l15_desc: "El nivel más completo hasta ahora: combina casi todo para lograr la máxima recompensa.",
   },
   en: {
     recipes: "RECIPES",
@@ -385,12 +491,18 @@ export const TRANSLATIONS = {
     owned: "Owned",
     powerup_time_name: "Time Boost",
     powerup_time_desc: "Start with 10 extra seconds",
+    powerup_super_time_name: "Super Time Boost",
+    powerup_super_time_desc: "Start with 20 extra seconds",
     powerup_destruction_name: "Destruction Pack",
     powerup_destruction_desc: "75 destructions instead of 25",
+    powerup_super_destruction_name: "Super Destruction Pack",
+    powerup_super_destruction_desc: "150 destructions instead of 25",
     shop_energy_name: "Energy Refill",
     shop_energy_desc: "Recover 1 energy point immediately",
     powerup_activate_time: "Time Boost",
+    powerup_activate_super_time: "Super Time Boost",
     powerup_activate_destruction: "Destruction Pack",
+    powerup_activate_super_destruction: "Super Destruction Pack",
     powerup_destruction_limit: "Limit reached",
     powerup_destruction_limit_msg: "You've used all your destructions",
     destructions: "Destructions",
@@ -457,6 +569,16 @@ export const TRANSLATIONS = {
     r_bacon_burger: "Bacon Burger",
     r_veggie_cheese: "Veggie Cheese",
     r_carnivore: "Carnivore",
+    r_loaded_bbq: "The Sizzle Show",
+    r_cheese_onion_ketchup: "The Tearjerker",
+    r_double_meat_bacon: "Double Trouble",
+    r_veggie_ketchup: "Garden Splash",
+    r_cheese_pickle: "Pickle-Me-This",
+    r_ketchup_pickle: "Ketchy Pickle",
+    r_pickle_onion: "Cry & Crunch",
+    r_bacon_pickle: "Tangy Crunch",
+    r_green_pickle: "Green Gremlin",
+    r_everything_pickle: "The Final Pickle",
     // Levels
     l1_name: "Road to Tomato",
     l2_name: "Perfect Mix",
@@ -468,6 +590,11 @@ export const TRANSLATIONS = {
     l8_name: "No green",
     l9_name: "Fresh Onion",
     l10_name: "Onioner",
+    l11_name: "Grill Flavor",
+    l12_name: "Pickle Time!",
+    l13_name: "Green Crunch",
+    l14_name: "Salty & Tangy",
+    l15_name: "The Big Mix",
     l1_desc: "Welcome! Learn to use TOMATO. In this level, we'll only serve tomato burgers.",
     l2_desc: "The perfect mix! Combine CHEESE and TOMATO to clear this level.",
     l3_desc: "The Orchard! You've unlocked LETTUCE. Prepare the Veggie Burger with tomato and lettuce.",
@@ -478,6 +605,11 @@ export const TRANSLATIONS = {
     l8_desc: "No green, no problem",
     l9_desc: "We all like onions, right?",
     l10_desc: "The onion is the queen of burgers! Add two onions to create the Onioner.",
+    l11_desc: "No new ingredients, but tougher combos. Master bacon, onion and ketchup.",
+    l12_desc: "New ingredient: PICKLE! Add a crunchy tang to your burgers.",
+    l13_desc: "Mix pickles with veggies for fresh, fast recipes.",
+    l14_desc: "Pickle + bacon + onion: the perfect salty & tangy balance.",
+    l15_desc: "The most complete level so far: combine almost everything for the biggest reward.",
   }
 };
 

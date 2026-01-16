@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, Animated, Switch, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Animated, Switch, StyleSheet, ScrollView, Vibration } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
 import { styles } from '../styles/MenuScreen.styles';
@@ -14,29 +14,38 @@ interface MenuScreenProps {
   globalMoney: number;
   nextEnergyTime: number;
   timeBoostCount: number;
+  superTimeBoostCount: number;
   destructionPackCount: number;
+  superDestructionPackCount: number;
   useTimeBoost: boolean;
+  useSuperTimeBoost: boolean;
   useDestructionPack: boolean;
+  useSuperDestructionPack: boolean;
   onToggleTimeBoost: (value: boolean) => void;
+  onToggleSuperTimeBoost: (value: boolean) => void;
   onToggleDestructionPack: (value: boolean) => void;
+  onToggleSuperDestructionPack: (value: boolean) => void;
   onStartLevel: (level: Level) => void;
   onStartArcade: () => void;
   onOptions: () => void;
   onShop: () => void;
   onWatchAdForEnergy?: () => void;
+  onRecipesBook?: () => void;
   onPlaySound?: () => void;
   t: any;
 }
 
-const MenuScreen: React.FC<MenuScreenProps> = ({ 
+const MenuScreen: React.FC<MenuScreenProps> = ({
   levels, unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, maxEnergy, globalMoney, nextEnergyTime,
-  timeBoostCount, destructionPackCount, useTimeBoost, useDestructionPack,
-  onToggleTimeBoost, onToggleDestructionPack,
-  onStartLevel, onStartArcade, onOptions, onShop, onWatchAdForEnergy, onPlaySound, t
+  timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, 
+  useTimeBoost, useSuperTimeBoost, useDestructionPack, useSuperDestructionPack,
+  onToggleTimeBoost, onToggleSuperTimeBoost, onToggleDestructionPack, onToggleSuperDestructionPack,
+  onStartLevel, onStartArcade, onOptions, onShop, onWatchAdForEnergy, onRecipesBook, onPlaySound, t
 }) => {
   // Animaciones de pulso para los botones redondos
   const playButtonScale = useRef(new Animated.Value(1)).current;
   const arcadeButtonScale = useRef(new Animated.Value(1)).current;
+  const recipesButtonScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     // Animación para el botón de Play
@@ -71,15 +80,35 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       ])
     );
 
+    // Animación para el botón de Recetas
+    const recipesAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(recipesButtonScale, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(recipesButtonScale, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
     // Iniciar animaciones con un pequeño delay entre ellas para que no estén sincronizadas
     playAnimation.start();
     setTimeout(() => {
       arcadeAnimation.start();
     }, 500);
+    setTimeout(() => {
+      recipesAnimation.start();
+    }, 1000);
 
     return () => {
       playAnimation.stop();
       arcadeAnimation.stop();
+      recipesAnimation.stop();
     };
   }, []);
 
@@ -131,10 +160,22 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
                 <Text style={styles.statValue}>{timeBoostCount}</Text>
               </View>
             )}
+            {superTimeBoostCount > 0 && (
+              <View style={[styles.statPill, { marginLeft: 3, backgroundColor: '#fff4e6' }]}>
+                <Text style={styles.statEmoji}>⏳</Text>
+                <Text style={[styles.statValue, { color: '#d9480f' }]}>{superTimeBoostCount}</Text>
+              </View>
+            )}
             {destructionPackCount > 0 && (
               <View style={[styles.statPill, { marginLeft: 3 }]}>
                 <Text style={styles.statEmoji}>💥</Text>
                 <Text style={styles.statValue}>{destructionPackCount}</Text>
+              </View>
+            )}
+            {superDestructionPackCount > 0 && (
+              <View style={[styles.statPill, { marginLeft: 3, backgroundColor: '#fff5f5' }]}>
+                <Text style={styles.statEmoji}>🔥</Text>
+                <Text style={[styles.statValue, { color: '#c92a2a' }]}>{superDestructionPackCount}</Text>
               </View>
             )}
           </View>
@@ -149,7 +190,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
         </View>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 20 }}>
         <TouchableOpacity 
           style={styles.arcadeSection}
           onPress={() => { onPlaySound?.(); onStartArcade(); }}
@@ -213,7 +254,35 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
             <Text style={styles.arcadeDescription}>{t.campaign_desc}</Text>
           </LinearGradient>
         </TouchableOpacity>
-      </View>
+
+        <TouchableOpacity 
+          style={styles.recipeBookSection}
+          onPress={() => { 
+            Vibration.vibrate(50);
+            onPlaySound?.(); 
+            if (onRecipesBook) onRecipesBook();
+          }}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#ffb3d9', '#ff99cc']}
+            style={styles.arcadeGradient}
+          >
+            <View style={styles.arcadeHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.campaignTitle}>{t.recipes}</Text>
+                <Text style={styles.campaignLevelName}>Consulta aquí todas las recetas descubiertas</Text>
+              </View>
+              <Animated.View style={[{ transform: [{ scale: recipesButtonScale }] }]}>
+                <View style={styles.playLevelButton}>
+                  <Text style={{ fontSize: 24 }}>📖</Text>
+                </View>
+              </Animated.View>
+            </View>
+            <Text style={styles.arcadeDescription}>También puedes crear tus propias recetas</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };

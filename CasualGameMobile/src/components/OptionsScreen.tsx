@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Switch, Alert, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Application from 'expo-application';
 import { styles } from '../styles/OptionsScreen.styles';
 
 interface OptionsScreenProps {
@@ -67,7 +68,7 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.versionText}>Versión 1.0.0</Text>
+          <Text style={styles.versionText}>Versión {Application.nativeApplicationVersion} ({Application.nativeBuildVersion})</Text>
         </View>
       </View>
     </View>

@@ -8,7 +8,7 @@ export interface Recipe {
   discovered?: boolean;
 }
 
-export type Screen = 'SPLASH' | 'MENU' | 'INTRO' | 'ARCADE_INTRO' | 'GAME' | 'RESULT' | 'OPTIONS' | 'SHOP';
+export type Screen = 'SPLASH' | 'MENU' | 'INTRO' | 'ARCADE_INTRO' | 'GAME' | 'RESULT' | 'OPTIONS' | 'SHOP' | 'RECIPES_BOOK';
 export type GameMode = 'CAMPAIGN' | 'ARCADE';
 
 export interface Piece {

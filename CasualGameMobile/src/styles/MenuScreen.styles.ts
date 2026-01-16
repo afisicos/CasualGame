@@ -68,11 +68,10 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3
   },
-  settingsEmoji: { fontSize: 20 },
   buttonIcon: { width: 26, height: 26 },
   rightButtons: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   shopBtn: {
     backgroundColor: 'white',
@@ -138,7 +137,7 @@ export const styles = StyleSheet.create({
   arcadeRecordCenter: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.25)',
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 15,
@@ -185,6 +184,17 @@ export const styles = StyleSheet.create({
     lineHeight: 16
   },
   campaignSection: {
+    marginHorizontal: 20,
+    borderRadius: 24,
+    marginBottom: 30,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    overflow: 'hidden'
+  },
+  recipeBookSection: {
     marginHorizontal: 20,
     borderRadius: 24, 
     marginBottom: 30, 
