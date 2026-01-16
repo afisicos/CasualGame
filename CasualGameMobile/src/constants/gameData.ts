@@ -360,6 +360,14 @@ export const TRANSLATIONS = {
     ing_KETCHUP: "Ketchup",
     ing_PICKLE: "Pepinillo",
     ing_ONION: "Cebolla",
+    // Panel de energía
+    energy_panel_title: "⚡ ¡Sin energía!",
+    energy_panel_message: "Mira un video para recuperar todos los puntos de energía",
+    energy_panel_cancel: "Cancelar",
+    energy_panel_watch: "Ver video",
+    // Panel de recetas en menú
+    recipes_panel_subtitle: "Consulta aquí todas las recetas descubiertas",
+    recipes_panel_description: "También puedes crear tus propias recetas",
     // Recetas
     r_pure: "Hamburguesa Pura",
     r_double: "Doble de Carne",
@@ -522,6 +530,14 @@ export const TRANSLATIONS = {
     help_time_remaining: "Remaining game time",
     help_burgers_to_complete: "Burgers to complete",
     help_tap_to_destroy: "Tap quickly on an ingredient to remove it",
+    // Panel de energía
+    energy_panel_title: "⚡ No energy!",
+    energy_panel_message: "Watch a video to recover all energy points",
+    energy_panel_cancel: "Cancel",
+    energy_panel_watch: "Watch video",
+    // Panel de recetas en menú
+    recipes_panel_subtitle: "Check here all discovered recipes",
+    recipes_panel_description: "You can also create your own recipes",
     // Ingredients
     ing_BREAD: "Bread",
     ing_MEAT: "Meat",

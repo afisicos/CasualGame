@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Animated, Switch, StyleSheet, ScrollView, Vibration } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
@@ -46,6 +46,9 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
   const playButtonScale = useRef(new Animated.Value(1)).current;
   const arcadeButtonScale = useRef(new Animated.Value(1)).current;
   const recipesButtonScale = useRef(new Animated.Value(1)).current;
+
+  // Estado para el panel flotante de recuperar energía
+  const [showEnergyPanel, setShowEnergyPanel] = useState(false);
 
   useEffect(() => {
     // Animación para el botón de Play
@@ -190,6 +193,41 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
         </View>
       </View>
 
+      {/* Panel flotante para recuperar energía */}
+      {showEnergyPanel && (
+        <View style={styles.energyPanelOverlay}>
+          <View style={styles.energyPanel}>
+            <Text style={styles.energyPanelTitle}>{t.energy_panel_title}</Text>
+            <Text style={styles.energyPanelMessage}>
+              {t.energy_panel_message}
+            </Text>
+            <View style={styles.energyPanelButtons}>
+              <TouchableOpacity
+                style={[styles.energyPanelButton, styles.energyPanelCancel]}
+                onPress={() => {
+                  onPlaySound?.();
+                  setShowEnergyPanel(false);
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.energyPanelCancelText}>{t.energy_panel_cancel}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.energyPanelButton, styles.energyPanelWatch]}
+                onPress={() => {
+                  onPlaySound?.();
+                  setShowEnergyPanel(false);
+                  if (onWatchAdForEnergy) onWatchAdForEnergy();
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.energyPanelWatchText}>{t.energy_panel_watch}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 20 }}>
         <TouchableOpacity 
           style={styles.arcadeSection}
@@ -227,9 +265,16 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.campaignSection}
-          onPress={() => { onPlaySound?.(); onStartLevel(currentLevelData); }}
+          onPress={() => {
+            onPlaySound?.();
+            if (energy > 0) {
+              onStartLevel(currentLevelData);
+            } else {
+              setShowEnergyPanel(true);
+            }
+          }}
           activeOpacity={0.8}
         >
           <LinearGradient
@@ -271,7 +316,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
             <View style={styles.arcadeHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.campaignTitle}>{t.recipes}</Text>
-                <Text style={styles.campaignLevelName}>Consulta aquí todas las recetas descubiertas</Text>
+                <Text style={styles.campaignLevelName}>{t.recipes_panel_subtitle}</Text>
               </View>
               <Animated.View style={[{ transform: [{ scale: recipesButtonScale }] }]}>
                 <View style={styles.playLevelButton}>
@@ -279,7 +324,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
                 </View>
               </Animated.View>
             </View>
-            <Text style={styles.arcadeDescription}>También puedes crear tus propias recetas</Text>
+            <Text style={styles.arcadeDescription}>{t.recipes_panel_description}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>

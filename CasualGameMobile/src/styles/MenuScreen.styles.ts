@@ -284,5 +284,73 @@ export const styles = StyleSheet.create({
   },
   list: { flex: 1 },
   listContainer: { paddingHorizontal: 20, paddingBottom: 20, paddingTop: 10 },
+
+  // Panel flotante para recuperar energía
+  energyPanelOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  energyPanel: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 24,
+    marginHorizontal: 40,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  energyPanelTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#ff6b6b',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  energyPanelMessage: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4a4a4a',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  energyPanelButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  energyPanelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  energyPanelCancel: {
+    backgroundColor: '#f0f0f0',
+  },
+  energyPanelCancelText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#666',
+  },
+  energyPanelWatch: {
+    backgroundColor: '#ff922b',
+  },
+  energyPanelWatchText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: 'white',
+  },
 });
 
