@@ -27,9 +27,10 @@ import {
   TRANSLATIONS, 
   ENERGY_RECOVERY_TIME, 
   MAX_ENERGY, 
-  BASE_RECIPES, 
-  LEVELS, 
-  getUnlockedRecipesForArcade, 
+  BASE_RECIPES,
+  LEVELS,
+  getUnlockedRecipesForArcade,
+  getUnlockedRecipesForCampaign,
   getUnlockedIngredientsForArcade,
   INGREDIENT_IMAGES
 } from './constants/gameData';
@@ -1246,9 +1247,14 @@ function GameContent() {
           />
         );
       case 'RECIPES_BOOK':
+        const campaignUnlocked = getUnlockedRecipesForCampaign(unlockedLevel);
+        const arcadeUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
+        const allUnlockedRecipes = [...new Set([...campaignUnlocked, ...arcadeUnlocked])];
+
         return (
           <RecipesBookScreen
             discoveredRecipes={discoveredRecipes}
+            unlockedRecipes={allUnlockedRecipes}
             onPlaySound={playUIButtonSound}
             t={t}
           />

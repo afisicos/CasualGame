@@ -7,18 +7,20 @@ import BurgerPiece from './BurgerPiece';
 
 interface RecipesBookScreenProps {
   discoveredRecipes: string[];
+  unlockedRecipes: string[];
   onPlaySound?: () => void;
   t: any;
 }
 
 const RecipesBookScreen: React.FC<RecipesBookScreenProps> = ({
   discoveredRecipes,
+  unlockedRecipes,
   onPlaySound,
   t
 }) => {
-  // Filtrar solo las recetas descubiertas (no secretas o ya descubiertas)
+  // Filtrar solo las recetas desbloqueadas y descubiertas
   const availableRecipes = BASE_RECIPES.filter(recipe =>
-    !recipe.isSecret || discoveredRecipes.includes(recipe.id)
+    unlockedRecipes.includes(recipe.id) || (recipe.isSecret && discoveredRecipes.includes(recipe.id))
   );
 
   return (

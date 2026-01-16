@@ -95,6 +95,7 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
       case 'KETCHUP': return require('../assets/Ingredientes/ketchup.png');
       case 'PICKLE': return require('../assets/Ingredientes/pickle.png');
       case 'ONION': return require('../assets/Ingredientes/onion.png');
+      case 'EGG': return require('../assets/Ingredientes/egg.png');
       default: return null;
     }
   };

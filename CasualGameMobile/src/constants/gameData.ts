@@ -13,6 +13,7 @@ export const INGREDIENT_IMAGES: Record<PieceType, any> = {
   KETCHUP: require('../assets/Ingredientes/ketchup.png'),
   PICKLE: require('../assets/Ingredientes/pickle.png'),
   ONION: require('../assets/Ingredientes/onion.png'),
+  EGG: require('../assets/Ingredientes/egg.png'),
 };
 
 export const BASE_RECIPES: Recipe[] = [
@@ -46,6 +47,11 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'bacon_pickle', name: 'r_bacon_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'PICKLE', 'BREAD'], price: 15, isSecret: true },
   { id: 'green_pickle', name: 'r_green_pickle', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'PICKLE', 'BREAD'], price: 19, isSecret: false },
   { id: 'everything_pickle', name: 'r_everything_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'BREAD'], price: 28, isSecret: true },
+
+  // --- Niveles con Huevo (16+) ---
+  { id: 'ranchera', name: 'r_ranchera', ingredients: ['BREAD', 'MEAT', 'BACON', 'EGG', 'CHEESE', 'ONION', 'BREAD'], price: 30, isSecret: false },
+  { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18, isSecret: false },
+  { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25, isSecret: true },
 
 ];
 
@@ -168,7 +174,7 @@ export const LEVELS: Level[] = [
   {
     id: 13,
     name: "l13_name",
-    targetMoney: 130,
+    targetMoney: 110,
     ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'KETCHUP', 'PICKLE'],
     showNewIngredient: false,
     newRecipe: 'green_pickle',
@@ -177,7 +183,7 @@ export const LEVELS: Level[] = [
   {
     id: 14,
     name: "l14_name",
-    targetMoney: 140,
+    targetMoney: 110,
     ingredients: ['BREAD', 'MEAT', 'BACON', 'ONION', 'PICKLE', 'KETCHUP', 'CHEESE'],
     showNewIngredient: false,
     newRecipe: 'bacon_pickle',
@@ -186,11 +192,30 @@ export const LEVELS: Level[] = [
   {
     id: 15,
     name: "l15_name",
-    targetMoney: 160,
+    targetMoney: 80,
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE'],
     showNewIngredient: false,
     newRecipe: 'everything_pickle',
     description: "l15_desc"
+  },
+  {
+    id: 16,
+    name: "l16_name",
+    targetMoney: 140,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'KETCHUP', 'TOMATO', 'EGG'],
+    newIngredient: 'EGG',
+    showNewIngredient: true,
+    newRecipe: 'ranchera',
+    description: "l16_desc"
+  },
+  {
+    id: 17,
+    name: "l17_name",
+    targetMoney: 110,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE', 'EGG'],
+    showNewIngredient: false,
+    newRecipe: 'egg_ketchup',
+    description: "l17_desc"
   },
 ];
 
@@ -250,6 +275,28 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   if (arcadeUnlockedLevel >= 15) {
     recipes.push('everything_pickle');
   }
+  if (arcadeUnlockedLevel >= 16) {
+    recipes.push('ranchera');
+  }
+  if (arcadeUnlockedLevel >= 17) {
+    recipes.push('egg_ketchup');
+    recipes.push('protein');
+  }
+  return recipes;
+};
+
+// Mapeo de qué recetas están desbloqueadas según el nivel de campaña superado
+export const getUnlockedRecipesForCampaign = (campaignUnlockedLevel: number) => {
+  const recipes: string[] = [];
+
+  // Recorremos todos los niveles hasta el nivel alcanzado
+  for (let level = 1; level <= campaignUnlockedLevel; level++) {
+    const levelData = LEVELS.find(l => l.id === level);
+    if (levelData && levelData.newRecipe) {
+      recipes.push(levelData.newRecipe);
+    }
+  }
+
   return recipes;
 };
 
@@ -263,6 +310,7 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => 
   if (arcadeUnlockedLevel >= 7) ingredients.push('KETCHUP');
   if (arcadeUnlockedLevel >= 9) ingredients.push('ONION');
   if (arcadeUnlockedLevel >= 12) ingredients.push('PICKLE');
+  if (arcadeUnlockedLevel >= 16) ingredients.push('EGG');
   return ingredients;
 };
 
@@ -360,6 +408,7 @@ export const TRANSLATIONS = {
     ing_KETCHUP: "Ketchup",
     ing_PICKLE: "Pepinillo",
     ing_ONION: "Cebolla",
+    ing_EGG: "Huevo",
     // Panel de energía
     energy_panel_title: "⚡ ¡Sin energía!",
     energy_panel_message: "Mira un video para recuperar todos los puntos de energía",
@@ -415,6 +464,9 @@ export const TRANSLATIONS = {
     r_bacon_pickle: "Cruji-Ácida",
     r_green_pickle: "Verde Viciosa",
     r_everything_pickle: "El Pepinillazo Final",
+    r_ranchera: "Hamburguesa Ranchera",
+    r_egg_ketchup: "Huevetchup",
+    r_protein: "La Proteica",
     // Niveles
     l1_name: "Rumbo al Tomate",
     l2_name: "Más Sabor",
@@ -431,6 +483,8 @@ export const TRANSLATIONS = {
     l13_name: "Crujiente Verde",
     l14_name: "Salado y Ácido",
     l15_name: "La Gran Mezcla",
+    l16_name: "El Toque del Huevo",
+    l17_name: "Proteína Extra",
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
     l2_desc: "¡La mezcla perfecta! Combina el QUESO y el TOMATE para superar este nivel.",
     l3_desc: "¡El Huerto! Has desbloqueado la LECHUGA. Prepara la Hamburguesa Vegetal con tomate y lechuga.",
@@ -446,6 +500,8 @@ export const TRANSLATIONS = {
     l13_desc: "Mezcla pepinillo con verduras para recetas frescas y rápidas.",
     l14_desc: "Pepinillo + bacon + cebolla: el equilibrio perfecto entre salado y ácido.",
     l15_desc: "El nivel más completo hasta ahora: combina casi todo para lograr la máxima recompensa.",
+    l16_desc: "¡HUEVO desbloqueado! El toque perfecto para cualquier hamburguesa. Prepara la Hamburguesa Ranchera con bacon, huevo, queso y cebolla.",
+    l17_desc: "¡Proteína extra! Mezcla huevo con ketchup para crear combinaciones únicas. ¡No olvides la receta secreta con doble carne y doble huevo!",
   },
   en: {
     recipes: "RECIPES",
