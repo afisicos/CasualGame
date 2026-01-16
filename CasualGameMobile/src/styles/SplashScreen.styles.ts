@@ -21,6 +21,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
   },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+  },
   titleFood: {
     fontSize: 72,
     fontWeight: '900',

@@ -163,13 +163,14 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
       {/* Título centrado */}
       <Animated.View style={[
-        styles.content, 
-        { 
-          opacity: fadeAnim, 
+        styles.content,
+        {
+          opacity: fadeAnim,
           transform: [{ scale: scaleAnim }, { translateY: translateYAnim }],
           zIndex: 10,
         }
       ]}>
+        <Image source={require('../assets/Iconos/CetroAlce.png')} style={styles.logo} resizeMode="contain" />
         <Text style={styles.titleFood}>BURGER</Text>
         <Text style={styles.titleForFun}>MATCH</Text>
         <View style={styles.loader} />

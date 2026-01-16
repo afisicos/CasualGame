@@ -90,8 +90,9 @@ export const initializeAds = async () => {
             if (mobileAdsInstance && typeof mobileAdsInstance.setRequestConfiguration === 'function') {
               mobileAdsInstance.setRequestConfiguration({
                 testDeviceIds: ['7A1D7A2D3AD75C13961E69FE3865789B'], // ID del dispositivo Realme
+                tagForChildDirectedTreatment: true, // Activar tratamiento para niños/familias
               });
-              console.log('✅ Dispositivo configurado como dispositivo de prueba');
+              console.log('✅ Dispositivo configurado como dispositivo de prueba y tratamiento para familias activado');
             }
           } catch (testConfigError) {
             console.warn('⚠️ No se pudo configurar dispositivo de prueba:', testConfigError);
@@ -118,8 +119,9 @@ export const initializeAds = async () => {
             if (instance && typeof instance.setRequestConfiguration === 'function') {
               instance.setRequestConfiguration({
                 testDeviceIds: ['7A1D7A2D3AD75C13961E69FE3865789B'], // ID del dispositivo Realme
+                tagForChildDirectedTreatment: true, // Activar tratamiento para niños/familias
               });
-              console.log('✅ Dispositivo configurado como dispositivo de prueba');
+              console.log('✅ Dispositivo configurado como dispositivo de prueba y tratamiento para familias activado');
             }
           } catch (testConfigError) {
             console.warn('⚠️ No se pudo configurar dispositivo de prueba:', testConfigError);
