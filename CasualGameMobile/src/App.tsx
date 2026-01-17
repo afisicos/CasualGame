@@ -957,8 +957,14 @@ function GameContent() {
         }
       }
     } else {
+      // En campaña, permitir hamburguesas válidas para limpiar el tablero
       if (isRecipeMatch(selectionTypes, currentOrder)) {
-        match = { price: currentPrice };
+        // Coincide exactamente con la receta objetivo
+        match = { price: currentPrice, isTargetRecipe: true };
+      } else if (selectionTypes.length >= 2 && selectionTypes[0] === 'BREAD' && selectionTypes[selectionTypes.length - 1] === 'BREAD' && selectionTypes.includes('MEAT')) {
+        // Hamburguesa válida pero no es la receta objetivo (para limpiar tablero)
+        const uniqueIngredients = new Set(selectionTypes).size;
+        match = { price: 0, isTargetRecipe: false }; // No da dinero ni cuenta para objetivo
       }
     }
 
@@ -966,21 +972,22 @@ function GameContent() {
       Vibration.vibrate([0, 100, 50, 100]);
       playSuccessSound();
 
-      if (isArcade && !discoveredRecipes.includes((match as Recipe).id)) {
+      // Solo mostrar notificación de descubrimiento para recetas reales, no para strange burgers
+      if (isArcade && (match as Recipe).id !== 'strange' && !discoveredRecipes.includes((match as Recipe).id)) {
         setDiscoveredRecipes(prev => [...prev, (match as Recipe).id]);
         const discoveredName = t[(match as Recipe).name as keyof typeof t] || (match as Recipe).name;
         playDiscoverSound();
         Alert.alert(t.new_discovery, `${t.discovery_msg}${discoveredName}`);
       }
 
-      const matchPrice = isArcade ? (match as Recipe).price : currentPrice;
+      const matchPrice = isArcade ? (match as Recipe).price : (match.isTargetRecipe ? currentPrice : 0);
       const newMoney = money + matchPrice;
-      const newBurgersCreated = burgersCreated + 1;
+      const newBurgersCreated = burgersCreated + (match.isTargetRecipe ? 1 : 0);
       const isLevelComplete = !isArcade && newBurgersCreated >= burgerTarget;
 
       // Mostrar toast si es modo arcade
       if (isArcade) {
-        showRecipeToast((match as Recipe).name, (match as Recipe).price);
+        showRecipeToast((match as Recipe).name, matchPrice);
       }
 
       setGrid(prev => prev.map(c => 
@@ -993,7 +1000,7 @@ function GameContent() {
           setBurgersCreated(newBurgersCreated);
           setShouldBlinkBurgers(true);
           setTimeout(() => setShouldBlinkBurgers(false), 200);
-          setGlobalMoney(prev => prev + matchPrice);
+          setGlobalMoney(prev => prev + (match.isTargetRecipe ? matchPrice : 0));
           // Limpiar timeout de ayuda si existe
           if (helpTextTimeoutRef.current) {
             clearTimeout(helpTextTimeoutRef.current);

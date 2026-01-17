@@ -154,7 +154,7 @@ export const styles = StyleSheet.create({
   secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' },
   helpTextContainerCenter: {
     position: 'absolute',
-    top: '42%',
+    top: '35%',
     left: 0,
     right: 0,
     backgroundColor: '#f8f9fa',
