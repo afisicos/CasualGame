@@ -14,7 +14,7 @@ interface IntroScreenProps {
   recipeIngredients?: PieceType[];
   recipePrice?: number; // Nuevo: Precio de la receta
   description: string;
-  targetMoney: number;
+  targetBurgers: number;
   timeLimit: number;
   timeBoostCount: number;
   superTimeBoostCount: number;
@@ -41,8 +41,8 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
   newRecipe,
   recipeIngredients,
   recipePrice,
-  description, 
-  targetMoney, 
+  description,
+  targetBurgers, 
   timeLimit,
   timeBoostCount,
   superTimeBoostCount,
@@ -114,7 +114,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>{t.objective}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.statValue}>{recipePrice ? Math.floor(targetMoney / recipePrice) : targetMoney}</Text>
+              <Text style={styles.statValue}>{targetBurgers}</Text>
               <Image source={require('../assets/Iconos/burger.png')} style={styles.statCoin} resizeMethod="resize" />
             </View>
           </View>

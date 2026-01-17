@@ -7,7 +7,7 @@ import { styles } from '../styles/ResultScreen.styles';
 interface ResultScreenProps {
   gameMode: GameMode;
   money: number;
-  targetMoney: number;
+  targetBurgers: number;
   burgersCreated: number;
   burgerTarget: number;
   arcadeHighScore: number;
@@ -20,7 +20,7 @@ interface ResultScreenProps {
 const ResultScreen: React.FC<ResultScreenProps> = ({ 
   gameMode, 
   money, 
-  targetMoney, 
+  targetBurgers, 
   burgersCreated,
   burgerTarget,
   arcadeHighScore, 

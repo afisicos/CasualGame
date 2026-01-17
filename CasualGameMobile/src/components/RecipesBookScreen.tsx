@@ -23,6 +23,11 @@ const RecipesBookScreen: React.FC<RecipesBookScreenProps> = ({
     unlockedRecipes.includes(recipe.id) || (recipe.isSecret && discoveredRecipes.includes(recipe.id))
   );
 
+  // Calcular progreso de recetas
+  const totalRecipes = BASE_RECIPES.length;
+  const unlockedCount = availableRecipes.length;
+  const progressPercentage = totalRecipes > 0 ? (unlockedCount / totalRecipes) * 100 : 0;
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -33,6 +38,21 @@ const RecipesBookScreen: React.FC<RecipesBookScreenProps> = ({
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{t.recipes}</Text>
+      </View>
+
+      {/* Progress Bar */}
+      <View style={{ alignItems: 'center', marginBottom: 10 }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: 'white', marginBottom: 5 }}>
+          {unlockedCount}/{totalRecipes} {t.recipes.toLowerCase()}
+        </Text>
+        <View style={styles.progressContainer}>
+          <View
+            style={[
+              styles.progressBar,
+              { width: `${progressPercentage}%` }
+            ]}
+          />
+        </View>
       </View>
 
       {/* Recipes Grid */}

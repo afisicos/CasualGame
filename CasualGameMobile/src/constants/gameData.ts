@@ -56,107 +56,107 @@ export const BASE_RECIPES: Recipe[] = [
 ];
 
 export const LEVELS: Level[] = [
-  { 
-    id: 1, 
-    name: "l1_name", 
-    targetMoney: 45, 
-    ingredients: ['BREAD', 'MEAT', 'TOMATO'], 
-    newIngredient: 'TOMATO', 
+  {
+    id: 1,
+    name: "l1_name",
+    targetBurgers: 6,
+    ingredients: ['BREAD', 'MEAT', 'TOMATO'],
+    newIngredient: 'TOMATO',
     showNewIngredient: true,
     newRecipe: 'tomato_burger',
-    description: "l1_desc" 
+    description: "l1_desc"
   },
-  { 
-    id: 2, 
-    name: "l2_name", 
-    targetMoney: 40, 
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO'], 
-    newIngredient: 'CHEESE', 
+  {
+    id: 2,
+    name: "l2_name",
+    targetBurgers: 4,
+    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO'],
+    newIngredient: 'CHEESE',
     showNewIngredient: false,
     newRecipe: 'cheese_tomato',
-    description: "l2_desc" 
+    description: "l2_desc"
   },
-  { 
-    id: 3, 
-    name: "l3_name", 
-    targetMoney: 50, 
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'], 
-    newIngredient: 'LETTUCE', 
+  {
+    id: 3,
+    name: "l3_name",
+    targetBurgers: 5,
+    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'],
+    newIngredient: 'LETTUCE',
     showNewIngredient: true,
     newRecipe: 'veggie',
-    description: "l3_desc" 
+    description: "l3_desc"
   },
-  { 
-    id: 4, 
-    name: "l4_name", 
-    targetMoney: 60, 
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'], 
+  {
+    id: 4,
+    name: "l4_name",
+    targetBurgers: 3,
+    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'],
     showNewIngredient: false,
     newRecipe: 'veggie_cheese',
-    description: "l4_desc" 
+    description: "l4_desc"
   },
-  { 
-    id: 5, 
-    name: "l5_name", 
-    targetMoney: 60, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO'], 
-    newIngredient: 'BACON', 
+  {
+    id: 5,
+    name: "l5_name",
+    targetBurgers: 5,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO'],
+    newIngredient: 'BACON',
     showNewIngredient: true,
     newRecipe: 'bacon_cheese',
-    description: "l5_desc" 
+    description: "l5_desc"
   },
-  { 
-    id: 6, 
-    name: "l6_name", 
-    targetMoney: 45, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO','LETTUCE'], 
+  {
+    id: 6,
+    name: "l6_name",
+    targetBurgers: 4,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO','LETTUCE'],
     showNewIngredient: false,
     newRecipe: 'tomatomato',
-    description: "l6_desc" 
+    description: "l6_desc"
   },
-  { 
-    id: 7, 
-    name: "l7_name", 
-    targetMoney: 65, 
-    ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'CHEESE', 'TOMATO', 'KETCHUP'], 
-    newIngredient: 'KETCHUP', 
+  {
+    id: 7,
+    name: "l7_name",
+    targetBurgers: 6,
+    ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'CHEESE', 'TOMATO', 'KETCHUP'],
+    newIngredient: 'KETCHUP',
     showNewIngredient: true,
     newRecipe: 'ketchup_lettuce',
-    description: "l7_desc" 
+    description: "l7_desc"
   },
-  { 
-    id: 8, 
-    name: "l8_name", 
-    targetMoney: 60, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'LETTUCE'], 
+  {
+    id: 8,
+    name: "l8_name",
+    targetBurgers: 4,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'LETTUCE'],
     showNewIngredient: false,
     newRecipe: 'antivegetal',
-    description: "l8_desc" 
+    description: "l8_desc"
   },
-  { 
-    id: 9, 
-    name: "l9_name", 
-    targetMoney: 70, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'ONION'], 
+  {
+    id: 9,
+    name: "l9_name",
+    targetBurgers: 2,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'ONION', 'LETTUCE'],
     newIngredient: 'ONION',
     showNewIngredient: true,
     newRecipe: 'tonion_burger',
-    description: "l9_desc" 
+    description: "l9_desc"
   },
-  { 
-    id: 10, 
-    name: "l10_name", 
-    targetMoney: 70, 
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION'], 
+  {
+    id: 10,
+    name: "l10_name",
+    targetBurgers: 10,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION'],
     showNewIngredient: false,
     newRecipe: 'onioner',
-    description: "l10_desc" 
+    description: "l10_desc"
   },
   {
     id: 11,
     name: "l11_name",
-    targetMoney: 85,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'LETTUCE', 'KETCHUP', 'ONION'],
+    targetBurgers: 5,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'ONION'],
     showNewIngredient: false,
     newRecipe: 'loaded_bbq',
     description: "l11_desc"
@@ -164,7 +164,7 @@ export const LEVELS: Level[] = [
   {
     id: 12,
     name: "l12_name",
-    targetMoney: 120,
+    targetBurgers: 8,
     ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'ONION', 'PICKLE'],
     newIngredient: 'PICKLE',
     showNewIngredient: true,
@@ -174,7 +174,7 @@ export const LEVELS: Level[] = [
   {
     id: 13,
     name: "l13_name",
-    targetMoney: 110,
+    targetBurgers: 6,
     ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'KETCHUP', 'PICKLE'],
     showNewIngredient: false,
     newRecipe: 'green_pickle',
@@ -183,8 +183,8 @@ export const LEVELS: Level[] = [
   {
     id: 14,
     name: "l14_name",
-    targetMoney: 110,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'ONION', 'PICKLE', 'KETCHUP', 'CHEESE'],
+    targetBurgers: 5,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'ONION', 'PICKLE', 'KETCHUP', 'CHEESE', 'TOMATO'],
     showNewIngredient: false,
     newRecipe: 'bacon_pickle',
     description: "l14_desc"
@@ -192,7 +192,7 @@ export const LEVELS: Level[] = [
   {
     id: 15,
     name: "l15_name",
-    targetMoney: 80,
+    targetBurgers: 2,
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE'],
     showNewIngredient: false,
     newRecipe: 'everything_pickle',
@@ -201,8 +201,8 @@ export const LEVELS: Level[] = [
   {
     id: 16,
     name: "l16_name",
-    targetMoney: 140,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'KETCHUP', 'TOMATO', 'EGG'],
+    targetBurgers: 5,
+    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'TOMATO', 'EGG'],
     newIngredient: 'EGG',
     showNewIngredient: true,
     newRecipe: 'ranchera',
@@ -211,7 +211,7 @@ export const LEVELS: Level[] = [
   {
     id: 17,
     name: "l17_name",
-    targetMoney: 110,
+    targetBurgers: 7,
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE', 'EGG'],
     showNewIngredient: false,
     newRecipe: 'egg_ketchup',

@@ -27,7 +27,7 @@ export interface Cell {
 export interface Level {
   id: number;
   name: string;
-  targetMoney: number;
+  targetBurgers: number;
   ingredients: PieceType[];
   newIngredient?: PieceType; // Opcional: algunos niveles solo descubren recetas
   showNewIngredient?: boolean;

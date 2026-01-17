@@ -160,7 +160,7 @@ function GameContent() {
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVELS && LEVELS.length > 0 ? LEVELS[0] : {
     id: 1,
     name: 'level_1',
-    targetMoney: 100,
+    targetBurgers: 100,
     ingredients: ['BREAD', 'MEAT'],
     description: 'level_1_desc'
   });
@@ -606,10 +606,9 @@ function GameContent() {
       if (recipe) {
         setCurrentOrder(recipe.ingredients);
         setCurrentPrice(recipe.price);
-        // Calculate burger target for campaign mode
+        // Set burger target for campaign mode
         if (currentMode === 'CAMPAIGN' && currentLevel) {
-          const targetBurgers = Math.floor(currentLevel.targetMoney / recipe.price);
-          setBurgerTarget(targetBurgers);
+          setBurgerTarget(currentLevel.targetBurgers);
         }
         return;
       } else {
@@ -1309,7 +1308,7 @@ function GameContent() {
             recipeIngredients={levelRecipe?.ingredients}
             recipePrice={levelRecipe?.price}
             description={selectedLevel.description}
-            targetMoney={selectedLevel.targetMoney} 
+            targetBurgers={selectedLevel.targetBurgers} 
             timeLimit={60}
             timeBoostCount={timeBoostCount}
             superTimeBoostCount={superTimeBoostCount}
@@ -1344,7 +1343,7 @@ function GameContent() {
           <ResultScreen 
             gameMode={gameMode} 
             money={money} 
-            targetMoney={selectedLevel.targetMoney}
+            targetBurgers={selectedLevel.targetBurgers}
             burgersCreated={burgersCreated}
             burgerTarget={burgerTarget}
             arcadeHighScore={arcadeHighScore} 
