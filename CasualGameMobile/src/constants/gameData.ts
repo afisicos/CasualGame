@@ -17,41 +17,41 @@ export const INGREDIENT_IMAGES: Record<PieceType, any> = {
 };
 
 export const BASE_RECIPES: Recipe[] = [
-  { id: 'classic', name: 'r_pure', ingredients: ['BREAD', 'MEAT', 'BREAD'], price: 5, isSecret: false },
-  { id: 'cheese', name: 'r_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'BREAD'], price: 8, isSecret: false },
-  { id: 'double_cheese', name: 'r_double_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE','CHEESE', 'BREAD'], price: 12, isSecret: true },
-  { id: 'tomatomato', name: 'r_tomatomato', ingredients: ['BREAD', 'MEAT', 'TOMATO','TOMATO', 'TOMATO', 'BREAD'], price: 14, isSecret: false },
-  { id: 'tomato_burger', name: 'r_tomato_burger', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'BREAD'], price: 8, isSecret: false },
-  { id: 'cheese_tomato', name: 'r_cheese_tomato', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'BREAD'], price: 12, isSecret: false },
-  { id: 'veggie', name: 'r_garden', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'BREAD'], price: 12, isSecret: false },
-  { id: 'lettuce_burger', name: 'r_lettuce_burger', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'BREAD'], price: 8, isSecret: true },
-  { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 23, isSecret: true },
-  { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 14, isSecret: false },
-  { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 12, isSecret: true },
-  { id: 'antivegetal', name: 'r_antivegetal', ingredients: ['BREAD', 'MEAT', 'MEAT', 'CHEESE', 'BACON', 'BREAD'], price: 16, isSecret: false },
-  { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 7, isSecret: true },
-  { id: 'ketchup_lettuce', name: 'r_ketchup_lettuce', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'KETCHUP', 'BREAD'], price: 12, isSecret: true },
-  { id: 'onioner', name: 'r_onioner', ingredients: ['BREAD', 'MEAT', 'ONION', 'ONION', 'BREAD'], price: 12, isSecret: false },
-  { id: 'tonion_burger', name: 'r_tonion_burger', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE','TOMATO','ONION', 'BREAD'], price: 35, isSecret: false },
-  { id: 'dirty_one', name: 'r_dirty_one', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'BREAD'], price: 11, isSecret: true },
+  { id: 'classic', name: 'r_pure', ingredients: ['BREAD', 'MEAT', 'BREAD'], price: 5 },
+  { id: 'cheese', name: 'r_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'BREAD'], price: 8 },
+  { id: 'double_cheese', name: 'r_double_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE','CHEESE', 'BREAD'], price: 12 },
+  { id: 'tomatomato', name: 'r_tomatomato', ingredients: ['BREAD', 'MEAT', 'TOMATO','TOMATO', 'TOMATO', 'BREAD'], price: 14},
+  { id: 'tomato_burger', name: 'r_tomato_burger', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'BREAD'], price: 8 },
+  { id: 'cheese_tomato', name: 'r_cheese_tomato', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'BREAD'], price: 12 },
+  { id: 'veggie', name: 'r_garden', ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'BREAD'], price: 12 },
+  { id: 'lettuce_burger', name: 'r_lettuce_burger', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'BREAD'], price: 8 },
+  { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 23 },
+  { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 14 },
+  { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 12 },
+  { id: 'antivegetal', name: 'r_antivegetal', ingredients: ['BREAD', 'MEAT', 'MEAT', 'CHEESE', 'BACON', 'BREAD'], price: 16 },
+  { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 7 },
+  { id: 'ketchup_lettuce', name: 'r_ketchup_lettuce', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'KETCHUP', 'BREAD'], price: 12 },
+  { id: 'onioner', name: 'r_onioner', ingredients: ['BREAD', 'MEAT', 'ONION', 'ONION', 'BREAD'], price: 12 },
+  { id: 'tonion_burger', name: 'r_tonion_burger', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE','TOMATO','ONION', 'BREAD'], price: 35 },
+  { id: 'dirty_one', name: 'r_dirty_one', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'BREAD'], price: 11 },
   // --- Nuevas recetas (11+) ---
-  { id: 'loaded_bbq', name: 'r_loaded_bbq', ingredients: ['BREAD', 'MEAT', 'BACON', 'KETCHUP', 'ONION', 'BREAD'], price: 20, isSecret: false },
-  { id: 'cheese_onion_ketchup', name: 'r_cheese_onion_ketchup', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'ONION', 'KETCHUP', 'BREAD'], price: 19, isSecret: true },
-  { id: 'double_meat_bacon', name: 'r_double_meat_bacon', ingredients: ['BREAD', 'MEAT', 'MEAT', 'BACON', 'BREAD'], price: 16, isSecret: true },
-  { id: 'veggie_ketchup', name: 'r_veggie_ketchup', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'KETCHUP', 'BREAD'], price: 18, isSecret: false },
+  { id: 'loaded_bbq', name: 'r_loaded_bbq', ingredients: ['BREAD', 'MEAT', 'BACON', 'KETCHUP', 'ONION', 'BREAD'], price: 20 },
+  { id: 'cheese_onion_ketchup', name: 'r_cheese_onion_ketchup', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'ONION', 'KETCHUP', 'BREAD'], price: 19 },
+  { id: 'double_meat_bacon', name: 'r_double_meat_bacon', ingredients: ['BREAD', 'MEAT', 'MEAT', 'BACON', 'BREAD'], price: 16 },
+  { id: 'veggie_ketchup', name: 'r_veggie_ketchup', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'KETCHUP', 'BREAD'], price: 18 },
 
   // Pepinillo (12+)
-  { id: 'cheese_pickle', name: 'r_cheese_pickle', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'PICKLE', 'BREAD'], price: 14, isSecret: false },
-  { id: 'ketchup_pickle', name: 'r_ketchup_pickle', ingredients: ['BREAD', 'MEAT', 'KETCHUP', 'PICKLE', 'BREAD'], price: 13, isSecret: false },
-  { id: 'pickle_onion', name: 'r_pickle_onion', ingredients: ['BREAD', 'MEAT', 'PICKLE', 'ONION', 'BREAD'], price: 14, isSecret: false },
-  { id: 'bacon_pickle', name: 'r_bacon_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'PICKLE', 'BREAD'], price: 15, isSecret: true },
-  { id: 'green_pickle', name: 'r_green_pickle', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'PICKLE', 'BREAD'], price: 19, isSecret: false },
-  { id: 'everything_pickle', name: 'r_everything_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'BREAD'], price: 28, isSecret: true },
+  { id: 'cheese_pickle', name: 'r_cheese_pickle', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'PICKLE', 'BREAD'], price: 14 },
+  { id: 'ketchup_pickle', name: 'r_ketchup_pickle', ingredients: ['BREAD', 'MEAT', 'KETCHUP', 'PICKLE', 'BREAD'], price: 13 },
+  { id: 'pickle_onion', name: 'r_pickle_onion', ingredients: ['BREAD', 'MEAT', 'PICKLE', 'ONION', 'BREAD'], price: 14 },
+  { id: 'bacon_pickle', name: 'r_bacon_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'PICKLE', 'BREAD'], price: 15 },
+  { id: 'green_pickle', name: 'r_green_pickle', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'TOMATO', 'PICKLE', 'BREAD'], price: 19 },
+  { id: 'everything_pickle', name: 'r_everything_pickle', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'BREAD'], price: 28 },
 
   // --- Niveles con Huevo (16+) ---
-  { id: 'ranchera', name: 'r_ranchera', ingredients: ['BREAD', 'MEAT', 'BACON', 'EGG', 'CHEESE', 'ONION', 'BREAD'], price: 30, isSecret: false },
-  { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18, isSecret: false },
-  { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25, isSecret: true },
+  { id: 'ranchera', name: 'r_ranchera', ingredients: ['BREAD', 'MEAT', 'BACON', 'EGG', 'CHEESE', 'ONION', 'BREAD'], price: 30 },
+  { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18 },
+  { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
 
 ];
 
@@ -222,8 +222,10 @@ export const LEVELS: Level[] = [
 // Mapeo de qué recetas están desbloqueadas según el nivel superado
 export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   const recipes = ['classic'];
-  if (arcadeUnlockedLevel >= 1) 
+  if (arcadeUnlockedLevel >= 1) {
     recipes.push('tomato_burger');
+    recipes.push('tomatomato');
+  } 
   if (arcadeUnlockedLevel >= 2) {
     recipes.push('cheese');
     recipes.push('double_cheese');
@@ -231,28 +233,19 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   }
   if (arcadeUnlockedLevel >= 3) {
     recipes.push('veggie');
-  }
-  if (arcadeUnlockedLevel >= 4) {
     recipes.push('veggie_cheese');
   }
   if (arcadeUnlockedLevel >= 5) {
     recipes.push('bacon_cheese');
     recipes.push('super_bacon');
-  }
-  if (arcadeUnlockedLevel >= 6) {
-    recipes.push('tomatomato');
+    recipes.push('antivegetal');
   }
   if (arcadeUnlockedLevel >= 7) {
     recipes.push('ketchup_lettuce');
     recipes.push('dirty_one');
   }
-  if (arcadeUnlockedLevel >= 8) {
-    recipes.push('antivegetal');
-  }
   if (arcadeUnlockedLevel >= 9) {
     recipes.push('tonion_burger');
-  }
-  if (arcadeUnlockedLevel >= 10) {
     recipes.push('onioner');
   }
   if (arcadeUnlockedLevel >= 11) {
@@ -265,20 +258,12 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
     recipes.push('cheese_pickle');
     recipes.push('ketchup_pickle');
     recipes.push('pickle_onion');
-  }
-  if (arcadeUnlockedLevel >= 13) {
     recipes.push('green_pickle');
-  }
-  if (arcadeUnlockedLevel >= 14) {
     recipes.push('bacon_pickle');
-  }
-  if (arcadeUnlockedLevel >= 15) {
     recipes.push('everything_pickle');
   }
   if (arcadeUnlockedLevel >= 16) {
     recipes.push('ranchera');
-  }
-  if (arcadeUnlockedLevel >= 17) {
     recipes.push('egg_ketchup');
     recipes.push('protein');
   }
@@ -302,8 +287,7 @@ export const getUnlockedRecipesForCampaign = (campaignUnlockedLevel: number) => 
 
 // Mapeo de qué ingredientes están disponibles según el nivel superado
 export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => {
-  const ingredients: PieceType[] = ['BREAD', 'MEAT'];
-  if (arcadeUnlockedLevel >= 1) ingredients.push('TOMATO');
+  const ingredients: PieceType[] = ['BREAD', 'MEAT', 'TOMATO']; // TOMATO está disponible desde el inicio
   if (arcadeUnlockedLevel >= 2) ingredients.push('CHEESE');
   if (arcadeUnlockedLevel >= 3) ingredients.push('LETTUCE');
   if (arcadeUnlockedLevel >= 5) ingredients.push('BACON');
@@ -311,6 +295,19 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => 
   if (arcadeUnlockedLevel >= 9) ingredients.push('ONION');
   if (arcadeUnlockedLevel >= 12) ingredients.push('PICKLE');
   if (arcadeUnlockedLevel >= 16) ingredients.push('EGG');
+  return ingredients;
+};
+
+// Mapeo de qué ingredientes están disponibles según el nivel de campaña alcanzado
+export const getUnlockedIngredientsForCampaign = (campaignUnlockedLevel: number) => {
+  const ingredients: PieceType[] = ['BREAD', 'MEAT', 'TOMATO']; // TOMATO está disponible desde el inicio
+  if (campaignUnlockedLevel >= 2) ingredients.push('CHEESE');
+  if (campaignUnlockedLevel >= 3) ingredients.push('LETTUCE');
+  if (campaignUnlockedLevel >= 5) ingredients.push('BACON');
+  if (campaignUnlockedLevel >= 7) ingredients.push('KETCHUP');
+  if (campaignUnlockedLevel >= 9) ingredients.push('ONION');
+  if (campaignUnlockedLevel >= 12) ingredients.push('PICKLE');
+  if (campaignUnlockedLevel >= 16) ingredients.push('EGG');
   return ingredients;
 };
 

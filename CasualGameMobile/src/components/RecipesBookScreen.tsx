@@ -18,9 +18,9 @@ const RecipesBookScreen: React.FC<RecipesBookScreenProps> = ({
   onPlaySound,
   t
 }) => {
-  // Filtrar solo las recetas desbloqueadas y descubiertas
+  // Filtrar solo las recetas completamente descubiertas
   const availableRecipes = BASE_RECIPES.filter(recipe =>
-    unlockedRecipes.includes(recipe.id) || (recipe.isSecret && discoveredRecipes.includes(recipe.id))
+    discoveredRecipes.includes(recipe.id)
   );
 
   // Calcular progreso de recetas
@@ -59,7 +59,7 @@ const RecipesBookScreen: React.FC<RecipesBookScreenProps> = ({
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.recipesGrid}>
           {availableRecipes.map((recipe) => {
-            const isDiscovered = !recipe.isSecret || discoveredRecipes.includes(recipe.id);
+            const isDiscovered = discoveredRecipes.includes(recipe.id);
             return (
               <View
                 key={recipe.id}

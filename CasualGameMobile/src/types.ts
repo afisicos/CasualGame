@@ -4,7 +4,6 @@ export interface Recipe {
   name: string;
   ingredients: PieceType[];
   price: number;
-  isSecret: boolean;
   discovered?: boolean;
 }
 

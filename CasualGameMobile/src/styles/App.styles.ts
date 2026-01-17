@@ -24,11 +24,11 @@ export const styles = StyleSheet.create({
   },
   orderCard: {
     backgroundColor: '#efe5d9', // Mismo color que el fondo del tablero
-    padding: 15,
+    padding: 8,
     borderRadius: 24,
     width: '100%',
     marginBottom: 25,
-    marginTop: 15,
+    marginTop: 0,
     elevation: 12,
     shadowColor: '#8b4513',
     shadowOffset: { width: 0, height: 6 },
@@ -40,23 +40,34 @@ export const styles = StyleSheet.create({
   orderHeader: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 8, alignItems: 'center' },
   orderLabel: { fontSize: 10, fontWeight: '800', color: '#adb5bd', letterSpacing: 1 },
   burgerNameText: { fontSize: 14, fontWeight: '900', color: '#4a4a4a', marginTop: 2 },
+  orderHeaderCompact: { alignItems: 'center', width: '100%', marginBottom: 4 },
+  burgerNameTextCentered: { fontSize: 16, fontWeight: '900', color: '#4a4a4a', textAlign: 'center' },
   priceLabel: { fontSize: 18, fontWeight: '900', color: '#27ae60' },
   priceIcon: { width: 22, height: 22, marginTop: 2 },
-  orderPieces: { 
-    flexDirection: 'row-reverse', 
-    alignItems: 'center', 
-    height: 80, 
-    justifyContent: 'center', 
+  orderPieces: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    height: 80,
+    justifyContent: 'center',
     width: '100%',
     paddingHorizontal: 5,
-    overflow: 'visible' 
+    overflow: 'visible'
+  },
+  orderPiecesCompact: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    height: 50,
+    justifyContent: 'center',
+    width: '100%',
+    paddingHorizontal: 5,
+    overflow: 'visible'
   },
   waitingContainer: { height: 100, justifyContent: 'center', alignItems: 'center', width: '100%' },
   waitingText: { fontSize: 12, fontWeight: '900', color: '#adb5bd', letterSpacing: 1 },
   countdownText: { fontSize: 32, fontWeight: '900', color: '#ff922b', letterSpacing: 2 },
   boardWrapper: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', width: '100%', paddingBottom: 0 },
   // Estilos Modo Arcade Integrado
-  arcadeRecipeContainer: { width: '100%', height: 200 },
+  arcadeRecipeContainer: { width: '100%', height: 150 },
   recipeLabelIntegrated: { fontSize: 10, fontWeight: '900', color: '#495057', letterSpacing: 1, marginBottom: 8, textAlign: 'center' },
   recipeListIntegrated: { flex: 1 },
   recipeItem: {

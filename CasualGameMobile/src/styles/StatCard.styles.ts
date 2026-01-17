@@ -1,17 +1,12 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  card: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#efe5d9', // Mismo color que el fondo del tablero
-    padding: 10, 
-    borderRadius: 15, 
-    elevation: 12,
-    shadowColor: '#8b4513',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    padding: 10,
+    borderRadius: 15,
     minHeight: 60,
   },
   cardVertical: {
@@ -21,15 +16,10 @@ export const styles = StyleSheet.create({
     padding: 8,
     minHeight: 80,
     height: 80,
-    elevation: 12,
-    shadowColor: '#8b4513',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
   },
   iconContainer: { 
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     alignItems: 'center', 
     justifyContent: 'center', 
     marginRight: 8 
@@ -101,6 +91,27 @@ export const styles = StyleSheet.create({
     minWidth: 0,
     flexShrink: 1,
   },
-  lowTimeValue: { color: '#e74c3c' }
+  lowTimeValue: { color: '#e74c3c' },
+  touchableContainer: {
+    backgroundColor: '#efe5d9', // Mismo color que el fondo del tablero
+    borderRadius: 15,
+    elevation: 12,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    minHeight: 50,
+  },
+  touchableContainerVertical: {
+    backgroundColor: '#efe5d9', // Mismo color que el fondo del tablero
+    borderRadius: 15,
+    elevation: 12,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    minHeight: 80,
+    height: 80,
+  },
 });
 

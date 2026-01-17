@@ -32,6 +32,7 @@ import {
   getUnlockedRecipesForArcade,
   getUnlockedRecipesForCampaign,
   getUnlockedIngredientsForArcade,
+  getUnlockedIngredientsForCampaign,
   INGREDIENT_IMAGES
 } from './constants/gameData';
 import { 
@@ -43,6 +44,7 @@ import {
   calculatePrice 
 } from './utils/gameLogic';
 import { styles } from './styles/App.styles';
+import { styles as statCardStyles } from './styles/StatCard.styles';
 import { initializeAds, showRewardedAd } from './utils/ads';
 import { logScreenView, logGameEvent } from './utils/analytics';
 
@@ -200,7 +202,7 @@ function GameContent() {
   const t = TRANSLATIONS[language];
 
   // Recetario
-  const [discoveredRecipes, setDiscoveredRecipes] = useState<string[]>([]);
+  const [discoveredRecipes, setDiscoveredRecipes] = useState<string[]>(['classic', 'tomato_burger']);
   const [isRecipeListVisible, setIsRecipeListVisible] = useState(false);
 
   // Inicializar Firebase Analytics y AdMob al montar el componente
@@ -345,7 +347,13 @@ function GameContent() {
           setGlobalMoney(200);
         }
         if (savedSound) setIsSoundEnabled(savedSound === 'true');
-        if (savedRecipes) setDiscoveredRecipes(JSON.parse(savedRecipes));
+        if (savedRecipes) {
+          setDiscoveredRecipes(JSON.parse(savedRecipes));
+        } else {
+          // Si no hay datos guardados, asegura que tenga las recetas básicas y las guarda
+          setDiscoveredRecipes(['classic', 'tomato_burger']);
+          AsyncStorage.setItem('discoveredRecipes', JSON.stringify(['classic', 'tomato_burger']));
+        }
         if (savedLang) setLanguage(savedLang as 'es' | 'en');
         if (savedTimeBoost) setTimeBoostCount(parseInt(savedTimeBoost));
         if (savedSuperTimeBoost) setSuperTimeBoostCount(parseInt(savedSuperTimeBoost));
@@ -577,7 +585,7 @@ function GameContent() {
     if (mode === 'ARCADE') {
       ingredients = getUnlockedIngredientsForArcade(currentUnlockedLevel);
     } else {
-      ingredients = level.ingredients;
+      ingredients = getUnlockedIngredientsForCampaign(currentUnlockedLevel);
     }
 
     for (let row = 0; row < gridSize; row++) {
@@ -784,6 +792,19 @@ function GameContent() {
     setIsGameStarted(true);
     generateNewOrder(currentGrid, undefined, mode, level);
     Vibration.vibrate(50);
+
+    // Descubrir automáticamente la receta del nivel al jugar por primera vez (solo en campaña)
+    if (mode === 'CAMPAIGN' && level?.newRecipe && !discoveredRecipes.includes(level.newRecipe)) {
+      setDiscoveredRecipes(prev => [...prev, level.newRecipe!]);
+    }
+
+    // Mostrar mensaje de instrucciones durante 5 segundos al iniciar el nivel (solo en campaña)
+    if (mode === 'CAMPAIGN') {
+      setHelpText(t.recipe_instruction);
+      setTimeout(() => {
+        setHelpText('');
+      }, 5000);
+    }
   };
 
 
@@ -918,7 +939,7 @@ function GameContent() {
     if (isArcade) {
       const unlockedIds = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
       match = BASE_RECIPES.find(r => {
-        if (!unlockedIds.includes(r.id) && !r.isSecret) return false;
+        if (!unlockedIds.includes(r.id)) return false;
         return isRecipeMatch(selectionTypes, r.ingredients);
       });
 
@@ -927,12 +948,11 @@ function GameContent() {
         const hasMeat = selectionTypes.includes('MEAT');
         if (hasMeat) {
           const uniqueIngredients = new Set(selectionTypes).size;
-          match = { 
-            id: 'strange', 
-            name: 'strange_burger', 
+          match =           {
+            id: 'strange',
+            name: 'strange_burger',
             price: 2 + uniqueIngredients,
-            ingredients: [],
-            isSecret: false
+            ingredients: []
           } as Recipe;
         }
       }
@@ -946,7 +966,7 @@ function GameContent() {
       Vibration.vibrate([0, 100, 50, 100]);
       playSuccessSound();
 
-      if (isArcade && (match as Recipe).isSecret && !discoveredRecipes.includes((match as Recipe).id)) {
+      if (isArcade && !discoveredRecipes.includes((match as Recipe).id)) {
         setDiscoveredRecipes(prev => [...prev, (match as Recipe).id]);
         const discoveredName = t[(match as Recipe).name as keyof typeof t] || (match as Recipe).name;
         playDiscoverSound();
@@ -1071,7 +1091,7 @@ function GameContent() {
     setArcadeHighScore(0);
     setGlobalMoney(0);
     setEnergy(MAX_ENERGY);
-    setDiscoveredRecipes([]);
+    setDiscoveredRecipes(['classic', 'tomato_burger']);
     setTimeBoostCount(0);
     setSuperTimeBoostCount(0);
     setDestructionPackCount(0);
@@ -1082,6 +1102,8 @@ function GameContent() {
     setUseSuperDestructionPack(false);
     setScreen('MENU');
     await AsyncStorage.clear();
+    // Después de limpiar, guardar las recetas básicas
+    await AsyncStorage.setItem('discoveredRecipes', JSON.stringify(['classic', 'tomato_burger']));
   };
 
   const buyTimeBoost = () => {
@@ -1359,7 +1381,7 @@ function GameContent() {
           <View style={styles.container}>
             <View style={styles.statsRow}>
               <TouchableOpacity
-                style={styles.statTouchable}
+                style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
                 onPress={() => {
                   if (gameMode === 'CAMPAIGN') {
                     // Limpiar timeout anterior si existe
@@ -1386,7 +1408,7 @@ function GameContent() {
               />
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.statTouchable}
+                style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
                 onPress={() => {
                   if (gameMode === 'CAMPAIGN') {
                     // Limpiar timeout anterior si existe
@@ -1412,7 +1434,7 @@ function GameContent() {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.statTouchable}
+                style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
                 onPress={() => {
                   if (gameMode === 'CAMPAIGN') {
                     // Limpiar timeout anterior si existe
@@ -1459,12 +1481,10 @@ function GameContent() {
                            nestedScrollEnabled={true}
                          >
                            {BASE_RECIPES.filter(r => {
-                             const isUnlockedNormal = getUnlockedRecipesForArcade(arcadeUnlockedLevel).includes(r.id);
-                             const isSecretDiscovered = r.isSecret && discoveredRecipes.includes(r.id);
-                             return isUnlockedNormal || isSecretDiscovered;
+                             return discoveredRecipes.includes(r.id);
                            }).map((recipe) => {
-                             const isDiscovered = !recipe.isSecret || discoveredRecipes.includes(recipe.id);
-                             const isUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel).includes(recipe.id) || (recipe.isSecret && discoveredRecipes.includes(recipe.id));
+                             const isDiscovered = true; // Todas las recetas que llegan aquí están descubiertas
+                             const isUnlocked = true; // Todas están disponibles
                              
                              // Ya está filtrado arriba, así que siempre debería mostrarse
 
@@ -1527,13 +1547,10 @@ function GameContent() {
                 </View>
               ) : (
                 <>
-                  <View style={styles.orderHeader}>
-                    <View>
-                      <Text style={styles.orderLabel}>{t.current_order}</Text>
-                      <Text style={styles.burgerNameText}>{getBurgerName(currentOrder, language)}</Text>
-                    </View>
+                  <View style={styles.orderHeaderCompact}>
+                    <Text style={styles.burgerNameTextCentered}>{getBurgerName(currentOrder, language)}</Text>
                   </View>
-                  <View style={styles.orderPieces}>
+                  <View style={styles.orderPiecesCompact}>
                     {currentOrder.map((type, i) => {
                       // Escalado dinámico corregido
                       const count = currentOrder.length;
@@ -1553,7 +1570,6 @@ function GameContent() {
                       );
                     })}
                   </View>
-                  <Text style={styles.recipeInstruction}>{t.recipe_instruction}</Text>
                 </>
               )}
             </View>
@@ -1579,7 +1595,7 @@ function GameContent() {
             {isArcade && expandedRecipeId ? (() => {
               const expandedRecipe = BASE_RECIPES.find(r => r.id === expandedRecipeId);
               if (!expandedRecipe) return null;
-              const isDiscovered = !expandedRecipe.isSecret || discoveredRecipes.includes(expandedRecipe.id);
+              const isDiscovered = discoveredRecipes.includes(expandedRecipe.id);
               return (
                 <View style={styles.recipeExpandedOverlay}>
                   <View style={styles.recipeExpandedContent}>
