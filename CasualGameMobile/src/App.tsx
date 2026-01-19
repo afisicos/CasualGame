@@ -523,10 +523,20 @@ function GameContent() {
   };
 
   const playSuccessSound = async () => {
-    if (!successSoundRef.current || !isSoundEnabled) return;
+    if (!successSoundRef.current || !isSoundEnabled) {
+      console.log('Sonido no disponible o sonido desactivado');
+      return;
+    }
     try {
-      await successSoundRef.current.playFromPositionAsync(0);
-    } catch (e) {}
+      // Detener cualquier reproducción anterior
+      await successSoundRef.current.stopAsync();
+      // Resetear posición y reproducir
+      await successSoundRef.current.setPositionAsync(0);
+      await successSoundRef.current.playAsync();
+      console.log('Sonido de éxito reproducido correctamente');
+    } catch (e) {
+      console.log('Error reproduciendo sonido de éxito:', e);
+    }
   };
 
   const playDestroySound = async () => {
@@ -970,7 +980,8 @@ function GameContent() {
 
     if (match) {
       Vibration.vibrate([0, 100, 50, 100]);
-      playSuccessSound();
+      // Reproducir sonido inmediatamente, sin esperar
+      playSuccessSound().catch(e => console.log('Error sonido:', e));
 
       // Solo mostrar notificación de descubrimiento para recetas reales, no para strange burgers
       if (isArcade && (match as Recipe).id !== 'strange' && !discoveredRecipes.includes((match as Recipe).id)) {
