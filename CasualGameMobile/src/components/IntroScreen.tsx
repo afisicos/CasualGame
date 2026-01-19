@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Switch } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Switch, Modal, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BurgerPiece from './BurgerPiece';
@@ -20,48 +20,61 @@ interface IntroScreenProps {
   superTimeBoostCount: number;
   destructionPackCount: number;
   superDestructionPackCount: number;
+  inhibitorCount: number;
   useTimeBoost: boolean;
   useSuperTimeBoost: boolean;
   useDestructionPack: boolean;
   useSuperDestructionPack: boolean;
+  useInhibitor: boolean;
+  inhibitedIngredient: PieceType | null;
+  availableIngredients: PieceType[];
   onToggleTimeBoost: (value: boolean) => void;
   onToggleSuperTimeBoost: (value: boolean) => void;
   onToggleDestructionPack: (value: boolean) => void;
   onToggleSuperDestructionPack: (value: boolean) => void;
+  onToggleInhibitor: (value: boolean) => void;
+  onSelectInhibitedIngredient: (ingredient: PieceType | null) => void;
   onPlay: () => void;
   onBack: () => void;
   onPlaySound?: () => void;
   t: any;
 }
 
-const IntroScreen: React.FC<IntroScreenProps> = ({ 
+const IntroScreen: React.FC<IntroScreenProps> = ({
   levelId,
-  newIngredient, 
+  newIngredient,
   showNewIngredient,
   newRecipe,
   recipeIngredients,
   recipePrice,
   description,
-  targetBurgers, 
+  targetBurgers,
   timeLimit,
   timeBoostCount,
   superTimeBoostCount,
   destructionPackCount,
   superDestructionPackCount,
+  inhibitorCount,
   useTimeBoost,
   useSuperTimeBoost,
   useDestructionPack,
   useSuperDestructionPack,
+  useInhibitor,
+  inhibitedIngredient,
+  availableIngredients,
   onToggleTimeBoost,
   onToggleSuperTimeBoost,
   onToggleDestructionPack,
   onToggleSuperDestructionPack,
-  onPlay, 
+  onToggleInhibitor,
+  onSelectInhibitedIngredient,
+  onPlay,
   onBack,
   onPlaySound,
-  t 
+  t
 }) => {
   const insets = useSafeAreaInsets();
+  const [showInhibitorModal, setShowInhibitorModal] = useState(false);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
@@ -125,7 +138,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         </View>
 
         {/* Power-ups Toggles */}
-        {(timeBoostCount > 0 || superTimeBoostCount > 0 || destructionPackCount > 0 || superDestructionPackCount > 0) && (
+        {(timeBoostCount > 0 || superTimeBoostCount > 0 || destructionPackCount > 0 || superDestructionPackCount > 0 || inhibitorCount > 0) && (
           <View style={styles.powerUpBar}>
             {superTimeBoostCount > 0 && (
               <View style={styles.powerUpToggle}>
@@ -191,8 +204,39 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
                 />
               </View>
             )}
+            {inhibitorCount > 0 && (
+              <View style={styles.powerUpToggle}>
+                <Image source={require('../assets/Iconos/explosion.png')} style={styles.powerUpIcon} resizeMethod="resize" />
+                <Text style={styles.powerUpLabel}>{t.powerup_inhibitor_name}</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.inhibitorButton,
+                    useInhibitor && styles.inhibitorButtonActive
+                  ]}
+                  onPress={() => {
+                    onPlaySound?.();
+                    if (useInhibitor) {
+                      // Si ya está activo, desactivarlo
+                      onToggleInhibitor(false);
+                      onSelectInhibitedIngredient(null);
+                    } else {
+                      // Si no está activo, mostrar modal para seleccionar
+                      setShowInhibitorModal(true);
+                    }
+                  }}
+                >
+                  <Text style={[
+                    styles.inhibitorButtonText,
+                    useInhibitor && styles.inhibitorButtonTextActive
+                  ]}>
+                    {useInhibitor ? t.activated : t.activate}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
+
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.backButtonInline} onPress={() => { onPlaySound?.(); onBack(); }}>
@@ -203,6 +247,79 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal de selección de ingrediente inhibido */}
+      <Modal
+        visible={showInhibitorModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowInhibitorModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t.select_inhibited_ingredient}</Text>
+              <TouchableOpacity
+                style={styles.modalCloseButton}
+                onPress={() => {
+                  onPlaySound?.();
+                  setShowInhibitorModal(false);
+                }}
+              >
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalScrollView} contentContainerStyle={styles.modalScrollContent}>
+              <Text style={styles.modalDescription}>
+                {t.powerup_inhibitor_desc}
+              </Text>
+
+              {availableIngredients.length > 0 ? (
+              <View style={styles.ingredientGrid}>
+                {availableIngredients.map((ingredient) => (
+                    <TouchableOpacity
+                      key={ingredient}
+                      style={styles.ingredientCard}
+                    onPress={() => {
+                      onPlaySound?.();
+                      onSelectInhibitedIngredient(ingredient);
+                      onToggleInhibitor(true);
+                      setShowInhibitorModal(false);
+                    }}
+                    >
+                      <View style={styles.ingredientIconContainer}>
+                        <BurgerPiece type={ingredient} scale={1.0} />
+                      </View>
+                      <Text style={styles.ingredientName}>
+                        {t[`ing_${ingredient}` as keyof typeof t]}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.noIngredientsContainer}>
+                  <Text style={styles.noIngredientsText}>
+                    No hay ingredientes disponibles para inhibir en este nivel
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  onPlaySound?.();
+                  setShowInhibitorModal(false);
+                }}
+              >
+                <Text style={styles.cancelButtonText}>{t.cancel || 'Cancelar'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

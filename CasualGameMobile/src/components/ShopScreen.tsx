@@ -11,10 +11,12 @@ interface ShopScreenProps {
   superTimeBoostCount: number;
   destructionPackCount: number;
   superDestructionPackCount: number;
+  inhibitorCount: number;
   onBuyTimeBoost: () => void;
   onBuySuperTimeBoost: () => void;
   onBuyDestructionPack: () => void;
   onBuySuperDestructionPack: () => void;
+  onBuyInhibitor: () => void;
   onBuyEnergy: () => void;
   onPlaySound?: () => void;
   t: any;
@@ -28,10 +30,12 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
   superTimeBoostCount,
   destructionPackCount,
   superDestructionPackCount,
+  inhibitorCount,
   onBuyTimeBoost,
   onBuySuperTimeBoost,
   onBuyDestructionPack,
   onBuySuperDestructionPack,
+  onBuyInhibitor,
   onBuyEnergy,
   onPlaySound,
   t
@@ -184,6 +188,32 @@ const ShopScreen: React.FC<ShopScreenProps> = ({
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Text style={styles.buyButtonText}>250</Text>
+                <Image source={require('../assets/Iconos/coin.png')} style={styles.buyBtnCoin} resizeMethod="resize" />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Ingredient Inhibitor */}
+        <View style={styles.powerUpCard}>
+          <View style={styles.powerUpHeader}>
+            <Image source={require('../assets/Iconos/explosion.png')} style={styles.powerUpIcon} resizeMethod="resize" />
+            <View style={styles.powerUpInfo}>
+              <Text style={styles.powerUpName}>{t.powerup_inhibitor_name}</Text>
+              <Text style={styles.powerUpDesc}>{t.powerup_inhibitor_desc}</Text>
+            </View>
+          </View>
+          <View style={styles.powerUpFooter}>
+            <View style={[styles.countBadge, { backgroundColor: '#f3f0ff' }]}>
+              <Text style={[styles.countText, { color: '#5f3dc4' }]}>{t.owned}: {inhibitorCount}</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.buyButton, { backgroundColor: '#7048e8' }, globalMoney < 200 && styles.buyButtonDisabled]}
+              onPress={() => { onPlaySound?.(); onBuyInhibitor(); }}
+              disabled={globalMoney < 200}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <Text style={styles.buyButtonText}>200</Text>
                 <Image source={require('../assets/Iconos/coin.png')} style={styles.buyBtnCoin} resizeMethod="resize" />
               </View>
             </TouchableOpacity>

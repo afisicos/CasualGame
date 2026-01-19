@@ -191,6 +191,8 @@ function GameContent() {
     return 'burger';
   };
 
+  // Obtener ingredientes disponibles filtrando el inhibido
+
   // Función auxiliar para mantener el Ref sincronizado con el estado
   const updateSelection = (newSelection: number[]) => {
     selectionRef.current = newSelection;
@@ -250,10 +252,13 @@ function GameContent() {
   const [superTimeBoostCount, setSuperTimeBoostCount] = useState<number>(0);
   const [destructionPackCount, setDestructionPackCount] = useState<number>(0);
   const [superDestructionPackCount, setSuperDestructionPackCount] = useState<number>(0);
+  const [inhibitorCount, setInhibitorCount] = useState<number>(0);
   const [useTimeBoost, setUseTimeBoost] = useState<boolean>(false);
   const [useSuperTimeBoost, setUseSuperTimeBoost] = useState<boolean>(false);
   const [useDestructionPack, setUseDestructionPack] = useState<boolean>(false);
   const [useSuperDestructionPack, setUseSuperDestructionPack] = useState<boolean>(false);
+  const [useInhibitor, setUseInhibitor] = useState<boolean>(false);
+  const [inhibitedIngredient, setInhibitedIngredient] = useState<PieceType | null>(null);
   const [destructionsUsed, setDestructionsUsed] = useState<number>(0);
   const [maxDestructions, setMaxDestructions] = useState<number>(25);
   const [shouldBlinkDestructions, setShouldBlinkDestructions] = useState<boolean>(false);
@@ -314,6 +319,9 @@ function GameContent() {
               // Consumir power-ups activados al salir perdiendo vida (ya se consumieron al empezar)
               setUseTimeBoost(false);
               setUseDestructionPack(false);
+              setUseInhibitor(false);
+              setInhibitedIngredient(null);
+              setInhibitedIngredient(null);
               setIsGameStarted(false);
               setScreen('MENU');
             }}
@@ -349,6 +357,7 @@ function GameContent() {
         const savedSuperTimeBoost = await AsyncStorage.getItem('superTimeBoostCount');
         const savedDestructionPack = await AsyncStorage.getItem('destructionPackCount');
         const savedSuperDestructionPack = await AsyncStorage.getItem('superDestructionPackCount');
+        const savedInhibitor = await AsyncStorage.getItem('inhibitorCount');
 
         if (savedLevel) {
           const lvId = parseInt(savedLevel);
@@ -378,6 +387,7 @@ function GameContent() {
         if (savedSuperTimeBoost) setSuperTimeBoostCount(parseInt(savedSuperTimeBoost));
         if (savedDestructionPack) setDestructionPackCount(parseInt(savedDestructionPack));
         if (savedSuperDestructionPack) setSuperDestructionPackCount(parseInt(savedSuperDestructionPack));
+        if (savedInhibitor) setInhibitorCount(parseInt(savedInhibitor));
 
         // Cargar energía y calcular recuperación offline
         let initialEnergy = MAX_ENERGY;
@@ -436,7 +446,8 @@ function GameContent() {
     AsyncStorage.setItem('superTimeBoostCount', superTimeBoostCount.toString());
     AsyncStorage.setItem('destructionPackCount', destructionPackCount.toString());
     AsyncStorage.setItem('superDestructionPackCount', superDestructionPackCount.toString());
-  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount]);
+    AsyncStorage.setItem('inhibitorCount', inhibitorCount.toString());
+  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount]);
 
   // Sistema de recuperación de energía
   useEffect(() => {
@@ -605,7 +616,7 @@ function GameContent() {
     } catch (e) {}
   };
 
-  const initGrid = useCallback((level: Level, mode: GameMode, currentUnlockedLevel: number) => {
+  const initGrid = (level: Level, mode: GameMode, currentUnlockedLevel: number, useInhibitorParam: boolean, inhibitedIngredientParam: PieceType | null) => {
     const initialGrid: Cell[] = [];
     const gridSize = getGridSize(level.id, mode);
     
@@ -617,6 +628,11 @@ function GameContent() {
       ingredients = getUnlockedIngredientsForCampaign(currentUnlockedLevel);
     }
 
+    // Aplicar filtro del inhibidor si está activo
+    if (useInhibitorParam && inhibitedIngredientParam) {
+      ingredients = ingredients.filter(ingredient => ingredient !== inhibitedIngredientParam);
+    }
+
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
         initialGrid.push({ row, col, piece: createPiece(ingredients) });
@@ -624,7 +640,7 @@ function GameContent() {
     }
     setGrid(initialGrid);
     return initialGrid;
-  }, []);
+  };
 
   const generateNewOrder = useCallback((targetGrid: Cell[], complexity?: 'simpler' | 'medium' | 'harder', overrideMode?: GameMode, overrideLevel?: Level) => {
     if (!targetGrid || targetGrid.length === 0) return;
@@ -747,6 +763,7 @@ function GameContent() {
     
     const superDestructionPackToUse = mode === 'CAMPAIGN' && useSuperDestructionPack && superDestructionPackCount > 0;
     const destructionPackToUse = mode === 'CAMPAIGN' && useDestructionPack && destructionPackCount > 0 && !superDestructionPackToUse;
+    const inhibitorToUse = mode === 'CAMPAIGN' && useInhibitor && inhibitorCount > 0 && inhibitedIngredient;
 
     // Consumir power-ups solo si están activados y disponibles y estamos en modo campaña
     if (mode === 'CAMPAIGN') {
@@ -761,9 +778,14 @@ function GameContent() {
       } else if (destructionPackToUse) {
         setDestructionPackCount(prev => Math.max(0, prev - 1));
       }
+
+      if (inhibitorToUse) {
+        setInhibitorCount(prev => Math.max(0, prev - 1));
+      }
     }
 
-    const initialGrid = initGrid(level, mode, mode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel);
+
+    const initialGrid = initGrid(level, mode, mode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel, useInhibitor, inhibitedIngredient);
     setMoney(0);
     setBurgersCreated(0);
     
@@ -788,11 +810,20 @@ function GameContent() {
     setShouldBlinkDestructions(false); // Resetear parpadeo
     setScreen('GAME');
 
+    // Consumir power-ups activados
+    if (useTimeBoost && timeBoostCount > 0) setTimeBoostCount(prev => prev - 1);
+    if (useSuperTimeBoost && superTimeBoostCount > 0) setSuperTimeBoostCount(prev => prev - 1);
+    if (useDestructionPack && destructionPackCount > 0) setDestructionPackCount(prev => prev - 1);
+    if (useSuperDestructionPack && superDestructionPackCount > 0) setSuperDestructionPackCount(prev => prev - 1);
+    if (useInhibitor && inhibitorCount > 0) setInhibitorCount(prev => prev - 1);
+
     // Resetear toggles de power-ups
     setUseTimeBoost(false);
     setUseSuperTimeBoost(false);
     setUseDestructionPack(false);
     setUseSuperDestructionPack(false);
+    setUseInhibitor(false);
+    setInhibitedIngredient(null);
 
     // Iniciar cuenta atrás con el grid recién creado
     startCountdown(initialGrid, mode, level);
@@ -898,9 +929,14 @@ function GameContent() {
         }
 
         // Nueva pieza arriba
-        const ingredients = gameMode === 'ARCADE'
+        let ingredients = gameMode === 'ARCADE'
           ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
           : selectedLevel.ingredients;
+
+        // Aplicar filtro del inhibidor si está activo
+        if (useInhibitor && inhibitedIngredient) {
+          ingredients = ingredients.filter(ingredient => ingredient !== inhibitedIngredient);
+        }
         nextGrid[col].piece = createPiece(ingredients);
 
         setTimeout(() => generateNewOrder(nextGrid), 50);
@@ -953,17 +989,35 @@ function GameContent() {
 
       // Si empezamos con pan, verificamos qué tipo de selección es
       if (firstPieceType === 'BREAD') {
-        // Si el siguiente ingrediente también es pan, es eliminación de panes
+        // Verificar si TODOS los elementos seleccionados hasta ahora son panes
+        const allSelectedAreBreads = currentSelection.every(idx => grid[idx].piece?.type === 'BREAD');
+
+        // Si el siguiente ingrediente también es pan
         if (currentCell.piece.type === 'BREAD') {
-          const newSelection = [...currentSelection, index];
-          updateSelection(newSelection);
-          Vibration.vibrate(40);
-          playClickSound(newSelection.length - 1);
+          // Si todos los anteriores son panes, es eliminación pura de panes (permitir infinitos)
+          if (allSelectedAreBreads) {
+            const newSelection = [...currentSelection, index];
+            updateSelection(newSelection);
+            Vibration.vibrate(40);
+            playClickSound(newSelection.length - 1);
+          }
+          // Si hay otros ingredientes, entonces es una hamburguesa y no permitir más de 2 panes
+          else {
+            const breadCount = currentSelection.filter(idx => grid[idx].piece?.type === 'BREAD').length;
+            if (breadCount >= 2) return; // No permitir más de 2 panes en hamburguesas
+
+            const newSelection = [...currentSelection, index];
+            updateSelection(newSelection);
+            Vibration.vibrate(40);
+            playClickSound(newSelection.length - 1);
+          }
         }
         // Si es otro ingrediente, es hamburguesa (lógica original)
         else {
-          const hasClosingBread = currentSelection.some((idx, i) => i > 0 && grid[idx].piece?.type === 'BREAD');
-          if (hasClosingBread) return;
+          // Si ya tenemos 2 panes (inicio y cierre), no permitir más ingredientes
+          const breadCount = currentSelection.filter(idx => grid[idx].piece?.type === 'BREAD').length;
+          if (breadCount >= 2) return;
+
           const newSelection = [...currentSelection, index];
           updateSelection(newSelection);
           Vibration.vibrate(40);
@@ -1139,10 +1193,15 @@ function GameContent() {
             }
           }
 
-          const ingredients = isArcade 
-            ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel) 
+          let ingredients = isArcade
+            ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
             : selectedLevel.ingredients;
-            
+
+          // Aplicar filtro del inhibidor si está activo
+          if (useInhibitor && inhibitedIngredient) {
+            ingredients = ingredients.filter(ingredient => ingredient !== inhibitedIngredient);
+          }
+
           for (let i = 0; i < nextGrid.length; i++) {
             if (nextGrid[i].piece === null) {
               nextGrid[i].piece = createPiece(ingredients);
@@ -1209,6 +1268,9 @@ function GameContent() {
     setUseSuperTimeBoost(false);
     setUseDestructionPack(false);
     setUseSuperDestructionPack(false);
+    setUseInhibitor(false);
+    setInhibitedIngredient(null);
+    setInhibitorCount(0);
     setScreen('MENU');
     await AsyncStorage.clear();
     // Después de limpiar, guardar las recetas básicas
@@ -1240,6 +1302,13 @@ function GameContent() {
     if (globalMoney >= 250) {
       setGlobalMoney(prev => prev - 250);
       setSuperDestructionPackCount(prev => prev + 1);
+    }
+  };
+
+  const buyInhibitor = () => {
+    if (globalMoney >= 200) {
+      setGlobalMoney(prev => prev - 200);
+      setInhibitorCount(prev => prev + 1);
     }
   };
 
@@ -1367,10 +1436,12 @@ function GameContent() {
             superTimeBoostCount={superTimeBoostCount}
             destructionPackCount={destructionPackCount}
             superDestructionPackCount={superDestructionPackCount}
+            inhibitorCount={inhibitorCount}
             onBuyTimeBoost={buyTimeBoost}
             onBuySuperTimeBoost={buySuperTimeBoost}
             onBuyDestructionPack={buyDestructionPack}
             onBuySuperDestructionPack={buySuperDestructionPack}
+            onBuyInhibitor={buyInhibitor}
             onBuyEnergy={buyEnergy}
             onPlaySound={playUIButtonSound}
             t={t}
@@ -1426,33 +1497,45 @@ function GameContent() {
           />
         );
       case 'INTRO':
-        const levelRecipe = selectedLevel.newRecipe 
+        const levelRecipe = selectedLevel.newRecipe
           ? BASE_RECIPES.find(r => r.id === selectedLevel.newRecipe)
           : null;
 
+        // Obtener ingredientes disponibles para inhibir (excluyendo pan y los de la receta objetivo)
+        const recipeIngredients = levelRecipe?.ingredients || [];
+        const availableIngredients = selectedLevel.ingredients.filter(ing =>
+          ing !== 'BREAD' && !recipeIngredients.includes(ing)
+        );
+
         return (
-          <IntroScreen 
+          <IntroScreen
             levelId={selectedLevel.id}
-            newIngredient={selectedLevel.newIngredient} 
+            newIngredient={selectedLevel.newIngredient}
             showNewIngredient={!!(selectedLevel.showNewIngredient && selectedLevel.newIngredient)}
             newRecipe={levelRecipe ? (t[levelRecipe.name as keyof typeof t] || levelRecipe.name) : undefined}
             recipeIngredients={levelRecipe?.ingredients}
             recipePrice={levelRecipe?.price}
             description={selectedLevel.description}
-            targetBurgers={selectedLevel.targetBurgers} 
+            targetBurgers={selectedLevel.targetBurgers}
             timeLimit={60}
             timeBoostCount={timeBoostCount}
             superTimeBoostCount={superTimeBoostCount}
             destructionPackCount={destructionPackCount}
             superDestructionPackCount={superDestructionPackCount}
+            inhibitorCount={inhibitorCount}
             useTimeBoost={useTimeBoost}
             useSuperTimeBoost={useSuperTimeBoost}
             useDestructionPack={useDestructionPack}
             useSuperDestructionPack={useSuperDestructionPack}
+            useInhibitor={useInhibitor}
+            inhibitedIngredient={inhibitedIngredient}
+            availableIngredients={availableIngredients}
             onToggleTimeBoost={setUseTimeBoost}
             onToggleSuperTimeBoost={setUseSuperTimeBoost}
             onToggleDestructionPack={setUseDestructionPack}
             onToggleSuperDestructionPack={setUseSuperDestructionPack}
+            onToggleInhibitor={setUseInhibitor}
+            onSelectInhibitedIngredient={setInhibitedIngredient}
             onPlay={() => playGame('CAMPAIGN')}
             onBack={() => setScreen('MENU')}
             onPlaySound={playUIButtonSound}

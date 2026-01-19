@@ -224,6 +224,184 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#495057',
     flex: 1
+  },
+  ingredientSelector: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10
+  },
+  ingredientOption: {
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    minWidth: 70
+  },
+  ingredientOptionSelected: {
+    borderColor: '#7048e8',
+    backgroundColor: 'rgba(112, 72, 232, 0.1)'
+  },
+  ingredientOptionText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#495057',
+    textAlign: 'center',
+    marginTop: 4
+  },
+  ingredientOptionTextSelected: {
+    color: '#7048e8'
+  },
+  inhibitorButton: {
+    backgroundColor: '#f8f9fa',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+    minWidth: 70,
+    alignItems: 'center'
+  },
+  inhibitorButtonActive: {
+    backgroundColor: '#7048e8',
+    borderColor: '#7048e8'
+  },
+  inhibitorButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#6c757d'
+  },
+  inhibitorButtonTextActive: {
+    color: '#fff'
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef'
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#212529'
+  },
+  modalCloseButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modalCloseText: {
+    fontSize: 16,
+    color: '#6c757d',
+    fontWeight: '600'
+  },
+  modalScrollView: {
+    maxHeight: 300
+  },
+  modalScrollContent: {
+    padding: 20
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#6c757d',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20
+  },
+  ingredientGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    gap: 12
+  },
+  ingredientCard: {
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    minWidth: 80,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
+  },
+  ingredientIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2
+  },
+  ingredientName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#495057',
+    textAlign: 'center'
+  },
+  modalFooter: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    paddingTop: 10
+  },
+  cancelButton: {
+    backgroundColor: '#6c757d',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    alignSelf: 'center'
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600'
+  },
+  noIngredientsContainer: {
+    alignItems: 'center',
+    paddingVertical: 40
+  },
+  noIngredientsText: {
+    fontSize: 16,
+    color: '#6c757d',
+    textAlign: 'center',
+    fontStyle: 'italic'
   }
 });
 
