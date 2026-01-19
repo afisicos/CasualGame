@@ -172,6 +172,25 @@ function GameContent() {
   const [currentSelection, setCurrentSelection] = useState<number[]>([]);
   const selectionRef = useRef<number[]>([]);
 
+  // Determinar el tipo de selección actual
+  const getSelectionType = (): 'burger' | 'delete' => {
+    if (currentSelection.length === 0) return 'burger';
+    const firstPiece = grid[currentSelection[0]]?.piece;
+    if (!firstPiece) return 'burger';
+
+    // Si es pan y hay más de uno seleccionado, verificar si todos son panes
+    if (firstPiece.type === 'BREAD' && currentSelection.length > 1) {
+      const allBreads = currentSelection.every(idx => grid[idx]?.piece?.type === 'BREAD');
+      if (allBreads) return 'delete';
+    }
+
+    // Si no es pan, es eliminación
+    if (firstPiece.type !== 'BREAD') return 'delete';
+
+    // Por defecto, si es pan y solo uno, es hamburguesa
+    return 'burger';
+  };
+
   // Función auxiliar para mantener el Ref sincronizado con el estado
   const updateSelection = (newSelection: number[]) => {
     selectionRef.current = newSelection;
@@ -829,17 +848,32 @@ function GameContent() {
     if (!grid[index] || !grid[index].piece) return;
 
     setDestructionsUsed(prev => prev + 1);
-    
+
     // Destello visual al gastar
     setShouldBlinkDestructions(true);
     setTimeout(() => setShouldBlinkDestructions(false), 200);
 
     Vibration.vibrate(60);
     playDestroySound();
-    
+
+    // Usar la función auxiliar para la eliminación real
+    performPieceDestruction(index);
+  };
+
+  // Función auxiliar para eliminar una pieza sin gastar eliminación (usada en eliminaciones múltiples)
+  const destroyPieceDirect = (index: number) => {
+    if (!grid[index] || !grid[index].piece) return;
+
+    Vibration.vibrate(60);
+    // Usar la función auxiliar para la eliminación real (sin sonido extra ya que se reproduce una vez para toda la eliminación múltiple)
+    performPieceDestruction(index, false); // false = no reproducir sonido extra
+  };
+
+  // Función que realiza la eliminación física de una pieza
+  const performPieceDestruction = (index: number, playSound: boolean = true) => {
     // Fase 1: Marcar la pieza para eliminación (activar animación de explosión)
-    const targetPieceId = grid[index].piece.id;
-    setGrid(prev => prev.map(c => 
+    const targetPieceId = grid[index].piece!.id;
+    setGrid(prev => prev.map(c =>
       c.piece && c.piece.id === targetPieceId ? { ...c, piece: { ...c.piece, isRemoving: true } } : c
     ));
 
@@ -848,7 +882,7 @@ function GameContent() {
       setGrid(currentGrid => {
         const size = Math.sqrt(currentGrid.length);
         const nextGrid = currentGrid.map(c => ({ ...c }));
-        
+
         // Encontrar la posición actual de la pieza (por si se movió)
         const currentPos = nextGrid.findIndex(c => c.piece?.id === targetPieceId);
         if (currentPos === -1) return currentGrid;
@@ -864,8 +898,8 @@ function GameContent() {
         }
 
         // Nueva pieza arriba
-        const ingredients = gameMode === 'ARCADE' 
-          ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel) 
+        const ingredients = gameMode === 'ARCADE'
+          ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
           : selectedLevel.ingredients;
         nextGrid[col].piece = createPiece(ingredients);
 
@@ -877,7 +911,7 @@ function GameContent() {
 
   const handleSelectionUpdate = (index: number, isGrant: boolean = false) => {
     if (isGameOver || !isGameStarted || !grid[index]) return;
-    
+
     if (isGrant) {
       lastTapRef.current = { index, time: Date.now() };
     }
@@ -885,7 +919,8 @@ function GameContent() {
     const currentSelection = selectionRef.current;
 
     if (currentSelection.length === 0) {
-      if (grid[index].piece?.type === 'BREAD' && !grid[index].piece?.isRemoving) {
+      // Permitir iniciar selección tanto con pan (para hamburguesas) como con cualquier ingrediente (para eliminación)
+      if (grid[index].piece && !grid[index].piece.isRemoving) {
         updateSelection([index]);
         Vibration.vibrate(40);
         playClickSound(0);
@@ -896,6 +931,7 @@ function GameContent() {
     const lastIdx = currentSelection[currentSelection.length - 1];
     if (index === lastIdx) return;
 
+    // Permitir deshacer el último movimiento (retroceder)
     if (currentSelection.length > 1 && currentSelection[currentSelection.length - 2] === index) {
       const newSelection = currentSelection.slice(0, -1);
       updateSelection(newSelection);
@@ -911,14 +947,36 @@ function GameContent() {
     const rowDiff = Math.abs(lastCell.row - currentCell.row);
     const colDiff = Math.abs(lastCell.col - currentCell.col);
     const isAdjacent = (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
-    
+
     if (isAdjacent && currentCell.piece && !currentCell.piece.isRemoving && !currentSelection.includes(index)) {
-      const hasClosingBread = currentSelection.some((idx, i) => i > 0 && grid[idx].piece?.type === 'BREAD');
-      if (hasClosingBread) return;
-      const newSelection = [...currentSelection, index];
-      updateSelection(newSelection);
-      Vibration.vibrate(40);
-      playClickSound(newSelection.length - 1);
+      const firstPieceType = grid[currentSelection[0]].piece?.type;
+
+      // Si empezamos con pan, verificamos qué tipo de selección es
+      if (firstPieceType === 'BREAD') {
+        // Si el siguiente ingrediente también es pan, es eliminación de panes
+        if (currentCell.piece.type === 'BREAD') {
+          const newSelection = [...currentSelection, index];
+          updateSelection(newSelection);
+          Vibration.vibrate(40);
+          playClickSound(newSelection.length - 1);
+        }
+        // Si es otro ingrediente, es hamburguesa (lógica original)
+        else {
+          const hasClosingBread = currentSelection.some((idx, i) => i > 0 && grid[idx].piece?.type === 'BREAD');
+          if (hasClosingBread) return;
+          const newSelection = [...currentSelection, index];
+          updateSelection(newSelection);
+          Vibration.vibrate(40);
+          playClickSound(newSelection.length - 1);
+        }
+      }
+      // Si empezamos con otro ingrediente, solo permitimos del mismo tipo (eliminación)
+      else if (currentCell.piece.type === firstPieceType) {
+        const newSelection = [...currentSelection, index];
+        updateSelection(newSelection);
+        Vibration.vibrate(40);
+        playClickSound(newSelection.length - 1);
+      }
     }
   };
 
@@ -942,6 +1000,39 @@ function GameContent() {
     const selectionPieces = currentSelection.map(idx => grid[idx]?.piece).filter(Boolean);
     const selectionTypes = selectionPieces.map(p => p!.type);
     const selectionIds = selectionPieces.map(p => p!.id);
+
+    // Nueva lógica: Si la selección es eliminación de ingredientes
+    const firstPieceType = selectionTypes[0];
+    const isBreadDeletion = firstPieceType === 'BREAD' && selectionTypes.every(type => type === 'BREAD') && currentSelection.length > 1;
+    const isOtherDeletion = firstPieceType !== 'BREAD' && currentSelection.length > 1;
+
+    if (isBreadDeletion || isOtherDeletion) {
+      // Verificar que hay suficientes eliminaciones disponibles
+      if (destructionsUsed >= maxDestructions) {
+        setShouldBlinkDestructions(true);
+        Vibration.vibrate([0, 100, 50, 100]);
+        setTimeout(() => setShouldBlinkDestructions(false), 2000);
+        updateSelection([]);
+        return;
+      }
+
+      // Gastar UNA eliminación por la eliminación múltiple
+      setDestructionsUsed(prev => prev + 1);
+
+      // Destello visual al gastar
+      setShouldBlinkDestructions(true);
+      setTimeout(() => setShouldBlinkDestructions(false), 200);
+
+      // Eliminar todos los ingredientes seleccionados (sin gastar más eliminaciones)
+      currentSelection.forEach(index => {
+        // Eliminar directamente sin incrementar contador adicional
+        destroyPieceDirect(index);
+      });
+      updateSelection([]);
+      Vibration.vibrate([0, 50, 50, 50]);
+      playDestroySound();
+      return;
+    }
     
     const isArcade = gameMode === 'ARCADE';
     let match = null;
@@ -1643,13 +1734,14 @@ function GameContent() {
             })() : null}
 
             <View style={styles.boardWrapper}>
-              <GameBoard 
-                grid={grid} 
-                currentSelection={currentSelection} 
-                isGameOver={isGameOver} 
+              <GameBoard
+                grid={grid}
+                currentSelection={currentSelection}
+                isGameOver={isGameOver}
                 gridSize={grid.length > 0 ? Math.sqrt(grid.length) : getGridSize(selectedLevel.id, gameMode)}
-                onSelectionUpdate={handleSelectionUpdate} 
-                onSelectionEnd={handleSelectionEnd} 
+                onSelectionUpdate={handleSelectionUpdate}
+                onSelectionEnd={handleSelectionEnd}
+                selectionType={getSelectionType()}
               />
             </View>
 

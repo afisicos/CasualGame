@@ -12,6 +12,7 @@ interface GameBoardProps {
   gridSize: number;
   onSelectionUpdate: (index: number, isGrant?: boolean) => void;
   onSelectionEnd: () => void;
+  selectionType?: 'burger' | 'delete'; // Nuevo: tipo de selección
 }
 
 // Componente memoizado para animar cada pieza individualmente fuera del render principal
@@ -62,7 +63,7 @@ const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, c
 });
 
 const GameBoard: React.FC<GameBoardProps> = (props) => {
-  const { grid, currentSelection, gridSize, onSelectionUpdate, onSelectionEnd } = props;
+  const { grid, currentSelection, gridSize, onSelectionUpdate, onSelectionEnd, selectionType = 'burger' } = props;
   const cellSize = (BOARD_SIZE - (BOARD_PADDING * 2) - (BOARD_BORDER_WIDTH * 2)) / gridSize;
   
   const propsRef = useRef(props);
@@ -140,13 +141,14 @@ const GameBoard: React.FC<GameBoardProps> = (props) => {
           const eCol = idx % gridSize;
           const eRow = Math.floor(idx / gridSize);
           const offset = BOARD_PADDING + BOARD_BORDER_WIDTH;
+          const lineColor = selectionType === 'delete' ? '#ff4757' : '#40c057'; // Rojo para eliminación, verde para hamburguesas
           return (
             <Line key={i}
               x1={offset + sCol * cellSize + cellSize / 2}
               y1={offset + sRow * cellSize + cellSize / 2}
               x2={offset + eCol * cellSize + cellSize / 2}
               y2={offset + eRow * cellSize + cellSize / 2}
-              stroke="#40c057" strokeWidth="6" strokeLinecap="round" opacity={0.8}
+              stroke={lineColor} strokeWidth="6" strokeLinecap="round" opacity={0.8}
             />
           );
         })}
