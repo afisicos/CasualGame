@@ -399,7 +399,7 @@ export const TRANSLATIONS = {
     recipe_instruction: "No hace falta que los ingredientes estén en el orden mostrado, pero tiene que empezar y acabar con pan siempre",
     help_time_remaining: "Tiempo restante de juego",
     help_burgers_to_complete: "Hamburguesas a completar",
-    help_tap_to_destroy: "Haz un toque rápido en un ingrediente para eliminarlo",
+    help_tap_to_destroy: "Haz un toque rápido en un ingrediente o bien arrastra 2 o más ingredientes adyacentes del mismo tipo para eliminarlos",
     // Ingredientes
     ing_BREAD: "Pan",
     ing_MEAT: "Carne",

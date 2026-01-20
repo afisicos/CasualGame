@@ -51,9 +51,11 @@ const ScreenTransition: React.FC<{ children: React.ReactNode; screenKey: Screen 
 };
 
 interface RecipeToastData {
-  id: string;
+  id: string | number;
   name: string;
   price: number;
+  message?: string;
+  fadeAnim?: Animated.Value;
 }
 import { 
   TRANSLATIONS, 
@@ -131,6 +133,23 @@ export default function App() {
 }
 
 const RecipeToastItem: React.FC<{ toast: RecipeToastData; onComplete: (id: string) => void; t: any }> = ({ toast, onComplete, t }) => {
+  // Si es un toast de tutorial (tiene message), mostrar formato diferente
+  if (toast.message) {
+    return (
+      <Animated.View style={[styles.recipeToast, { opacity: toast.fadeAnim }]}>
+        <View style={styles.recipeToastContent}>
+          <Text style={styles.recipeToastTitle}>{toast.name}</Text>
+          <Text style={styles.recipeToastMessage}>{toast.message}</Text>
+          <TouchableOpacity
+            style={styles.recipeToastButton}
+            onPress={() => onComplete(toast.id.toString())}
+          >
+            <Text style={styles.recipeToastButtonText}>Entendido</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    );
+  }
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -182,13 +201,22 @@ function GameContent() {
   const [toasts, setToasts] = useState<RecipeToastData[]>([]);
 
   const showRecipeToast = (name: string, price: number) => {
-    const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, name, price }]);
+    setToasts(prev => [...prev, { id: Date.now(), name, price }]);
+  };
+
+  const showTutorialToast = (title: string, message: string) => {
+    setToasts(prev => [...prev, {
+      id: Date.now(),
+      name: title,
+      price: 0,
+      message: message
+    }]);
   };
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
+
   const [unlockedLevel, setUnlockedLevel] = useState<number>(1);
   const [arcadeUnlockedLevel, setArcadeUnlockedLevel] = useState<number>(0);
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVELS && LEVELS.length > 0 ? LEVELS[0] : {
@@ -299,6 +327,8 @@ function GameContent() {
   const helpTextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [timerPaused, setTimerPaused] = useState<boolean>(false);
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
+  const [tutorialStep, setTutorialStep] = useState<number>(0);
 
   const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
   const expandRecipeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -393,6 +423,7 @@ function GameContent() {
         const savedDestructionPack = await AsyncStorage.getItem('destructionPackCount');
         const savedSuperDestructionPack = await AsyncStorage.getItem('superDestructionPackCount');
         const savedInhibitor = await AsyncStorage.getItem('inhibitorCount');
+        const savedFirstTime = await AsyncStorage.getItem('isFirstTime');
 
         if (savedLevel) {
           const lvId = parseInt(savedLevel);
@@ -434,6 +465,11 @@ function GameContent() {
         const result = refreshEnergy(initialEnergy, initialLastGain);
         setEnergy(result.energy);
         setLastEnergyGainTime(result.lastGain);
+
+        // Cargar si es primera vez
+        if (savedFirstTime === 'false') {
+          setIsFirstTime(false);
+        }
 
         setIsDataLoaded(true);
       } catch (e) {
@@ -482,7 +518,43 @@ function GameContent() {
     AsyncStorage.setItem('destructionPackCount', destructionPackCount.toString());
     AsyncStorage.setItem('superDestructionPackCount', superDestructionPackCount.toString());
     AsyncStorage.setItem('inhibitorCount', inhibitorCount.toString());
-  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount]);
+    AsyncStorage.setItem('isFirstTime', isFirstTime.toString());
+  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount, isFirstTime]);
+
+  // Tutorial para primera vez
+  useEffect(() => {
+    if (isDataLoaded && isFirstTime && screen === 'MENU' && tutorialStep === 0) {
+      // Mostrar toast de bienvenida
+      showTutorialToast('¡Bienvenido a Burger Match!', 'Vamos a jugar una partida de aprendizaje');
+      setTutorialStep(1);
+    }
+  }, [isDataLoaded, isFirstTime, screen, tutorialStep]);
+
+  // Toast en pantalla de intro durante tutorial
+  useEffect(() => {
+    if (screen === 'INTRO' && isFirstTime && tutorialStep === 2) {
+      setTimeout(() => {
+        showTutorialToast('¡Excelente!', 'Toca "A COCINAR" para iniciar el primer nivel');
+      }, 500);
+    }
+  }, [screen, isFirstTime, tutorialStep]);
+
+  // Toast explicativo en el juego durante tutorial
+  useEffect(() => {
+    if (screen === 'GAME' && isFirstTime && tutorialStep === 3) {
+      setTimeout(() => {
+        showTutorialToast('¡Así se juega!', 'La hamburguesa debe empezar y terminar con pan, y tener carne y tomate dentro');
+        // Reanudar tiempo después del toast
+        setTimeout(() => {
+          setTimerPaused(false);
+          setIsFirstTime(false); // Marcar que ya no es primera vez
+          setTutorialStep(0); // Resetear paso del tutorial
+          // Guardar estado de primera vez completada
+          AsyncStorage.setItem('isFirstTime', 'false');
+        }, 3000);
+      }, 500);
+    }
+  }, [screen, isFirstTime, tutorialStep]);
 
   // Sistema de recuperación de energía
   useEffect(() => {
@@ -1269,7 +1341,7 @@ function GameContent() {
   };
 
   useEffect(() => {
-    if (screen !== 'GAME' || isGameOver || !isGameStarted) return;
+    if (screen !== 'GAME' || isGameOver || !isGameStarted || timerPaused) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -1288,7 +1360,7 @@ function GameContent() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [screen, isGameOver, isGameStarted]);
+  }, [screen, isGameOver, isGameStarted, timerPaused]);
 
   const resetProgress = async () => {
     setUnlockedLevel(1);
@@ -1308,10 +1380,15 @@ function GameContent() {
     setUseInhibitor(false);
     setInhibitedIngredient(null);
     setInhibitorCount(0);
+    // Resetear tutorial para que aparezca nuevamente
+    setIsFirstTime(true);
+    setTutorialStep(0);
     setScreen('MENU');
     await AsyncStorage.clear();
     // Después de limpiar, guardar las recetas básicas
     await AsyncStorage.setItem('discoveredRecipes', JSON.stringify(['classic', 'tomato_burger']));
+    // Resetear tutorial
+    await AsyncStorage.setItem('isFirstTime', 'true');
   };
 
   const buyTimeBoost = () => {
@@ -1524,7 +1601,13 @@ function GameContent() {
             onStartLevel={(l) => {
               setSelectedLevel(l);
               setScreen('INTRO');
+              // Avanzar tutorial si es primera vez
+              if (isFirstTime && tutorialStep === 1) {
+                setTutorialStep(2);
+              }
             }}
+            isFirstTime={isFirstTime}
+            tutorialStep={tutorialStep}
               onStartArcade={() => setScreen('ARCADE_INTRO')}
               onOptions={() => setScreen('OPTIONS')}
               onShop={() => setScreen('SHOP')}
@@ -1574,10 +1657,19 @@ function GameContent() {
               onToggleSuperDestructionPack={setUseSuperDestructionPack}
               onToggleInhibitor={setUseInhibitor}
               onSelectInhibitedIngredient={setInhibitedIngredient}
-            onPlay={() => playGame('CAMPAIGN')}
+            onPlay={() => {
+              playGame('CAMPAIGN');
+              // Avanzar tutorial si es primera vez
+              if (isFirstTime && tutorialStep === 2) {
+                setTutorialStep(3);
+                setTimerPaused(true); // Pausar tiempo inicialmente
+              }
+            }}
             onBack={() => setScreen('MENU')}
             onPlaySound={playUIButtonSound}
             t={t}
+            isFirstTime={isFirstTime}
+            tutorialStep={tutorialStep}
           />
         );
         case 'ARCADE_INTRO':

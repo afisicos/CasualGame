@@ -154,7 +154,7 @@ export const styles = StyleSheet.create({
   secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' },
   helpTextContainerCenter: {
     position: 'absolute',
-    top: '50%',
+    top: '37%',
     left: 0,
     right: 0,
     backgroundColor: '#f8f9fa',
@@ -233,6 +233,40 @@ export const styles = StyleSheet.create({
   recipeToastCoin: {
     width: 20,
     height: 20,
+  },
+  recipeToastContent: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 20,
+  },
+  recipeToastTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFF',
+    textAlign: 'center',
+    fontFamily: 'FredokaOne-Regular',
+    marginBottom: 8,
+  },
+  recipeToastMessage: {
+    fontSize: 16,
+    color: '#FFF',
+    textAlign: 'center',
+    marginBottom: 16,
+    fontFamily: 'FredokaOne-Regular',
+    lineHeight: 22,
+  },
+  recipeToastButton: {
+    backgroundColor: '#FFF',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 25,
+    marginTop: 8,
+  },
+  recipeToastButtonText: {
+    color: '#FF9966',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'FredokaOne-Regular',
   },
   highlightPulse: {
     position: 'absolute',

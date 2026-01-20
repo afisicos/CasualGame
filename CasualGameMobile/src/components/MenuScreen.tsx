@@ -35,10 +35,13 @@ interface MenuScreenProps {
   onRecipesBook?: () => void;
   onPlaySound?: () => void;
   t: any;
+  isFirstTime?: boolean;
+  tutorialStep?: number;
 }
 
 const MenuScreen: React.FC<MenuScreenProps> = ({
   levels, unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, maxEnergy, globalMoney, nextEnergyTime,
+  isFirstTime = false, tutorialStep = 0,
   timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, 
   useTimeBoost, useSuperTimeBoost, useDestructionPack, useSuperDestructionPack,
   onToggleTimeBoost, onToggleSuperTimeBoost, onToggleDestructionPack, onToggleSuperDestructionPack,
@@ -48,6 +51,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
   const playButtonScale = useRef(new Animated.Value(1)).current;
   const arcadeButtonScale = useRef(new Animated.Value(1)).current;
   const recipesButtonScale = useRef(new Animated.Value(1)).current;
+  const tutorialPulseAnim = useRef(new Animated.Value(1)).current;
 
   // Estado para el panel flotante de recuperar energía
   const [showEnergyPanel, setShowEnergyPanel] = useState(false);
@@ -116,6 +120,34 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       recipesAnimation.stop();
     };
   }, []);
+
+  // Animación pulsante para el tutorial
+  useEffect(() => {
+    if (isFirstTime && tutorialStep === 1) {
+      const tutorialAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(tutorialPulseAnim, {
+            toValue: 1.05,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(tutorialPulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      tutorialAnimation.start();
+
+      return () => {
+        tutorialAnimation.stop();
+        tutorialPulseAnim.setValue(1);
+      };
+    } else {
+      tutorialPulseAnim.setValue(1);
+    }
+  }, [isFirstTime, tutorialStep, tutorialPulseAnim]);
 
 
   const formatTime = (seconds: number) => {
@@ -186,10 +218,36 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
             )}
           </View>
           <View style={styles.rightButtons}>
-            <TouchableOpacity style={styles.shopBtn} onPress={() => { onPlaySound?.(); onShop(); }}>
+            <TouchableOpacity
+              style={[
+                styles.shopBtn,
+                isFirstTime && tutorialStep === 1 && { opacity: 0.3 }
+              ]}
+              onPress={() => {
+                if (!isFirstTime || tutorialStep !== 1) {
+                  onPlaySound?.();
+                  onShop();
+                }
+              }}
+              activeOpacity={isFirstTime && tutorialStep === 1 ? 1 : 0.8}
+              disabled={isFirstTime && tutorialStep === 1}
+            >
               <Image source={require('../assets/Iconos/power.png')} style={styles.buttonIcon} resizeMethod="resize" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.settingsBtn} onPress={() => { onPlaySound?.(); onOptions(); }}>
+            <TouchableOpacity
+              style={[
+                styles.settingsBtn,
+                isFirstTime && tutorialStep === 1 && { opacity: 0.3 }
+              ]}
+              onPress={() => {
+                if (!isFirstTime || tutorialStep !== 1) {
+                  onPlaySound?.();
+                  onOptions();
+                }
+              }}
+              activeOpacity={isFirstTime && tutorialStep === 1 ? 1 : 0.8}
+              disabled={isFirstTime && tutorialStep === 1}
+            >
               <Image source={require('../assets/Iconos/settings.png')} style={styles.buttonIcon} resizeMethod="resize" />
             </TouchableOpacity>
           </View>
@@ -232,10 +290,19 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       )}
 
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 20 }}>
-        <TouchableOpacity 
-          style={styles.arcadeSection}
-          onPress={() => { onPlaySound?.(); onStartArcade(); }}
-          activeOpacity={0.8}
+        <TouchableOpacity
+          style={[
+            styles.arcadeSection,
+            isFirstTime && tutorialStep === 1 && { opacity: 0.3 }
+          ]}
+          onPress={() => {
+            if (!isFirstTime || tutorialStep !== 1) {
+              onPlaySound?.();
+              onStartArcade();
+            }
+          }}
+          activeOpacity={isFirstTime && tutorialStep === 1 ? 1 : 0.8}
+          disabled={isFirstTime && tutorialStep === 1}
         >
           <LinearGradient
             colors={['#ffa94d', '#ff9500']}
@@ -268,7 +335,19 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.campaignSection}
+          style={[
+            styles.campaignSection,
+            isFirstTime && tutorialStep === 1 && {
+              borderWidth: 3,
+              borderColor: '#FFF',
+              shadowColor: '#FFF',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.8,
+              shadowRadius: 15,
+              elevation: 25,
+              transform: [{ scale: tutorialPulseAnim }],
+            }
+          ]}
           onPress={() => {
             onPlaySound?.();
             if (energy > 0) {
@@ -301,14 +380,20 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.recipeBookSection}
-          onPress={() => { 
-            Vibration.vibrate(50);
-            onPlaySound?.(); 
-            if (onRecipesBook) onRecipesBook();
+        <TouchableOpacity
+          style={[
+            styles.recipeBookSection,
+            isFirstTime && tutorialStep === 1 && { opacity: 0.3 }
+          ]}
+          onPress={() => {
+            if (!isFirstTime || tutorialStep !== 1) {
+              Vibration.vibrate(50);
+              onPlaySound?.();
+              if (onRecipesBook) onRecipesBook();
+            }
           }}
-          activeOpacity={0.8}
+          activeOpacity={isFirstTime && tutorialStep === 1 ? 1 : 0.8}
+          disabled={isFirstTime && tutorialStep === 1}
         >
           <LinearGradient
             colors={['#ffb3d9', '#ff99cc']}
