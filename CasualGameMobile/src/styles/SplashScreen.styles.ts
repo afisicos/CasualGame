@@ -22,8 +22,8 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 240,
+    height: 240,
     marginBottom: 20,
   },
   titleFood: {

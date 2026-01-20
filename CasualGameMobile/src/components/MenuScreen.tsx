@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Animated, Switch, StyleSheet, ScrollView, Vibration } from 'react-native';
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
 import { styles } from '../styles/MenuScreen.styles';
@@ -114,6 +116,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       recipesAnimation.stop();
     };
   }, []);
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

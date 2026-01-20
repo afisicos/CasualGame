@@ -176,10 +176,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           zIndex: 10,
         }
       ]}>
-        <LogoSvg style={styles.logo} />
-        <Text style={styles.titleFood}>BURGER</Text>
-        <Text style={styles.titleForFun}>MATCH</Text>
-        <View style={styles.loader} />
+        <Image source={require('../assets/Iconos/Titulo.png')} style={styles.logo} resizeMode="contain" />
       </Animated.View>
     </View>
   );

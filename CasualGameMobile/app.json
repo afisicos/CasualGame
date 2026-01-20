@@ -5,11 +5,11 @@
     "scheme": "burgermatch",
     "version": "1.1.0-alpha.1",
     "orientation": "portrait",
-    "icon": "./src/assets/Iconos/Icon512.png",
+    "icon": "./src/assets/Iconos/IconoJuego.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "splash": {
-      "image": "./src/assets/Iconos/Icon512.png",
+      "image": "./src/assets/Iconos/IconoJuego.png",
       "resizeMode": "contain",
       "backgroundColor": "#FF9966"
     },
@@ -20,7 +20,7 @@
       "package": "com.cetroalce.burgermatch",
       "versionCode": 27,
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/Iconos/Icon512.png",
+        "foregroundImage": "./src/assets/Iconos/IconoJuego.png",
         "backgroundColor": "#FF9966"
       },
       "edgeToEdgeEnabled": true,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, Component } from 'react';
 import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, ImageBackground, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated, AppState } from 'react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,6 +18,37 @@ import ShopScreen from './components/ShopScreen';
 import RecipesBookScreen from './components/RecipesBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe } from './types';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Componente para animaciones de entrada de pantalla (solo escala, sin transparencias)
+const ScreenTransition: React.FC<{ children: React.ReactNode; screenKey: Screen }> = ({ children, screenKey }) => {
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+
+  useEffect(() => {
+    // Resetear valor inicial
+    scaleAnim.setValue(0.95);
+
+    // Animación de entrada sutil solo con escala
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 8,
+      tension: 60,
+      useNativeDriver: true,
+    }).start();
+  }, [screenKey, scaleAnim]);
+
+  return (
+    <Animated.View
+      style={{
+        flex: 1,
+        transform: [{ scale: scaleAnim }],
+      }}
+    >
+      {children}
+    </Animated.View>
+  );
+};
 
 interface RecipeToastData {
   id: string;
@@ -265,6 +297,9 @@ function GameContent() {
   const [shouldBlinkBurgers, setShouldBlinkBurgers] = useState<boolean>(false);
   const [helpText, setHelpText] = useState<string>('');
   const helpTextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [timerPaused, setTimerPaused] = useState<boolean>(false);
+
   const [expandedRecipeId, setExpandedRecipeId] = useState<string | null>(null);
   const expandRecipeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -399,7 +434,7 @@ function GameContent() {
         const result = refreshEnergy(initialEnergy, initialLastGain);
         setEnergy(result.energy);
         setLastEnergyGainTime(result.lastGain);
-        
+
         setIsDataLoaded(true);
       } catch (e) {
         setIsDataLoaded(true);
@@ -808,6 +843,7 @@ function GameContent() {
     
     setMaxDestructions(startDestructions); // Guardar el máximo de eliminaciones
     setShouldBlinkDestructions(false); // Resetear parpadeo
+
     setScreen('GAME');
 
     // Consumir power-ups activados
@@ -815,7 +851,7 @@ function GameContent() {
     if (useSuperTimeBoost && superTimeBoostCount > 0) setSuperTimeBoostCount(prev => prev - 1);
     if (useDestructionPack && destructionPackCount > 0) setDestructionPackCount(prev => prev - 1);
     if (useSuperDestructionPack && superDestructionPackCount > 0) setSuperDestructionPackCount(prev => prev - 1);
-    if (useInhibitor && inhibitorCount > 0) setInhibitorCount(prev => prev - 1);
+    // El inhibidor ya se consume arriba en la sección de power-ups de campaña
 
     // Resetear toggles de power-ups
     setUseTimeBoost(false);
@@ -1141,6 +1177,7 @@ function GameContent() {
       const newBurgersCreated = burgersCreated + (match.isTargetRecipe ? 1 : 0);
       const isLevelComplete = !isArcade && newBurgersCreated >= burgerTarget;
 
+
       // Mostrar toast si es modo arcade
       if (isArcade) {
         showRecipeToast((match as Recipe).name, matchPrice);
@@ -1410,143 +1447,144 @@ function GameContent() {
   };
 
   const renderScreen = () => {
-    switch (screen) {
-      case 'SPLASH':
-        return <SplashScreen onFinish={() => setScreen('MENU')} />;
-      case 'OPTIONS':
-        return (
-          <OptionsScreen 
-            isSoundEnabled={isSoundEnabled}
-            onToggleSound={() => setIsSoundEnabled(!isSoundEnabled)}
-            onResetProgress={resetProgress}
-            onBack={() => setScreen('MENU')}
-            language={language}
-            onToggleLanguage={() => setLanguage(language === 'es' ? 'en' : 'es')}
-            onPlaySound={playUIButtonSound}
-            t={t}
-          />
-        );
-      case 'SHOP':
-        return (
-          <ShopScreen
-            globalMoney={globalMoney}
-            energy={energy}
-            maxEnergy={MAX_ENERGY}
-            timeBoostCount={timeBoostCount}
-            superTimeBoostCount={superTimeBoostCount}
-            destructionPackCount={destructionPackCount}
-            superDestructionPackCount={superDestructionPackCount}
-            inhibitorCount={inhibitorCount}
-            onBuyTimeBoost={buyTimeBoost}
-            onBuySuperTimeBoost={buySuperTimeBoost}
-            onBuyDestructionPack={buyDestructionPack}
-            onBuySuperDestructionPack={buySuperDestructionPack}
-            onBuyInhibitor={buyInhibitor}
-            onBuyEnergy={buyEnergy}
-            onPlaySound={playUIButtonSound}
-            t={t}
-          />
-        );
-      case 'RECIPES_BOOK':
-        const campaignUnlocked = getUnlockedRecipesForCampaign(unlockedLevel);
-        const arcadeUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
-        const allUnlockedRecipes = [...new Set([...campaignUnlocked, ...arcadeUnlocked])];
+    const screenContent = (() => {
+      switch (screen) {
+        case 'SPLASH':
+          return <SplashScreen onFinish={() => setScreen('MENU')} />;
+        case 'OPTIONS':
+          return (
+            <OptionsScreen
+              isSoundEnabled={isSoundEnabled}
+              onToggleSound={() => setIsSoundEnabled(!isSoundEnabled)}
+              onResetProgress={resetProgress}
+              onBack={() => setScreen('MENU')}
+              language={language}
+              onToggleLanguage={() => setLanguage(language === 'es' ? 'en' : 'es')}
+              onPlaySound={playUIButtonSound}
+              t={t}
+            />
+          );
+        case 'SHOP':
+          return (
+            <ShopScreen
+              globalMoney={globalMoney}
+              energy={energy}
+              maxEnergy={MAX_ENERGY}
+              timeBoostCount={timeBoostCount}
+              superTimeBoostCount={superTimeBoostCount}
+              destructionPackCount={destructionPackCount}
+              superDestructionPackCount={superDestructionPackCount}
+              inhibitorCount={inhibitorCount}
+              onBuyTimeBoost={buyTimeBoost}
+              onBuySuperTimeBoost={buySuperTimeBoost}
+              onBuyDestructionPack={buyDestructionPack}
+              onBuySuperDestructionPack={buySuperDestructionPack}
+              onBuyInhibitor={buyInhibitor}
+              onBuyEnergy={buyEnergy}
+              onPlaySound={playUIButtonSound}
+              t={t}
+            />
+          );
+        case 'RECIPES_BOOK':
+          const campaignUnlocked = getUnlockedRecipesForCampaign(unlockedLevel);
+          const arcadeUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
+          const allUnlockedRecipes = [...new Set([...campaignUnlocked, ...arcadeUnlocked])];
 
-        return (
-          <RecipesBookScreen
-            discoveredRecipes={discoveredRecipes}
-            unlockedRecipes={allUnlockedRecipes}
-            onPlaySound={playUIButtonSound}
-            t={t}
-          />
-        );
-      case 'MENU':
-        return (
-          <MenuScreen 
-            levels={LEVELS} 
-            unlockedLevel={unlockedLevel} 
-            arcadeUnlockedLevel={arcadeUnlockedLevel}
-            arcadeHighScore={arcadeHighScore}
-            energy={energy}
-            maxEnergy={MAX_ENERGY}
-            globalMoney={globalMoney}
-            nextEnergyTime={nextEnergyTime}
-            timeBoostCount={timeBoostCount}
-            superTimeBoostCount={superTimeBoostCount}
-            destructionPackCount={destructionPackCount}
-            superDestructionPackCount={superDestructionPackCount}
-            useTimeBoost={useTimeBoost}
-            useSuperTimeBoost={useSuperTimeBoost}
-            useDestructionPack={useDestructionPack}
-            useSuperDestructionPack={useSuperDestructionPack}
-            onToggleTimeBoost={setUseTimeBoost}
-            onToggleSuperTimeBoost={setUseSuperTimeBoost}
-            onToggleDestructionPack={setUseDestructionPack}
-            onToggleSuperDestructionPack={setUseSuperDestructionPack}
-            onStartLevel={(l) => { 
-              setSelectedLevel(l); 
-              setScreen('INTRO'); 
+          return (
+            <RecipesBookScreen
+              discoveredRecipes={discoveredRecipes}
+              unlockedRecipes={allUnlockedRecipes}
+              onPlaySound={playUIButtonSound}
+              t={t}
+            />
+          );
+        case 'MENU':
+          return (
+            <MenuScreen
+              levels={LEVELS}
+              unlockedLevel={unlockedLevel}
+              arcadeUnlockedLevel={arcadeUnlockedLevel}
+              arcadeHighScore={arcadeHighScore}
+              energy={energy}
+              maxEnergy={MAX_ENERGY}
+              globalMoney={globalMoney}
+              nextEnergyTime={nextEnergyTime}
+              timeBoostCount={timeBoostCount}
+              superTimeBoostCount={superTimeBoostCount}
+              destructionPackCount={destructionPackCount}
+              superDestructionPackCount={superDestructionPackCount}
+              useTimeBoost={useTimeBoost}
+              useSuperTimeBoost={useSuperTimeBoost}
+              useDestructionPack={useDestructionPack}
+              useSuperDestructionPack={useSuperDestructionPack}
+              onToggleTimeBoost={setUseTimeBoost}
+              onToggleSuperTimeBoost={setUseSuperTimeBoost}
+              onToggleDestructionPack={setUseDestructionPack}
+              onToggleSuperDestructionPack={setUseSuperDestructionPack}
+            onStartLevel={(l) => {
+              setSelectedLevel(l);
+              setScreen('INTRO');
             }}
-            onStartArcade={() => setScreen('ARCADE_INTRO')}
-            onOptions={() => setScreen('OPTIONS')}
-            onShop={() => setScreen('SHOP')}
-            onRecipesBook={() => setScreen('RECIPES_BOOK')}
-            onWatchAdForEnergy={handleWatchAdForEnergy}
-            onPlaySound={playUIButtonSound}
-            t={t}
-          />
-        );
-      case 'INTRO':
-        const levelRecipe = selectedLevel.newRecipe
-          ? BASE_RECIPES.find(r => r.id === selectedLevel.newRecipe)
-          : null;
+              onStartArcade={() => setScreen('ARCADE_INTRO')}
+              onOptions={() => setScreen('OPTIONS')}
+              onShop={() => setScreen('SHOP')}
+              onRecipesBook={() => setScreen('RECIPES_BOOK')}
+              onWatchAdForEnergy={handleWatchAdForEnergy}
+              onPlaySound={playUIButtonSound}
+              t={t}
+            />
+          );
+        case 'INTRO':
+          const levelRecipe = selectedLevel.newRecipe
+            ? BASE_RECIPES.find(r => r.id === selectedLevel.newRecipe)
+            : null;
 
-        // Obtener ingredientes disponibles para inhibir (excluyendo pan y los de la receta objetivo)
-        const recipeIngredients = levelRecipe?.ingredients || [];
-        const availableIngredients = selectedLevel.ingredients.filter(ing =>
-          ing !== 'BREAD' && !recipeIngredients.includes(ing)
-        );
+          // Obtener ingredientes disponibles para inhibir (excluyendo pan y los de la receta objetivo)
+          const recipeIngredients = levelRecipe?.ingredients || [];
+          const availableIngredients = selectedLevel.ingredients.filter(ing =>
+            ing !== 'BREAD' && !recipeIngredients.includes(ing)
+          );
 
-        return (
-          <IntroScreen
-            levelId={selectedLevel.id}
-            newIngredient={selectedLevel.newIngredient}
-            showNewIngredient={!!(selectedLevel.showNewIngredient && selectedLevel.newIngredient)}
-            newRecipe={levelRecipe ? (t[levelRecipe.name as keyof typeof t] || levelRecipe.name) : undefined}
-            recipeIngredients={levelRecipe?.ingredients}
-            recipePrice={levelRecipe?.price}
-            description={selectedLevel.description}
-            targetBurgers={selectedLevel.targetBurgers}
-            timeLimit={60}
-            timeBoostCount={timeBoostCount}
-            superTimeBoostCount={superTimeBoostCount}
-            destructionPackCount={destructionPackCount}
-            superDestructionPackCount={superDestructionPackCount}
-            inhibitorCount={inhibitorCount}
-            useTimeBoost={useTimeBoost}
-            useSuperTimeBoost={useSuperTimeBoost}
-            useDestructionPack={useDestructionPack}
-            useSuperDestructionPack={useSuperDestructionPack}
-            useInhibitor={useInhibitor}
-            inhibitedIngredient={inhibitedIngredient}
-            availableIngredients={availableIngredients}
-            onToggleTimeBoost={setUseTimeBoost}
-            onToggleSuperTimeBoost={setUseSuperTimeBoost}
-            onToggleDestructionPack={setUseDestructionPack}
-            onToggleSuperDestructionPack={setUseSuperDestructionPack}
-            onToggleInhibitor={setUseInhibitor}
-            onSelectInhibitedIngredient={setInhibitedIngredient}
+          return (
+            <IntroScreen
+              levelId={selectedLevel.id}
+              newIngredient={selectedLevel.newIngredient}
+              showNewIngredient={!!(selectedLevel.showNewIngredient && selectedLevel.newIngredient)}
+              newRecipe={levelRecipe ? (t[levelRecipe.name as keyof typeof t] || levelRecipe.name) : undefined}
+              recipeIngredients={levelRecipe?.ingredients}
+              recipePrice={levelRecipe?.price}
+              description={selectedLevel.description}
+              targetBurgers={selectedLevel.targetBurgers}
+              timeLimit={60}
+              timeBoostCount={timeBoostCount}
+              superTimeBoostCount={superTimeBoostCount}
+              destructionPackCount={destructionPackCount}
+              superDestructionPackCount={superDestructionPackCount}
+              inhibitorCount={inhibitorCount}
+              useTimeBoost={useTimeBoost}
+              useSuperTimeBoost={useSuperTimeBoost}
+              useDestructionPack={useDestructionPack}
+              useSuperDestructionPack={useSuperDestructionPack}
+              useInhibitor={useInhibitor}
+              inhibitedIngredient={inhibitedIngredient}
+              availableIngredients={availableIngredients}
+              onToggleTimeBoost={setUseTimeBoost}
+              onToggleSuperTimeBoost={setUseSuperTimeBoost}
+              onToggleDestructionPack={setUseDestructionPack}
+              onToggleSuperDestructionPack={setUseSuperDestructionPack}
+              onToggleInhibitor={setUseInhibitor}
+              onSelectInhibitedIngredient={setInhibitedIngredient}
             onPlay={() => playGame('CAMPAIGN')}
             onBack={() => setScreen('MENU')}
             onPlaySound={playUIButtonSound}
             t={t}
           />
         );
-      case 'ARCADE_INTRO':
-        return (
-          <ArcadeIntroScreen 
-            highScore={arcadeHighScore}
-            onPlay={() => playGame('ARCADE')}
+        case 'ARCADE_INTRO':
+          return (
+            <ArcadeIntroScreen
+              highScore={arcadeHighScore}
+              onPlay={() => playGame('ARCADE')}
             onBack={() => setScreen('MENU')}
             onPlaySound={playUIButtonSound}
             t={t}
@@ -1600,7 +1638,10 @@ function GameContent() {
               />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                style={[
+                  styles.statTouchable,
+                  statCardStyles.touchableContainerVertical
+                ]}
                 onPress={() => {
                   if (gameMode === 'CAMPAIGN') {
                     // Limpiar timeout anterior si existe
@@ -1842,7 +1883,15 @@ function GameContent() {
       default:
         return null;
     }
-  };
+  })();
+
+  // Aplicar animación de entrada solo a pantallas que no sean SPLASH
+  return screen === 'SPLASH' ? screenContent : (
+    <ScreenTransition screenKey={screen}>
+      {screenContent}
+    </ScreenTransition>
+  );
+};
 
   // Determinar colores del degradado según el modo
   const gradientColors: [string, string] = screen === 'GAME' && gameMode === 'ARCADE' 
@@ -1880,6 +1929,7 @@ function GameContent() {
         </View>
       )}
       {screen === 'SPLASH' && renderScreen()}
+
     </View>
   );
 }

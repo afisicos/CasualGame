@@ -146,7 +146,7 @@ export const LEVELS: Level[] = [
   {
     id: 10,
     name: "l10_name",
-    targetBurgers: 10,
+    targetBurgers: 7,
     ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION'],
     showNewIngredient: false,
     newRecipe: 'onioner',

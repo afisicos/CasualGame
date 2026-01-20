@@ -402,6 +402,6 @@ export const styles = StyleSheet.create({
     color: '#6c757d',
     textAlign: 'center',
     fontStyle: 'italic'
-  }
+  },
 });
 

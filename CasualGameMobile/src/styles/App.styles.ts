@@ -44,14 +44,14 @@ export const styles = StyleSheet.create({
   burgerNameTextCentered: { fontSize: 16, fontWeight: '900', color: '#4a4a4a', textAlign: 'center' },
   priceLabel: { fontSize: 18, fontWeight: '900', color: '#27ae60' },
   priceIcon: { width: 22, height: 22, marginTop: 2 },
-  orderPieces: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    height: 80,
-    justifyContent: 'center',
+  orderPieces: { 
+    flexDirection: 'row-reverse', 
+    alignItems: 'center', 
+    height: 80, 
+    justifyContent: 'center', 
     width: '100%',
     paddingHorizontal: 5,
-    overflow: 'visible'
+    overflow: 'visible' 
   },
   orderPiecesCompact: {
     flexDirection: 'row-reverse',
@@ -154,7 +154,7 @@ export const styles = StyleSheet.create({
   secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' },
   helpTextContainerCenter: {
     position: 'absolute',
-    top: '35%',
+    top: '50%',
     left: 0,
     right: 0,
     backgroundColor: '#f8f9fa',
@@ -233,6 +233,17 @@ export const styles = StyleSheet.create({
   recipeToastCoin: {
     width: 20,
     height: 20,
+  },
+  highlightPulse: {
+    position: 'absolute',
+    borderRadius: 15,
+    borderWidth: 3,
+    borderColor: '#FFF',
+    shadowColor: '#FFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 20,
   },
 });
 
