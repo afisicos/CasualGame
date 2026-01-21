@@ -60,7 +60,11 @@ export const LEVELS: Level[] = [
     id: 1,
     name: "l1_name",
     targetBurgers: 6,
-    ingredients: ['BREAD', 'MEAT', 'TOMATO'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.4 },
+      { type: 'MEAT', probability: 0.4 },
+      { type: 'TOMATO', probability: 0.2 }
+    ],
     newIngredient: 'TOMATO',
     showNewIngredient: true,
     newRecipe: 'tomato_burger',
@@ -70,7 +74,12 @@ export const LEVELS: Level[] = [
     id: 2,
     name: "l2_name",
     targetBurgers: 4,
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.3 },
+      { type: 'MEAT', probability: 0.3 },
+      { type: 'CHEESE', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.2 }
+    ],
     newIngredient: 'CHEESE',
     showNewIngredient: false,
     newRecipe: 'cheese_tomato',
@@ -80,7 +89,13 @@ export const LEVELS: Level[] = [
     id: 3,
     name: "l3_name",
     targetBurgers: 5,
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'CHEESE', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 }
+    ],
     newIngredient: 'LETTUCE',
     showNewIngredient: true,
     newRecipe: 'veggie',
@@ -90,7 +105,13 @@ export const LEVELS: Level[] = [
     id: 4,
     name: "l4_name",
     targetBurgers: 3,
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'CHEESE', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 }
+    ],
     showNewIngredient: false,
     newRecipe: 'veggie_cheese',
     description: "l4_desc"
@@ -99,7 +120,13 @@ export const LEVELS: Level[] = [
     id: 5,
     name: "l5_name",
     targetBurgers: 5,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'BACON', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.1 }
+    ],
     newIngredient: 'BACON',
     showNewIngredient: true,
     newRecipe: 'bacon_cheese',
@@ -109,7 +136,14 @@ export const LEVELS: Level[] = [
     id: 6,
     name: "l6_name",
     targetBurgers: 4,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO','LETTUCE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'TOMATO', probability: 0.3 },
+      { type: 'LETTUCE', probability: 0.1 }
+    ],
     showNewIngredient: false,
     newRecipe: 'tomatomato',
     description: "l6_desc"
@@ -118,7 +152,14 @@ export const LEVELS: Level[] = [
     id: 7,
     name: "l7_name",
     targetBurgers: 6,
-    ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'CHEESE', 'TOMATO', 'KETCHUP'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'LETTUCE', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'TOMATO', probability: 0.1 },
+      { type: 'KETCHUP', probability: 0.2 }
+    ],
     newIngredient: 'KETCHUP',
     showNewIngredient: true,
     newRecipe: 'ketchup_lettuce',
@@ -128,7 +169,15 @@ export const LEVELS: Level[] = [
     id: 8,
     name: "l8_name",
     targetBurgers: 4,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'LETTUCE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.1 },
+      { type: 'LETTUCE', probability: 0.05 }
+    ],
     showNewIngredient: false,
     newRecipe: 'antivegetal',
     description: "l8_desc"
@@ -137,7 +186,16 @@ export const LEVELS: Level[] = [
     id: 9,
     name: "l9_name",
     targetBurgers: 2,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'ONION', 'LETTUCE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.5 },
+      { type: 'ONION', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.5 }
+    ],
     newIngredient: 'ONION',
     showNewIngredient: true,
     newRecipe: 'tonion_burger',
@@ -147,7 +205,13 @@ export const LEVELS: Level[] = [
     id: 10,
     name: "l10_name",
     targetBurgers: 7,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.2 },
+      { type: 'ONION', probability: 0.15 }
+    ],
     showNewIngredient: false,
     newRecipe: 'onioner',
     description: "l10_desc"
@@ -156,7 +220,15 @@ export const LEVELS: Level[] = [
     id: 11,
     name: "l11_name",
     targetBurgers: 5,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'TOMATO', 'KETCHUP', 'ONION'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.20 },
+      { type: 'MEAT', probability: 0.20 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.075 },
+      { type: 'TOMATO', probability: 0.075 },
+      { type: 'KETCHUP', probability: 0.15 },
+      { type: 'ONION', probability: 0.15 }
+    ],
     showNewIngredient: false,
     newRecipe: 'loaded_bbq',
     description: "l11_desc"
@@ -165,7 +237,14 @@ export const LEVELS: Level[] = [
     id: 12,
     name: "l12_name",
     targetBurgers: 5,
-    ingredients: ['BREAD', 'MEAT', 'CHEESE', 'KETCHUP', 'ONION', 'PICKLE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.2 },
+      { type: 'KETCHUP', probability: 0.1 },
+      { type: 'ONION', probability: 0.1 },
+      { type: 'PICKLE', probability: 0.2 }
+    ],
     newIngredient: 'PICKLE',
     showNewIngredient: true,
     newRecipe: 'cheese_pickle',
@@ -174,8 +253,15 @@ export const LEVELS: Level[] = [
   {
     id: 13,
     name: "l13_name",
-    targetBurgers: 6,
-    ingredients: ['BREAD', 'MEAT', 'TOMATO', 'LETTUCE', 'KETCHUP', 'PICKLE'],
+    targetBurgers: 5,
+    ingredients: [
+      { type: 'BREAD', probability: 0.3 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.05 },
+      { type: 'PICKLE', probability: 0.15 }
+    ],
     showNewIngredient: false,
     newRecipe: 'green_pickle',
     description: "l13_desc"
@@ -184,7 +270,15 @@ export const LEVELS: Level[] = [
     id: 14,
     name: "l14_name",
     targetBurgers: 5,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'ONION', 'PICKLE', 'KETCHUP', 'CHEESE', 'TOMATO'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'ONION', probability: 0.1 },
+      { type: 'PICKLE', probability: 0.2 },
+      { type: 'KETCHUP', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 }
+    ],
     showNewIngredient: false,
     newRecipe: 'bacon_pickle',
     description: "l14_desc"
@@ -193,7 +287,17 @@ export const LEVELS: Level[] = [
     id: 15,
     name: "l15_name",
     targetBurgers: 2,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'ONION', probability: 0.1 },
+      { type: 'PICKLE', probability: 0.1 },
+      { type: 'KETCHUP', probability: 0.1 },
+      { type: 'TOMATO', probability: 0.05 },
+      { type: 'LETTUCE', probability: 0.05 } 
+    ],
     showNewIngredient: false,
     newRecipe: 'everything_pickle',
     description: "l15_desc"
@@ -202,7 +306,15 @@ export const LEVELS: Level[] = [
     id: 16,
     name: "l16_name",
     targetBurgers: 5,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'TOMATO', 'EGG'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.10 },
+      { type: 'ONION', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.05 },
+      { type: 'EGG', probability: 0.15 }
+    ],
     newIngredient: 'EGG',
     showNewIngredient: true,
     newRecipe: 'ranchera',
@@ -212,7 +324,18 @@ export const LEVELS: Level[] = [
     id: 17,
     name: "l17_name",
     targetBurgers: 7,
-    ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'ONION', 'PICKLE', 'KETCHUP', 'TOMATO', 'LETTUCE', 'EGG'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.3 },
+      { type: 'MEAT', probability: 0.3 },
+      { type: 'BACON', probability: 0.04 },
+      { type: 'CHEESE', probability: 0.04 },
+      { type: 'ONION', probability: 0.04 },
+      { type: 'PICKLE', probability: 0.04 },
+      { type: 'KETCHUP', probability: 0.1 },
+      { type: 'TOMATO', probability: 0.02 },
+      { type: 'LETTUCE', probability: 0.02 },
+      { type: 'EGG', probability: 0.1 }
+    ],
     showNewIngredient: false,
     newRecipe: 'egg_ketchup',
     description: "l17_desc"
@@ -286,7 +409,7 @@ export const getUnlockedRecipesForCampaign = (campaignUnlockedLevel: number) => 
 };
 
 // Mapeo de qué ingredientes están disponibles según el nivel superado
-export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => {
+export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number): IngredientProbability[] => {
   const ingredients: PieceType[] = ['BREAD', 'MEAT', 'TOMATO']; // TOMATO está disponible desde el inicio
   if (arcadeUnlockedLevel >= 2) ingredients.push('CHEESE');
   if (arcadeUnlockedLevel >= 3) ingredients.push('LETTUCE');
@@ -295,7 +418,10 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number) => 
   if (arcadeUnlockedLevel >= 9) ingredients.push('ONION');
   if (arcadeUnlockedLevel >= 12) ingredients.push('PICKLE');
   if (arcadeUnlockedLevel >= 16) ingredients.push('EGG');
-  return ingredients;
+
+  // Convertir a probabilidades uniformes
+  const probability = 1 / ingredients.length;
+  return ingredients.map(type => ({ type, probability }));
 };
 
 // Mapeo de qué ingredientes están disponibles según el nivel de campaña alcanzado

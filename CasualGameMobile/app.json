@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.cetroalce.burgermatch",
-      "versionCode": 30,
+      "versionCode": 31,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/Iconos/IconoJuego.png",
         "backgroundColor": "#FF9966"

@@ -23,11 +23,16 @@ export interface Cell {
   piece: Piece | null;
 }
 
+export interface IngredientProbability {
+  type: PieceType;
+  probability: number; // Valor entre 0 y 1 (ej: 0.3 = 30% de probabilidad)
+}
+
 export interface Level {
   id: number;
   name: string;
   targetBurgers: number;
-  ingredients: PieceType[];
+  ingredients: IngredientProbability[];
   newIngredient?: PieceType; // Opcional: algunos niveles solo descubren recetas
   showNewIngredient?: boolean;
   newRecipe?: string;

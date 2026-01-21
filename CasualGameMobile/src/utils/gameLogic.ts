@@ -1,28 +1,26 @@
 import { TRANSLATIONS } from '../constants/gameData';
-import { PieceType } from '../types';
+import { PieceType, IngredientProbability } from '../types';
 import { Cell, Piece, GameMode } from '../types';
 
 export const getGridSize = (levelId: number, mode: GameMode) => {
   return 7; // Siempre 7x7 por petición del usuario
 };
 
-export const createPiece = (availableIngredients: PieceType[]): Piece => {
-  // Sistema de pesos: Pan y Carne tienen el doble de probabilidad que el resto
-  const weights: Partial<Record<PieceType, number>> = {
-    'BREAD': 2,
-    'MEAT': 2
-  };
-  
-  const pool: PieceType[] = [];
-  availableIngredients.forEach(ing => {
-    const w = weights[ing] || 1;
-    for (let i = 0; i < w; i++) {
-      pool.push(ing);
-    }
-  });
+export const createPiece = (ingredientProbabilities: IngredientProbability[]): Piece => {
+  // Seleccionar un ingrediente basado en las probabilidades
+  const random = Math.random();
+  let cumulativeProbability = 0;
 
-  const type = pool[Math.floor(Math.random() * pool.length)];
-  return { id: Math.random().toString(36).substr(2, 9), type, isNew: true };
+  for (const ingredient of ingredientProbabilities) {
+    cumulativeProbability += ingredient.probability;
+    if (random <= cumulativeProbability) {
+      return { id: Math.random().toString(36).substr(2, 9), type: ingredient.type, isNew: true };
+    }
+  }
+
+  // Fallback por si las probabilidades no suman exactamente 1
+  const fallbackType = ingredientProbabilities[ingredientProbabilities.length - 1]?.type || 'BREAD';
+  return { id: Math.random().toString(36).substr(2, 9), type: fallbackType, isNew: true };
 };
 
 export const findChain = (idx: number, currentChain: PieceType[], results: PieceType[][], visited: Set<number>, gridRef: Cell[], gridSize: number) => {

@@ -1021,13 +1021,15 @@ function GameContent() {
         }
 
         // Nueva pieza arriba
-        let ingredients = gameMode === 'ARCADE'
+        let ingredientProbabilities = gameMode === 'ARCADE'
           ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
           : selectedLevel.ingredients;
 
         // Aplicar filtro del inhibidor si está activo
         if (useInhibitor && inhibitedIngredient) {
-          ingredients = ingredients.filter(ingredient => ingredient !== inhibitedIngredient);
+          ingredientProbabilities = ingredientProbabilities.filter(ingredient =>
+            typeof ingredient === 'string' ? ingredient !== inhibitedIngredient : ingredient.type !== inhibitedIngredient
+          );
         }
         nextGrid[col].piece = createPiece(ingredients);
 
