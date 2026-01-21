@@ -539,22 +539,6 @@ function GameContent() {
     }
   }, [screen, isFirstTime, tutorialStep]);
 
-  // Toast explicativo en el juego durante tutorial
-  useEffect(() => {
-    if (screen === 'GAME' && isFirstTime && tutorialStep === 3) {
-      setTimeout(() => {
-        showTutorialToast('¡Así se juega!', 'La hamburguesa debe empezar y terminar con pan, y tener carne y tomate dentro');
-        // Reanudar tiempo después del toast
-        setTimeout(() => {
-          setTimerPaused(false);
-          setIsFirstTime(false); // Marcar que ya no es primera vez
-          setTutorialStep(0); // Resetear paso del tutorial
-          // Guardar estado de primera vez completada
-          AsyncStorage.setItem('isFirstTime', 'false');
-        }, 3000);
-      }, 500);
-    }
-  }, [screen, isFirstTime, tutorialStep]);
 
   // Sistema de recuperación de energía
   useEffect(() => {
@@ -1659,10 +1643,12 @@ function GameContent() {
               onSelectInhibitedIngredient={setInhibitedIngredient}
             onPlay={() => {
               playGame('CAMPAIGN');
-              // Avanzar tutorial si es primera vez
+              // Completar tutorial si es primera vez
               if (isFirstTime && tutorialStep === 2) {
-                setTutorialStep(3);
-                setTimerPaused(true); // Pausar tiempo inicialmente
+                setIsFirstTime(false);
+                setTutorialStep(0);
+                // Guardar estado de primera vez completada
+                AsyncStorage.setItem('isFirstTime', 'false');
               }
             }}
             onBack={() => setScreen('MENU')}
