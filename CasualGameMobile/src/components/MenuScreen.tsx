@@ -6,6 +6,34 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Level } from '../types';
 import { styles } from '../styles/MenuScreen.styles';
 
+// Función para obtener el siguiente ingrediente que se desbloqueará
+const getNextIngredientToUnlock = (currentLevel: number): { ingredient: string; level: number } | null => {
+  const ingredientUnlockLevels: { [key: number]: string } = {
+    2: 'CHEESE',
+    3: 'LETTUCE',
+    5: 'BACON',
+    7: 'KETCHUP',
+    9: 'ONION',
+    12: 'PICKLE',
+    16: 'EGG'
+  };
+
+  // Encontrar el próximo nivel donde se desbloquea algo
+  const unlockLevels = Object.keys(ingredientUnlockLevels).map(Number).sort((a, b) => a - b);
+
+  for (const level of unlockLevels) {
+    if (level > currentLevel) {
+      return {
+        ingredient: ingredientUnlockLevels[level],
+        level: level
+      };
+    }
+  }
+
+  // Si no hay más ingredientes para desbloquear, devolver null
+  return null;
+};
+
 interface MenuScreenProps {
   levels: Level[];
   unlockedLevel: number;
@@ -290,7 +318,122 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       )}
 
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 20 }}>
+        
+
         <TouchableOpacity
+          style={[
+            styles.campaignSection,
+            isFirstTime && tutorialStep === 1 && {
+              borderWidth: 3,
+              borderColor: '#FFF',
+              shadowColor: '#FFF',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.8,
+              shadowRadius: 15,
+              elevation: 25,
+              transform: [{ scale: tutorialPulseAnim }],
+            }
+          ]}
+          onPress={() => {
+            onPlaySound?.();
+            if (energy > 0) {
+              onStartLevel(currentLevelData);
+            } else {
+              setShowEnergyPanel(true);
+            }
+          }}
+          activeOpacity={0.9}
+        >
+          <LinearGradient
+            colors={['#FC3', '#FA3']}
+            style={styles.arcadeGradient}
+          >
+            <View style={styles.arcadeHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.campaignTitle}>{t.level_prefix} {currentLevelData.id}</Text>
+                <Text style={styles.campaignLevelName}>{t[currentLevelData.name as keyof typeof t] || currentLevelData.name}</Text>
+              </View>
+              <Animated.View style={{ transform: [{ scale: playButtonScale }] }}>
+                <View style={styles.playLevelButton}>
+                  <Image source={require('../assets/Iconos/play.png')} style={styles.playLevelIcon} resizeMode="contain" />
+                  <View style={styles.costBadge}>
+                    <Image source={require('../assets/Iconos/Lighting.png')} style={styles.costEnergyIconImage} resizeMethod="resize" />
+                  </View>
+                </View>
+              </Animated.View>
+            </View>
+            <Text style={styles.arcadeDescription}>{t.campaign_desc}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Componente para mostrar el siguiente ingrediente a desbloquear */}
+        {(() => {
+          const nextIngredient = getNextIngredientToUnlock(unlockedLevel);
+          if (!nextIngredient) return null;
+
+          const ingredientImages: { [key: string]: any } = {
+            'CHEESE': require('../assets/Ingredientes/cheese.png'),
+            'LETTUCE': require('../assets/Ingredientes/lettuce.png'),
+            'BACON': require('../assets/Ingredientes/bacon.png'),
+            'KETCHUP': require('../assets/Ingredientes/ketchup.png'),
+            'ONION': require('../assets/Ingredientes/onion.png'),
+            'PICKLE': require('../assets/Ingredientes/pickle.png'),
+            'EGG': require('../assets/Ingredientes/egg.png')
+          };
+
+          const ingredientNames: { [key: string]: string } = {
+            'CHEESE': 'ing_CHEESE',
+            'LETTUCE': 'ing_LETTUCE',
+            'BACON': 'ing_BACON',
+            'KETCHUP': 'ing_KETCHUP',
+            'ONION': 'ing_ONION',
+            'PICKLE': 'ing_PICKLE',
+            'EGG': 'ing_EGG'
+          };
+
+          return (
+            <TouchableOpacity
+              style={[
+                styles.nextIngredientSection,
+              ]}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={['#FC3', '#FA3']}
+                style={styles.nextIngredientGradient}
+              >
+                <View style={styles.nextIngredientHeader}>
+                  <View style={styles.nextIngredientLeft}>
+                    <Text style={styles.nextIngredientTitle}>{t.next_ingredient}</Text>
+                    <Text style={styles.nextIngredientName}>
+                      {t[ingredientNames[nextIngredient.ingredient] as keyof typeof t] || nextIngredient.ingredient}
+                    </Text>
+                    <Text style={styles.nextIngredientLevel}>
+                      {t.level_prefix} {nextIngredient.level}
+                    </Text>
+                  </View>
+
+                  <View style={styles.nextIngredientRight}>
+                    <Image
+                      source={require('../assets/Iconos/lock.png')}
+                      style={styles.nextIngredientLockIcon}
+                      resizeMode="contain"
+                    />
+                    <View style={styles.nextIngredientCircle}>
+                      <Image
+                        source={ingredientImages[nextIngredient.ingredient] || require('../assets/Iconos/lock.png')}
+                        style={styles.nextIngredientCircleIcon}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          );
+        })()}
+
+<TouchableOpacity
           style={[
             styles.arcadeSection,
             isFirstTime && tutorialStep === 1 && { opacity: 0.3 }
@@ -305,7 +448,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           disabled={isFirstTime && tutorialStep === 1}
         >
           <LinearGradient
-            colors={['#ffa94d', '#ff9500']}
+            colors={['#ff6033', '#ff8800']}
             style={styles.arcadeGradient}
           >
             <View style={styles.arcadeHeader}>
@@ -336,52 +479,6 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
 
         <TouchableOpacity
           style={[
-            styles.campaignSection,
-            isFirstTime && tutorialStep === 1 && {
-              borderWidth: 3,
-              borderColor: '#FFF',
-              shadowColor: '#FFF',
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.8,
-              shadowRadius: 15,
-              elevation: 25,
-              transform: [{ scale: tutorialPulseAnim }],
-            }
-          ]}
-          onPress={() => {
-            onPlaySound?.();
-            if (energy > 0) {
-              onStartLevel(currentLevelData);
-            } else {
-              setShowEnergyPanel(true);
-            }
-          }}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={['#fcc419', '#fab005']}
-            style={styles.arcadeGradient}
-          >
-            <View style={styles.arcadeHeader}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.campaignTitle}>{t.level_prefix} {currentLevelData.id}</Text>
-                <Text style={styles.campaignLevelName}>{t[currentLevelData.name as keyof typeof t] || currentLevelData.name}</Text>
-              </View>
-              <Animated.View style={{ transform: [{ scale: playButtonScale }] }}>
-                <View style={styles.playLevelButton}>
-                  <Image source={require('../assets/Iconos/play.png')} style={styles.playLevelIcon} resizeMode="contain" />
-                  <View style={styles.costBadge}>
-                    <Image source={require('../assets/Iconos/Lighting.png')} style={styles.costEnergyIconImage} resizeMethod="resize" />
-                  </View>
-                </View>
-              </Animated.View>
-            </View>
-            <Text style={styles.arcadeDescription}>{t.campaign_desc}</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
             styles.recipeBookSection,
             isFirstTime && tutorialStep === 1 && { opacity: 0.3 }
           ]}
@@ -392,7 +489,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
               if (onRecipesBook) onRecipesBook();
             }
           }}
-          activeOpacity={isFirstTime && tutorialStep === 1 ? 1 : 0.8}
+          activeOpacity={isFirstTime && tutorialStep === 1 ? 1 : 0.9}
           disabled={isFirstTime && tutorialStep === 1}
         >
           <LinearGradient

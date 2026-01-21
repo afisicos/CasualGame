@@ -13,11 +13,9 @@ const width = getWindowWidth();
 export const styles = StyleSheet.create({
   container: { flex: 1 },
   headerBar: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
-    paddingBottom: 5,
-    marginBottom: 40 // Aumentado para dar más espacio antes del panel arcade
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    padding: 0,
+    marginBottom: 30 // Aumentado para dar más espacio antes del panel arcade
   },
   topBar: {
     flexDirection: 'row',
@@ -127,6 +125,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   arcadeGradient: { padding: 20 },
+  nextIngredientGradient: { padding: 12 },
   arcadeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' },
   arcadeTitleContainer: { flex: 1 },
   arcadeTitle: {
@@ -356,6 +355,72 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '900',
     color: 'white',
+  },
+
+  // Estilos para el componente del siguiente ingrediente
+  nextIngredientSection: {
+    marginHorizontal: 20,
+    borderRadius: 24,
+    marginBottom: 30,
+    marginTop: -15,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    overflow: 'hidden'
+  },
+  nextIngredientHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%'
+  },
+  nextIngredientLeft: {
+    flex: 1,
+    paddingRight: 16
+  },
+  nextIngredientTitle: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '900',
+    marginBottom: 2,
+  },
+  nextIngredientName: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 1,
+  },
+  nextIngredientLevel: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  nextIngredientRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextIngredientCircle: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  nextIngredientCircleIcon: {
+    width: 28,
+    height: 28,
+  },
+  nextIngredientLockIcon: {
+    width: 18,
+    height: 18,
+    tintColor: 'rgba(255, 255, 255, 0.8)',
   },
 });
 
