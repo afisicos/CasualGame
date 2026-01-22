@@ -345,7 +345,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           activeOpacity={0.9}
         >
           <LinearGradient
-            colors={['#FC3', '#FA3']}
+            colors={['#FB3', '#F93']}
             style={styles.arcadeGradient}
           >
             <View style={styles.arcadeHeader}>
@@ -399,7 +399,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
               activeOpacity={0.9}
             >
               <LinearGradient
-                colors={['#FC3', '#FA3']}
+                colors={['#FB3', '#F93']}
                 style={styles.nextIngredientGradient}
               >
                 <View style={styles.nextIngredientHeader}>
@@ -493,7 +493,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
           disabled={isFirstTime && tutorialStep === 1}
         >
           <LinearGradient
-            colors={['#ffb3d9', '#ff99cc']}
+            colors={['#ff13d9', '#ff99cc']}
             style={styles.arcadeGradient}
           >
             <View style={styles.arcadeHeader}>

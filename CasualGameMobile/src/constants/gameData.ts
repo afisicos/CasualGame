@@ -1,4 +1,4 @@
-import { PieceType, Level, Recipe, IngredientProbability } from '../types';
+import { PieceType, Level, Recipe, IngredientProbability, RecipeTarget } from '../types';
 
 export const ENERGY_RECOVERY_TIME = 300; // 5 minutos en segundos
 export const MAX_ENERGY = 10;
@@ -52,6 +52,7 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'ranchera', name: 'r_ranchera', ingredients: ['BREAD', 'MEAT', 'BACON', 'EGG', 'CHEESE', 'ONION', 'BREAD'], price: 30 },
   { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18 },
   { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
+  { id: 'huevolla', name: 'r_huevolla', ingredients: ['BREAD', 'MEAT', 'EGG', 'ONION', 'ONION', 'BREAD'], price: 22 },
 ];
 
 export const LEVELS: Level[] = [
@@ -348,6 +349,25 @@ export const LEVELS: Level[] = [
     newRecipe: 'egg_ketchup',
     description: "l17_desc"
   },
+  {
+    id: 18,
+    name: "l18_name",
+    targetRecipes: [
+      { id: 'huevolla', count: 3 },
+      { id: 'tomato_burger', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'EGG', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'ONION', probability: 0.15 }
+    ],
+    showNewIngredient: false,
+    newRecipe: 'huevolla',
+    description: "l18_desc"
+  },
 
 ];
 
@@ -398,7 +418,9 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
     recipes.push('ranchera');
     recipes.push('egg_ketchup');
     recipes.push('protein');
+    recipes.push('huevolla');
   }
+
   return recipes;
 };
 
@@ -634,6 +656,7 @@ export const TRANSLATIONS = {
     r_ranchera: "Hamburguesa Ranchera",
     r_egg_ketchup: "Huevetchup",
     r_protein: "La Proteica",
+    r_huevolla: "Huevolla",
     // Niveles
     l1_name: "Rumbo al Tomate",
     l2_name: "Más Sabor",
@@ -652,6 +675,7 @@ export const TRANSLATIONS = {
     l15_name: "La Gran Mezcla",
     l16_name: "El Toque del Huevo",
     l17_name: "Proteína Extra",
+    l18_name: "Probemos la Huevolla",
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
     l2_desc: "¡La mezcla perfecta! Combina el QUESO y el TOMATE para superar este nivel.",
     l3_desc: "¡El Huerto! Has desbloqueado la LECHUGA. Prepara la Hamburguesa Vegetal con tomate y lechuga.",
@@ -669,6 +693,7 @@ export const TRANSLATIONS = {
     l15_desc: "El nivel más completo hasta ahora: combina casi todo para lograr la máxima recompensa.",
     l16_desc: "¡HUEVO desbloqueado! El toque perfecto para cualquier hamburguesa. Prepara la Hamburguesa Ranchera con bacon, huevo, queso y cebolla.",
     l17_desc: "¡Proteína extra! Mezcla huevo con ketchup para crear combinaciones únicas. ¡No olvides la receta secreta con doble carne y doble huevo!",
+    l18_desc: "¡La Huevolla llega al menú! Prepara hamburguesas con huevo y cebolla. Necesitas hacer 3 Huevollas y 3 hamburguesas con tomate.",
   },
   en: {
     recipes: "RECIPES",
@@ -826,6 +851,10 @@ export const TRANSLATIONS = {
     r_bacon_pickle: "Tangy Crunch",
     r_green_pickle: "Green Gremlin",
     r_everything_pickle: "The Final Pickle",
+    r_ranchera: "Ranchera Burger",
+    r_egg_ketchup: "Egg Ketchup",
+    r_protein: "The Protein",
+    r_huevolla: "Eggnion",
     // Levels
     l1_name: "Road to Tomato",
     l2_name: "Perfect Mix",
@@ -842,6 +871,9 @@ export const TRANSLATIONS = {
     l13_name: "Green Crunch",
     l14_name: "Salty & Tangy",
     l15_name: "The Big Mix",
+    l16_name: "The Egg Touch",
+    l17_name: "Extra Protein",
+    l18_name: "Try the Eggnion",
     l1_desc: "Welcome! Learn to use TOMATO. In this level, we'll only serve tomato burgers.",
     l2_desc: "The perfect mix! Combine CHEESE and TOMATO to clear this level.",
     l3_desc: "The Orchard! You've unlocked LETTUCE. Prepare the Veggie Burger with tomato and lettuce.",
@@ -857,6 +889,9 @@ export const TRANSLATIONS = {
     l13_desc: "Mix pickles with veggies for fresh, fast recipes.",
     l14_desc: "Pickle + bacon + onion: the perfect salty & tangy balance.",
     l15_desc: "The most complete level so far: combine almost everything for the biggest reward.",
+    l16_desc: "EGG unlocked! The perfect touch for any burger. Prepare the Ranchera Burger with bacon, egg, cheese and onion.",
+    l17_desc: "Extra protein! Mix egg with ketchup for unique combinations. Don't forget the secret recipe with double meat and double egg!",
+    l18_desc: "Eggnion is on the menu! Prepare burgers with egg and onion. You need to make 3 Eggnions and 3 tomato burgers.",
   }
 };
 
