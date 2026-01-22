@@ -28,14 +28,20 @@ export interface IngredientProbability {
   probability: number; // Valor entre 0 y 1 (ej: 0.3 = 30% de probabilidad)
 }
 
+export interface RecipeTarget {
+  id: string; // ID de la receta
+  count: number; // Número de hamburguesas de este tipo que hay que hacer
+}
+
 export interface Level {
   id: number;
   name: string;
-  targetBurgers: number;
   ingredients: IngredientProbability[];
   newIngredient?: PieceType; // Opcional: algunos niveles solo descubren recetas
   showNewIngredient?: boolean;
-  newRecipe?: string;
+  targetRecipes?: RecipeTarget[]; // Múltiples objetivos de recetas
+  newRecipe?: string; // Mantener compatibilidad con niveles antiguos
+  targetBurgers?: number; // Mantener compatibilidad con niveles antiguos
   description: string;
 }
 

@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    justifyContent: 'center', 
+  container: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20 
+    paddingHorizontal: 20,
+    paddingBottom: 50
   },
   card: { 
     backgroundColor: 'white', 
@@ -32,16 +33,19 @@ export const styles = StyleSheet.create({
   section: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     backgroundColor: '#fcf8f2',
-    padding: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderRadius: 25,
     borderWidth: 1,
     borderColor: '#efe5d9'
   },
   ingredientSection: {
     backgroundColor: '#e7f5ff',
-    borderColor: '#d0ebff'
+    borderColor: '#d0ebff',
+    paddingVertical: 1,
+    marginBottom: 8
   },
   sectionLabel: {
     fontSize: 10,
@@ -49,6 +53,7 @@ export const styles = StyleSheet.create({
     color: '#adb5bd',
     letterSpacing: 1,
     textTransform: 'uppercase',
+    marginBottom: 2
   },
   recipeHeaderRow: {
     flexDirection: 'row',
@@ -76,18 +81,18 @@ export const styles = StyleSheet.create({
     fontWeight: '900'
   },
   burgerName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: '#4a4a4a',
     textAlign: 'center',
-    marginBottom: 12
+    marginBottom: 4
   },
   recipePreview: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'nowrap',
-    gap: -22 // Más juntos para que parezca una burger compacta
+    gap: -20 // Más juntos para que parezca una burger compacta
   },
   recipeIngIcon: {
     width: 30,
@@ -95,48 +100,40 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  ingredientRow: {
+  ingredientRowInline: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15
+    gap: 10,
+    alignItems: 'center'
   },
-  ingredientIconBg: {
-    width: 60,
-    height: 60,
-    backgroundColor: 'white',
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3
-  },
-  ingredientName: {
-    fontSize: 18,
-    fontWeight: '800',
+  ingredientNameInline: {
+    fontSize: 20,
+    gap: 10,
+    fontWeight: '700',
     color: '#1864ab'
   },
-  description: { 
-    textAlign: 'center', 
-    fontSize: 15, 
+  description: {
+    textAlign: 'center',
+    fontSize: 14,
     color: '#666',
-    lineHeight: 20,
-    marginBottom: 20,
+    lineHeight: 16,
+    marginBottom: 10,
     fontWeight: '600',
-    paddingHorizontal: 10
+    paddingHorizontal: 2
   },
   statsRow: {
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-around',
-    marginBottom: 25,
+    marginBottom: 15,
     borderTopWidth: 1,
     borderColor: '#f0f0f0',
-    paddingVertical: 15
+    paddingVertical: 10
   },
   statBox: {
     alignItems: 'center'
   },
   statLabel: {
-    fontSize: 10,
+    fontSize: 14,
     fontWeight: '800',
     color: '#adb5bd',
     marginBottom: 5
@@ -197,12 +194,12 @@ export const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'stretch',
-    gap: 12,
-    marginBottom: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 15,
+    gap: 0,
+    marginBottom: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+    backgroundColor: '#c8c9ca',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e9ecef'
   },
@@ -210,50 +207,32 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10
+    gap: 6,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    paddingVertical: 0,
+    paddingHorizontal: 10,
+    marginBottom: 0,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2
   },
   powerUpEmoji: {
     fontSize: 20
   },
   powerUpIcon: {
-    width: 20,
-    height: 20
+    width: 24,
+    height: 24
   },
   powerUpLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#495057',
-    flex: 1
-  },
-  ingredientSelector: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 10
-  },
-  ingredientOption: {
-    alignItems: 'center',
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    minWidth: 70
-  },
-  ingredientOptionSelected: {
-    borderColor: '#7048e8',
-    backgroundColor: 'rgba(112, 72, 232, 0.1)'
-  },
-  ingredientOptionText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     color: '#495057',
-    textAlign: 'center',
-    marginTop: 4
-  },
-  ingredientOptionTextSelected: {
-    color: '#7048e8'
+    flex: 1
   },
   inhibitorButton: {
     backgroundColor: '#f8f9fa',
@@ -370,12 +349,6 @@ export const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2
   },
-  ingredientName: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#495057',
-    textAlign: 'center'
-  },
   modalFooter: {
     paddingHorizontal: 20,
     paddingBottom: 20,
@@ -402,6 +375,51 @@ export const styles = StyleSheet.create({
     color: '#6c757d',
     textAlign: 'center',
     fontStyle: 'italic'
+  },
+  // Estilos para objetivos en pantalla de introducción
+  objectivesContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 2
+  },
+  objectiveItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    minWidth: 220,
+    flex: 1
+  },
+  objectiveRecipeName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#495057',
+    flex: 1
+  },
+  objectiveIngredients: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    marginHorizontal: 8
+  },
+  objectiveIngredientIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: -6
+  },
+  objectiveCount: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#ff922b'
   },
 });
 

@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BurgerPiece from './BurgerPiece';
 import { PieceType } from '../types';
+import { BASE_RECIPES } from '../constants/gameData';
 import { styles } from '../styles/IntroScreen.styles';
 
 interface IntroScreenProps {
@@ -11,10 +12,12 @@ interface IntroScreenProps {
   newIngredient?: PieceType;
   showNewIngredient: boolean;
   newRecipe?: string; // Nombre traducido o clave de traducción
+  newRecipeId?: string; // ID de la nueva receta
   recipeIngredients?: PieceType[];
   recipePrice?: number; // Nuevo: Precio de la receta
   description: string;
-  targetBurgers: number;
+  targetBurgers?: number; // Para compatibilidad con formato antiguo
+  targetRecipes?: { id: string; count: number }[]; // Nuevos objetivos múltiples
   timeLimit: number;
   timeBoostCount: number;
   superTimeBoostCount: number;
@@ -47,10 +50,12 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
   newIngredient,
   showNewIngredient,
   newRecipe,
+  newRecipeId,
   recipeIngredients,
   recipePrice,
   description,
   targetBurgers,
+  targetRecipes,
   timeLimit,
   timeBoostCount,
   superTimeBoostCount,
@@ -80,6 +85,9 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
   const insets = useSafeAreaInsets();
   const [showInhibitorModal, setShowInhibitorModal] = useState(false);
   const tutorialPulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Convertir objetivos únicos al formato múltiple para consistencia visual
+  const displayTargetRecipes = targetRecipes || (targetBurgers && newRecipeId ? [{ id: newRecipeId, count: targetBurgers }] : []);
 
   // Animación pulsante para el tutorial
   useEffect(() => {
@@ -135,7 +143,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
           <View style={styles.recipePreview}>
             {recipeIngredients?.map((ing, idx) => (
               <View key={idx} style={styles.recipeIngIcon}>
-                <BurgerPiece type={ing} scale={0.7} gridSize={8} />
+                <BurgerPiece type={ing} scale={1.0} gridSize={8} />
               </View>
             ))}
           </View>
@@ -144,12 +152,10 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         {/* ZONA 2: NUEVO INGREDIENTE (CONDICIONAL) */}
         {showNewIngredient && newIngredient && (
           <View style={[styles.section, styles.ingredientSection]}>
-            <Text style={styles.sectionLabel}>{t.new_ingredient}</Text>
-            <View style={styles.ingredientRow}>
-              <View style={styles.ingredientIconBg}>
-                <BurgerPiece type={newIngredient} scale={1.2} />
-              </View>
-              <Text style={styles.ingredientName}>{t[`ing_${newIngredient}` as keyof typeof t]}</Text>
+            <View style={styles.ingredientRowInline}>
+              <Text style={styles.sectionLabel}>{t.new_ingredient}: </Text>
+              <Text style={styles.ingredientNameInline}>{t[`ing_${newIngredient}` as keyof typeof t]}</Text>
+              <BurgerPiece type={newIngredient} scale={1} />
             </View>
           </View>
         )}
@@ -159,14 +165,26 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>{t.objective}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.statValue}>{targetBurgers}</Text>
-              <Image source={require('../assets/Iconos/burger.png')} style={styles.statCoin} resizeMethod="resize" />
+            <View style={styles.objectivesContainer}>
+              {displayTargetRecipes.map((target, index) => {
+                const recipe = BASE_RECIPES.find((r: any) => r.id === target.id);
+                return (
+                  <View key={target.id} style={styles.objectiveItem}>
+                    <Text style={styles.objectiveRecipeName}>
+                      {recipe ? (t[recipe.name as keyof typeof t] || recipe.name) : target.id}
+                    </Text>
+                    <View style={styles.objectiveIngredients}>
+                      {recipe?.ingredients.map((ing: any, i: number) => (
+                        <View key={i} style={styles.objectiveIngredientIcon}>
+                          <BurgerPiece type={ing} scale={0.6} gridSize={8} />
+                        </View>
+                      ))}
+                    </View>
+                    <Text style={styles.objectiveCount}>x{target.count}</Text>
+                  </View>
+                );
+              })}
             </View>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>{t.time}</Text>
-            <Text style={styles.statValue}>{timeLimit}s</Text>
           </View>
         </View>
 
@@ -176,11 +194,11 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
             {superTimeBoostCount > 0 && (
               <View style={styles.powerUpToggle}>
                 <Text style={styles.powerUpEmoji}>⏳</Text>
-                <Text style={styles.powerUpLabel}>{t.powerup_super_time_name}</Text>
+                <Text style={styles.powerUpLabel}>{t.powerup_super_time_name} (+20s)</Text>
                 <Switch
                   value={useSuperTimeBoost}
-                  onValueChange={(value) => { 
-                    onPlaySound?.(); 
+                  onValueChange={(value) => {
+                    onPlaySound?.();
                     onToggleSuperTimeBoost(value);
                     if (value) onToggleTimeBoost(false);
                   }}
@@ -192,11 +210,11 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
             {timeBoostCount > 0 && (
               <View style={styles.powerUpToggle}>
                 <Text style={styles.powerUpEmoji}>⏱️</Text>
-                <Text style={styles.powerUpLabel}>{t.powerup_time_name}</Text>
+                <Text style={styles.powerUpLabel}>{t.powerup_time_name} (+10s)</Text>
                 <Switch
                   value={useTimeBoost}
-                  onValueChange={(value) => { 
-                    onPlaySound?.(); 
+                  onValueChange={(value) => {
+                    onPlaySound?.();
                     onToggleTimeBoost(value);
                     if (value) onToggleSuperTimeBoost(false);
                   }}

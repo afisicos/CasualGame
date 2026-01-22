@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GameMode } from '../types';
+import { BASE_RECIPES } from '../constants/gameData';
+import BurgerPiece from './BurgerPiece';
 import { styles } from '../styles/ResultScreen.styles';
 
 interface ResultScreenProps {
@@ -11,23 +13,29 @@ interface ResultScreenProps {
   burgersCreated: number;
   burgerTarget: number;
   arcadeHighScore: number;
+  levelNumber?: number;
+  recipeProgress?: Record<string, number>;
+  levelTargets?: { id: string; count: number }[];
   onBack: () => void;
   onRetry: () => void;
   onPlaySound?: () => void;
   t: any;
 }
 
-const ResultScreen: React.FC<ResultScreenProps> = ({ 
-  gameMode, 
-  money, 
-  targetBurgers, 
+const ResultScreen: React.FC<ResultScreenProps> = ({
+  gameMode,
+  money,
+  targetBurgers,
   burgersCreated,
   burgerTarget,
-  arcadeHighScore, 
-  onBack, 
-  onRetry, 
-  onPlaySound, 
-  t 
+  arcadeHighScore,
+  levelNumber,
+  recipeProgress,
+  levelTargets,
+  onBack,
+  onRetry,
+  onPlaySound,
+  t
 }) => {
   const isCampaign = gameMode === 'CAMPAIGN';
   const isWin = isCampaign ? burgersCreated >= burgerTarget : false;
@@ -53,15 +61,8 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
         <View style={styles.resultBox}>
           {isCampaign ? (
             <>
-              <Text style={styles.resultLabel}>{t.burgers}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.money}>{burgersCreated}</Text>
-                <Image source={require('../assets/Iconos/burger.png')} style={styles.resultCoin} resizeMode="contain" />
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                <Text style={styles.targetLabel}>{t.objective}: {burgerTarget} </Text>
-                <Image source={require('../assets/Iconos/burger.png')} style={styles.targetCoin} resizeMode="contain" />
-              </View>
+              <Text style={styles.resultLabel}>{t.level}</Text>
+              <Text style={styles.money}>{levelNumber}</Text>
             </>
           ) : (
             <>

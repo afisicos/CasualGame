@@ -52,14 +52,13 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'ranchera', name: 'r_ranchera', ingredients: ['BREAD', 'MEAT', 'BACON', 'EGG', 'CHEESE', 'ONION', 'BREAD'], price: 30 },
   { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18 },
   { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
-
+  { id: 'mecaburger', name: 'r_mecaburger', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
 ];
 
 export const LEVELS: Level[] = [
   {
     id: 1,
     name: "l1_name",
-    targetBurgers: 6,
     ingredients: [
       { type: 'BREAD', probability: 0.4 },
       { type: 'MEAT', probability: 0.4 },
@@ -68,6 +67,10 @@ export const LEVELS: Level[] = [
     newIngredient: 'TOMATO',
     showNewIngredient: true,
     newRecipe: 'tomato_burger',
+    targetRecipes: [
+      { id: 'tomato_burger', count: 4 },
+      { id: 'classic', count: 2 }
+    ],
     description: "l1_desc"
   },
   {
@@ -446,6 +449,24 @@ export const convertToUniformProbabilities = (types: PieceType[]): IngredientPro
   return types.map(type => ({ type, probability }));
 };
 
+// Función helper para obtener los objetivos de un nivel (compatibilidad con formato antiguo)
+export const getLevelTargets = (level: Level): RecipeTarget[] => {
+  if (level.targetRecipes) {
+    return level.targetRecipes;
+  }
+  // Compatibilidad con formato antiguo
+  if (level.newRecipe && level.targetBurgers) {
+    return [{ id: level.newRecipe, count: level.targetBurgers }];
+  }
+  return [];
+};
+
+// Función helper para obtener el total de hamburguesas objetivo de un nivel
+export const getTotalTargetBurgers = (level: Level): number => {
+  const targets = getLevelTargets(level);
+  return targets.reduce((total, target) => total + target.count, 0);
+};
+
 export const TRANSLATIONS = {
   es: {
     recipes: "RECETAS",
@@ -459,6 +480,7 @@ export const TRANSLATIONS = {
     new_discovery: "🍔 ¡RECETA DESCUBIERTA!",
     discovery_msg: "Has descubierto la ",
     level_prefix: "Nivel",
+    level: "NIVEL",
     next_ingredient: "Próximo ingrediente",
     next_ingredient_desc: "Completa niveles para desbloquear nuevos ingredientes",
     objective: "Objetivo",
@@ -483,7 +505,7 @@ export const TRANSLATIONS = {
     lang_name: "Español",
     back: "Volver",
     cook: "¡A COCINAR!",
-    new_ingredient: "Nuevo Ingrediente",
+    new_ingredient: "Nuevo",
     new_recipe: "Nueva Receta",
     win_title: "¡NIVEL SUPERADO!",
     lose_title: "¡TIEMPO AGOTADO!",
@@ -654,6 +676,7 @@ export const TRANSLATIONS = {
     new_discovery: "🍔 NEW RECIPE DISCOVERED!",
     discovery_msg: "You have discovered the ",
     level_prefix: "Level",
+    level: "LEVEL",
     next_ingredient: "Next ingredient",
     next_ingredient_desc: "Complete levels to unlock new ingredients",
     objective: "Target",
@@ -678,7 +701,7 @@ export const TRANSLATIONS = {
     lang_name: "English",
     back: "Back",
     cook: "COOK!",
-    new_ingredient: "New Ingredient",
+    new_ingredient: "New",
     new_recipe: "New Recipe",
     win_title: "LEVEL CLEARED!",
     lose_title: "TIME'S UP!",

@@ -108,11 +108,66 @@ export const styles = StyleSheet.create({
   },
   buttonText: { color: 'white', fontWeight: '900', fontSize: 18, letterSpacing: 1 },
   backButton: { marginTop: 20 },
-  backText: { 
+  backText: {
     fontSize: 12,
-    fontWeight: '800', 
+    fontWeight: '800',
     color: '#adb5bd',
     letterSpacing: 1
+  },
+  // Estilos para resultados de recetas
+  recipesContainer: {
+    width: '100%',
+    marginTop: 10,
+    gap: 8
+  },
+  recipeResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#e9ecef',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#dee2e6'
+  },
+  recipeResultItemCompleted: {
+    backgroundColor: '#d4edda',
+    borderColor: '#28a745'
+  },
+  recipeResultInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  recipeResultName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#495057',
+    marginRight: 8
+  },
+  recipeResultNameCompleted: {
+    color: '#155724'
+  },
+  recipeResultIngredients: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap'
+  },
+  recipeResultIngredientIcon: {
+    width: 18,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: -5
+  },
+  recipeResultProgress: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#ff922b'
+  },
+  recipeResultProgressCompleted: {
+    color: '#155724'
   }
 });
 

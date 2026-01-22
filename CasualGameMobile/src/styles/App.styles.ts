@@ -279,5 +279,78 @@ export const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 20,
   },
+  // Estilos para objetivos en panel de pedidos
+  objectivesContainer: {
+    width: '100%',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  objectiveItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#e0d5c8',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 6,
+    elevation: 8,
+    shadowColor: '#8b4513',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  objectiveItemCompleted: {
+    backgroundColor: '#d4edda',
+    borderWidth: 2,
+    borderColor: '#28a745',
+  },
+  objectiveRecipe: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  objectiveRecipeName: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#4a4a4a',
+    marginRight: 8,
+    flex: 1,
+  },
+  objectiveRecipeNameCompleted: {
+    color: '#155724',
+    textDecorationLine: 'line-through',
+  },
+  objectiveIngredients: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+  },
+  objectiveIngredientIcon: {
+    width: 20,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: -8,
+  },
+  objectiveProgress: {
+    backgroundColor: 'white',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ff922b',
+    minWidth: 45,
+    alignItems: 'center',
+  },
+  objectiveProgressText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#ff922b',
+    textAlign: 'center',
+  },
+  objectiveProgressTextCompleted: {
+    color: '#155724',
+  },
 });
 

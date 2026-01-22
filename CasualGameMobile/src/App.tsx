@@ -18,6 +18,7 @@ import ShopScreen from './components/ShopScreen';
 import RecipesBookScreen from './components/RecipesBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe, IngredientProbability } from './types';
+import { getLevelTargets } from './constants/gameData';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -56,6 +57,15 @@ interface RecipeToastData {
   price: number;
   message?: string;
   fadeAnim?: Animated.Value;
+}
+
+interface RecipeMatch {
+  price: number;
+  isTargetRecipe: boolean;
+  targetId: string;
+  id?: string;
+  name?: string;
+  ingredients?: PieceType[];
 }
 import { 
   TRANSLATIONS, 
@@ -173,7 +183,7 @@ const RecipeToastItem: React.FC<{ toast: RecipeToastData; onComplete: (id: strin
         duration: 1200, // Un poco más rápido el movimiento total
         useNativeDriver: true,
       }),
-    ]).start(() => onComplete(toast.id));
+    ]).start(() => onComplete(toast.id.toString()));
   }, []);
 
   return (
@@ -266,6 +276,7 @@ function GameContent() {
   const [money, setMoney] = useState(0);
   const [burgersCreated, setBurgersCreated] = useState(0);
   const [burgerTarget, setBurgerTarget] = useState(0);
+  const [recipeProgress, setRecipeProgress] = useState<Record<string, number>>({});
   const [timeLeft, setTimeLeft] = useState(60);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -746,20 +757,33 @@ function GameContent() {
     const gridSize = Math.sqrt(targetGrid.length);
 
     if (currentMode === 'CAMPAIGN' && currentLevel) {
-      // En campaña, el pedido es SIEMPRE la receta definida en el nivel
+      // En campaña, configurar objetivos múltiples
+      const levelTargets = getLevelTargets(currentLevel);
+
+      if (levelTargets.length > 0) {
+        // Para múltiples objetivos, usar la primera receta como "currentOrder" por compatibilidad con UI
+        const firstTarget = levelTargets[0];
+        const recipe = BASE_RECIPES.find(r => r.id === firstTarget.id);
+
+        if (recipe) {
+          setCurrentOrder(recipe.ingredients);
+          setCurrentPrice(recipe.price);
+          // Nota: El progreso de recetas se inicializa solo al iniciar el juego, no aquí
+          return;
+        }
+      }
+
+      // Fallback: compatibilidad con formato antiguo
       const recipeId = currentLevel.newRecipe;
       const recipe = BASE_RECIPES.find(r => r.id === recipeId);
-      
+
       if (recipe) {
         setCurrentOrder(recipe.ingredients);
         setCurrentPrice(recipe.price);
-        // Set burger target for campaign mode
-        if (currentMode === 'CAMPAIGN' && currentLevel) {
-          setBurgerTarget(currentLevel.targetBurgers);
-        }
+        setBurgerTarget(currentLevel.targetBurgers || 0);
         return;
       } else {
-        // Fallback de seguridad por si no hay receta definida, pero forzamos una básica
+        // Fallback de seguridad
         const fallback = BASE_RECIPES[0];
         setCurrentOrder(fallback.ingredients);
         setCurrentPrice(fallback.price);
@@ -883,6 +907,7 @@ function GameContent() {
     const initialGrid = initGrid(level, mode, mode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel, useInhibitor, inhibitedIngredient);
     setMoney(0);
     setBurgersCreated(0);
+    setRecipeProgress({});
     
     // Calcular tiempo: Super(20) > Normal(10) > Base(60)
     let startTime = 60;
@@ -1206,7 +1231,7 @@ function GameContent() {
     }
     
     const isArcade = gameMode === 'ARCADE';
-    let match = null;
+    let match: Recipe | RecipeMatch | null | undefined = null;
 
     if (isArcade) {
       const unlockedIds = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
@@ -1220,19 +1245,25 @@ function GameContent() {
         const hasMeat = selectionTypes.includes('MEAT');
         if (hasMeat) {
           const uniqueIngredients = new Set(selectionTypes).size;
-          match =           {
+          match = {
             id: 'strange',
             name: 'strange_burger',
             price: 2 + uniqueIngredients,
             ingredients: []
-          } as Recipe;
+          };
         }
       }
     } else {
-      // En campaña, permitir SOLO la receta específica del nivel
-      if (isRecipeMatch(selectionTypes, currentOrder)) {
-        // Coincide exactamente con la receta objetivo del nivel
-        match = { price: currentPrice, isTargetRecipe: true };
+      // En campaña, verificar contra todas las recetas objetivo del nivel
+      const levelTargets = getLevelTargets(selectedLevel);
+      const matchingTarget = levelTargets.find(target => {
+        const recipe = BASE_RECIPES.find(r => r.id === target.id);
+        return recipe && isRecipeMatch(selectionTypes, recipe.ingredients);
+      });
+
+      if (matchingTarget) {
+        // Coincide con una receta objetivo del nivel
+        match = { price: currentPrice, isTargetRecipe: true, targetId: matchingTarget.id };
       } else {
         // No permitir otras hamburguesas arbitrarias en campaña
         match = null;
@@ -1252,10 +1283,38 @@ function GameContent() {
         Alert.alert(t.new_discovery, `${t.discovery_msg}${discoveredName}`);
       }
 
-      const matchPrice = isArcade ? (match as Recipe).price : (match.isTargetRecipe ? currentPrice : 0);
+      const matchPrice = isArcade ? (match as Recipe).price : ((match as RecipeMatch).isTargetRecipe ? currentPrice : 0);
       const newMoney = money + matchPrice;
-      const newBurgersCreated = burgersCreated + (match.isTargetRecipe ? 1 : 0);
-      const isLevelComplete = !isArcade && newBurgersCreated >= burgerTarget;
+
+      let newBurgersCreated = burgersCreated;
+      let newRecipeProgress = { ...recipeProgress };
+      let isLevelComplete = false;
+
+      if (!isArcade && (match as RecipeMatch).isTargetRecipe) {
+        if ((match as any).targetId) {
+          // Múltiples objetivos: incrementar contador específico
+          const targetId = (match as any).targetId;
+          newRecipeProgress[targetId] = (newRecipeProgress[targetId] || 0) + 1;
+
+          // Verificar si se completaron todos los objetivos
+          const levelTargets = getLevelTargets(selectedLevel);
+          isLevelComplete = levelTargets.every(target =>
+            (newRecipeProgress[target.id] || 0) >= target.count
+          );
+        } else {
+          // Compatibilidad con formato antiguo
+          newBurgersCreated = burgersCreated + 1;
+          isLevelComplete = newBurgersCreated >= burgerTarget;
+        }
+      }
+
+      // Actualizar estados inmediatamente
+      setMoney(newMoney);
+      setBurgersCreated(newBurgersCreated);
+      setGlobalMoney(prev => prev + matchPrice);
+      if (!isArcade && (match as RecipeMatch).isTargetRecipe && (match as any).targetId) {
+        setRecipeProgress(newRecipeProgress);
+      }
 
 
       // Mostrar toast si es modo arcade
@@ -1269,11 +1328,8 @@ function GameContent() {
 
       setTimeout(() => {
         if (isLevelComplete) {
-          setMoney(newMoney);
-          setBurgersCreated(newBurgersCreated);
           setShouldBlinkBurgers(true);
           setTimeout(() => setShouldBlinkBurgers(false), 200);
-          setGlobalMoney(prev => prev + (match.isTargetRecipe ? matchPrice : 0));
           // Limpiar timeout de ayuda si existe
           if (helpTextTimeoutRef.current) {
             clearTimeout(helpTextTimeoutRef.current);
@@ -1534,7 +1590,10 @@ function GameContent() {
   };
 
   const handleResultAction = () => {
-    const isWin = gameMode === 'ARCADE' ? true : burgersCreated >= burgerTarget;
+    const isWin = gameMode === 'ARCADE' ? true :
+      selectedLevel.targetRecipes ?
+        getLevelTargets(selectedLevel).every(target => (recipeProgress[target.id] || 0) >= target.count) :
+        burgersCreated >= burgerTarget;
     if (isWin && gameMode === 'CAMPAIGN') {
       // Asegurar que el nivel se desbloquea
       setUnlockedLevel(prev => Math.max(prev, selectedLevel.id + 1));
@@ -1662,10 +1721,12 @@ function GameContent() {
               newIngredient={selectedLevel.newIngredient}
               showNewIngredient={!!(selectedLevel.showNewIngredient && selectedLevel.newIngredient)}
               newRecipe={levelRecipe ? (t[levelRecipe.name as keyof typeof t] || levelRecipe.name) : undefined}
+              newRecipeId={selectedLevel.newRecipe}
               recipeIngredients={levelRecipe?.ingredients}
               recipePrice={levelRecipe?.price}
               description={selectedLevel.description}
               targetBurgers={selectedLevel.targetBurgers}
+              targetRecipes={selectedLevel.targetRecipes}
               timeLimit={60}
               timeBoostCount={timeBoostCount}
               superTimeBoostCount={superTimeBoostCount}
@@ -1708,19 +1769,31 @@ function GameContent() {
               highScore={arcadeHighScore}
               onPlay={() => playGame('ARCADE')}
             onBack={() => setScreen('MENU')}
-            onPlaySound={playUIButtonSound}
             t={t}
           />
         );
       case 'RESULT':
+        // Calcular estadísticas para la pantalla de resultados
+        const levelTargets = getLevelTargets(selectedLevel);
+        const totalTargetBurgers = levelTargets.length > 0
+          ? levelTargets.reduce((total, target) => total + target.count, 0)
+          : selectedLevel.targetBurgers || 0;
+
+        const totalBurgersCreated = levelTargets.length > 0
+          ? levelTargets.reduce((total, target) => total + (recipeProgress[target.id] || 0), 0)
+          : burgersCreated;
+
         return (
-          <ResultScreen 
-            gameMode={gameMode} 
-            money={money} 
-            targetBurgers={selectedLevel.targetBurgers}
-            burgersCreated={burgersCreated}
-            burgerTarget={burgerTarget}
-            arcadeHighScore={arcadeHighScore} 
+          <ResultScreen
+            gameMode={gameMode}
+            money={money}
+            targetBurgers={totalTargetBurgers}
+            burgersCreated={totalBurgersCreated}
+            burgerTarget={totalTargetBurgers}
+            arcadeHighScore={arcadeHighScore}
+            levelNumber={selectedLevel.id}
+            recipeProgress={recipeProgress}
+            levelTargets={levelTargets}
             onBack={() => setScreen('MENU')}
             onRetry={handleResultAction}
             onPlaySound={playUIButtonSound}
@@ -1758,35 +1831,6 @@ function GameContent() {
                 isVeryLowTime={timeLeft <= 5}
                 verticalLayout={true} 
               />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.statTouchable,
-                  statCardStyles.touchableContainerVertical
-                ]}
-                onPress={() => {
-                  if (gameMode === 'CAMPAIGN') {
-                    // Limpiar timeout anterior si existe
-                    if (helpTextTimeoutRef.current) {
-                      clearTimeout(helpTextTimeoutRef.current);
-                    }
-                    setHelpText(t.help_burgers_to_complete);
-                    // Ocultar después de 2 segundos
-                    helpTextTimeoutRef.current = setTimeout(() => {
-                      setHelpText('');
-                      helpTextTimeoutRef.current = null;
-                    }, 2000);
-                  }
-                }}
-                activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
-                disabled={gameMode !== 'CAMPAIGN'}
-              >
-                <StatCard
-                  value={gameMode === 'CAMPAIGN' ? `${burgersCreated}/${burgerTarget}` : `${money}`}
-                  type={gameMode === 'CAMPAIGN' ? "burgers" : "money"}
-                  shouldBlink={shouldBlinkBurgers}
-                  verticalLayout={true}
-                />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
@@ -1901,31 +1945,37 @@ function GameContent() {
                   </ScrollView>
                 </View>
               ) : (
-                <>
-                  <View style={styles.orderHeaderCompact}>
-                    <Text style={styles.burgerNameTextCentered}>{getBurgerName(currentOrder, language)}</Text>
-                  </View>
-                  <View style={styles.orderPiecesCompact}>
-                    {currentOrder.map((type, i) => {
-                      // Escalado dinámico corregido
-                      const count = currentOrder.length;
-                      let dynamicScale = 1.1; 
-                      if (count > 3) {
-                        dynamicScale = Math.max(0.7, 1.1 - (count - 3) * 0.08);
-                      }
-                      
-                      return (
-                        <View key={i} style={{ width: 35 * dynamicScale, alignItems: 'center', marginHorizontal: -2 }}>
-                          <BurgerPiece 
-                            type={type} 
-                            scale={dynamicScale} 
-                            gridSize={7} 
-                          />
+                <View style={styles.objectivesContainer}>
+                  {getLevelTargets(selectedLevel).map((target, index) => {
+                    const recipe = BASE_RECIPES.find(r => r.id === target.id);
+                    if (!recipe) return null;
+
+                    const progress = recipeProgress[target.id] || 0;
+                    const isCompleted = progress >= target.count;
+
+                    return (
+                      <View key={target.id} style={[styles.objectiveItem, isCompleted && styles.objectiveItemCompleted]}>
+                        <View style={styles.objectiveRecipe}>
+                          <Text style={[styles.objectiveRecipeName, isCompleted && styles.objectiveRecipeNameCompleted]}>
+                            {t[recipe.name as keyof typeof t] || recipe.name}
+                          </Text>
+                          <View style={styles.objectiveIngredients}>
+                            {recipe.ingredients.map((ing, i) => (
+                              <View key={i} style={styles.objectiveIngredientIcon}>
+                                <BurgerPiece type={ing} scale={0.5} gridSize={8} />
+                              </View>
+                            ))}
+                          </View>
                         </View>
-                      );
-                    })}
-                  </View>
-                </>
+                        <View style={styles.objectiveProgress}>
+                          <Text style={[styles.objectiveProgressText, isCompleted && styles.objectiveProgressTextCompleted]}>
+                            {progress}/{target.count}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
               )}
             </View>
 
