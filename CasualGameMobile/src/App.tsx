@@ -1229,14 +1229,13 @@ function GameContent() {
         }
       }
     } else {
-      // En campaña, permitir hamburguesas válidas para limpiar el tablero
+      // En campaña, permitir SOLO la receta específica del nivel
       if (isRecipeMatch(selectionTypes, currentOrder)) {
-        // Coincide exactamente con la receta objetivo
+        // Coincide exactamente con la receta objetivo del nivel
         match = { price: currentPrice, isTargetRecipe: true };
-      } else if (selectionTypes.length >= 2 && selectionTypes[0] === 'BREAD' && selectionTypes[selectionTypes.length - 1] === 'BREAD' && selectionTypes.includes('MEAT')) {
-        // Hamburguesa válida pero no es la receta objetivo (para limpiar tablero)
-        const uniqueIngredients = new Set(selectionTypes).size;
-        match = { price: 0, isTargetRecipe: false }; // No da dinero ni cuenta para objetivo
+      } else {
+        // No permitir otras hamburguesas arbitrarias en campaña
+        match = null;
       }
     }
 
