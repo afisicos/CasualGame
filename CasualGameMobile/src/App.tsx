@@ -17,7 +17,7 @@ import OptionsScreen from './components/OptionsScreen';
 import ShopScreen from './components/ShopScreen';
 import RecipesBookScreen from './components/RecipesBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
-import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe } from './types';
+import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe, IngredientProbability } from './types';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -223,7 +223,10 @@ function GameContent() {
     id: 1,
     name: 'level_1',
     targetBurgers: 100,
-    ingredients: ['BREAD', 'MEAT'],
+    ingredients: [
+      { type: 'BREAD', probability: 0.5 },
+      { type: 'MEAT', probability: 0.5 }
+    ],
     description: 'level_1_desc'
   });
   const [gameMode, setGameMode] = useState<GameMode>('CAMPAIGN');
@@ -710,23 +713,23 @@ function GameContent() {
   const initGrid = (level: Level, mode: GameMode, currentUnlockedLevel: number, useInhibitorParam: boolean, inhibitedIngredientParam: PieceType | null) => {
     const initialGrid: Cell[] = [];
     const gridSize = getGridSize(level.id, mode);
-    
+
     // Determinamos qué ingredientes están disponibles
-    let ingredients: PieceType[] = [];
+    let ingredientProbabilities: IngredientProbability[] = [];
     if (mode === 'ARCADE') {
-      ingredients = getUnlockedIngredientsForArcade(currentUnlockedLevel);
+      ingredientProbabilities = getUnlockedIngredientsForArcade(currentUnlockedLevel);
     } else {
-      ingredients = getUnlockedIngredientsForCampaign(currentUnlockedLevel);
+      ingredientProbabilities = getUnlockedIngredientsForCampaign(currentUnlockedLevel);
     }
 
     // Aplicar filtro del inhibidor si está activo
     if (useInhibitorParam && inhibitedIngredientParam) {
-      ingredients = ingredients.filter(ingredient => ingredient !== inhibitedIngredientParam);
+      ingredientProbabilities = ingredientProbabilities.filter(ingredient => ingredient.type !== inhibitedIngredientParam);
     }
 
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
-        initialGrid.push({ row, col, piece: createPiece(ingredients) });
+        initialGrid.push({ row, col, piece: createPiece(ingredientProbabilities) });
       }
     }
     setGrid(initialGrid);
@@ -775,8 +778,9 @@ function GameContent() {
     // Filtrar cadenas según ingredientes desbloqueados si es Arcade
     if (currentMode === 'ARCADE') {
       const unlockedIngredients = getUnlockedIngredientsForArcade(arcadeUnlockedLevel);
-      possibleChains = possibleChains.filter(chain => 
-        chain.every(ing => unlockedIngredients.includes(ing))
+      const unlockedTypes = unlockedIngredients.map(ing => ing.type);
+      possibleChains = possibleChains.filter(chain =>
+        chain.every(ing => unlockedTypes.includes(ing))
       );
     }
 
@@ -786,7 +790,7 @@ function GameContent() {
       if (isGameStarted) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
       }
-      const newGrid = initGrid(currentLevel, currentMode, currentMode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel);
+      const newGrid = initGrid(currentLevel, currentMode, currentMode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel, useInhibitor, inhibitedIngredient);
       setTimeout(() => generateNewOrder(newGrid, complexity, currentMode, currentLevel), 100);
       return;
     }
@@ -1031,7 +1035,26 @@ function GameContent() {
             typeof ingredient === 'string' ? ingredient !== inhibitedIngredient : ingredient.type !== inhibitedIngredient
           );
         }
-        nextGrid[col].piece = createPiece(ingredients);
+
+        // En modo campaña, forzar pan o carne si hay menos de 6 en el tablero
+        if (gameMode === 'CAMPAIGN') {
+          const breadCount = nextGrid.filter(cell => cell.piece?.type === 'BREAD').length;
+          const meatCount = nextGrid.filter(cell => cell.piece?.type === 'MEAT').length;
+
+          if (breadCount < 6) {
+            // Forzar pan
+            nextGrid[col].piece = { id: Math.random().toString(36).substr(2, 9), type: 'BREAD', isNew: true };
+          } else if (meatCount < 6) {
+            // Forzar carne
+            nextGrid[col].piece = { id: Math.random().toString(36).substr(2, 9), type: 'MEAT', isNew: true };
+          } else {
+            // Generar normalmente
+            nextGrid[col].piece = createPiece(ingredientProbabilities);
+          }
+        } else {
+          // Modo arcade: generar normalmente
+          nextGrid[col].piece = createPiece(ingredientProbabilities);
+        }
 
         setTimeout(() => generateNewOrder(nextGrid), 50);
         return nextGrid;
@@ -1288,18 +1311,38 @@ function GameContent() {
             }
           }
 
-          let ingredients = isArcade
+          let ingredientProbabilities = isArcade
             ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
             : selectedLevel.ingredients;
 
           // Aplicar filtro del inhibidor si está activo
           if (useInhibitor && inhibitedIngredient) {
-            ingredients = ingredients.filter(ingredient => ingredient !== inhibitedIngredient);
+            ingredientProbabilities = ingredientProbabilities.filter(ingredient =>
+              typeof ingredient === 'string' ? ingredient !== inhibitedIngredient : ingredient.type !== inhibitedIngredient
+            );
           }
 
           for (let i = 0; i < nextGrid.length; i++) {
             if (nextGrid[i].piece === null) {
-              nextGrid[i].piece = createPiece(ingredients);
+              // En modo campaña, forzar pan o carne si hay menos de 6 en el tablero
+              if (!isArcade) {
+                const breadCount = nextGrid.filter(cell => cell.piece?.type === 'BREAD').length;
+                const meatCount = nextGrid.filter(cell => cell.piece?.type === 'MEAT').length;
+
+                if (breadCount < 6) {
+                  // Forzar pan
+                  nextGrid[i].piece = { id: Math.random().toString(36).substr(2, 9), type: 'BREAD', isNew: true };
+                } else if (meatCount < 6) {
+                  // Forzar carne
+                  nextGrid[i].piece = { id: Math.random().toString(36).substr(2, 9), type: 'MEAT', isNew: true };
+                } else {
+                  // Generar normalmente
+                  nextGrid[i].piece = createPiece(ingredientProbabilities);
+                }
+              } else {
+                // Modo arcade: generar normalmente
+                nextGrid[i].piece = createPiece(ingredientProbabilities);
+              }
             }
           }
 
@@ -1610,9 +1653,9 @@ function GameContent() {
 
           // Obtener ingredientes disponibles para inhibir (excluyendo pan y los de la receta objetivo)
           const recipeIngredients = levelRecipe?.ingredients || [];
-          const availableIngredients = selectedLevel.ingredients.filter(ing =>
-            ing !== 'BREAD' && !recipeIngredients.includes(ing)
-          );
+          const availableIngredients = selectedLevel.ingredients
+            .map(ing => ing.type) // Convertir a array de tipos
+            .filter(ing => ing !== 'BREAD' && !recipeIngredients.includes(ing));
 
           return (
             <IntroScreen

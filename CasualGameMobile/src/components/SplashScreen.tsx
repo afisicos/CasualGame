@@ -55,10 +55,10 @@ const fallingItems = Array.from({ length: 25 }).map((_, i) => ({
   rotateDuration: 4000 + Math.random() * 2000,
   // POSICIÓN INICIAL: Fuera de la pantalla arriba, escalonada
   startY: -150 - (i * 60),
-  // Tamaños optimizados (menos variedad)
-  size: i % 2 === 0 ? 40 : 60,
-  // Opacidades consistentes (menos cálculo)
-  opacity: 0.3 + (i % 3) * 0.2,
+  // Tamaños optimizados (menos variedad) - aumentados
+  size: i % 2 === 0 ? 50 : 70,
+  // Opacidades consistentes (menos cálculo) - aumentadas
+  opacity: 0.5 + (i % 3) * 0.2,
   zIndex: i % 2,
 }));
 

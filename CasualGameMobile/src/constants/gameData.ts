@@ -1,4 +1,4 @@
-import { PieceType, Level, Recipe } from '../types';
+import { PieceType, Level, Recipe, IngredientProbability } from '../types';
 
 export const ENERGY_RECOVERY_TIME = 300; // 5 minutos en segundos
 export const MAX_ENERGY = 10;
@@ -425,7 +425,7 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number): In
 };
 
 // Mapeo de qué ingredientes están disponibles según el nivel de campaña alcanzado
-export const getUnlockedIngredientsForCampaign = (campaignUnlockedLevel: number) => {
+export const getUnlockedIngredientsForCampaign = (campaignUnlockedLevel: number): IngredientProbability[] => {
   const ingredients: PieceType[] = ['BREAD', 'MEAT', 'TOMATO']; // TOMATO está disponible desde el inicio
   if (campaignUnlockedLevel >= 2) ingredients.push('CHEESE');
   if (campaignUnlockedLevel >= 3) ingredients.push('LETTUCE');
@@ -434,7 +434,16 @@ export const getUnlockedIngredientsForCampaign = (campaignUnlockedLevel: number)
   if (campaignUnlockedLevel >= 9) ingredients.push('ONION');
   if (campaignUnlockedLevel >= 12) ingredients.push('PICKLE');
   if (campaignUnlockedLevel >= 16) ingredients.push('EGG');
-  return ingredients;
+
+  // Convertir a probabilidades uniformes
+  const probability = 1 / ingredients.length;
+  return ingredients.map(type => ({ type, probability }));
+};
+
+// Función helper para convertir array de tipos a probabilidades uniformes
+export const convertToUniformProbabilities = (types: PieceType[]): IngredientProbability[] => {
+  const probability = 1 / types.length;
+  return types.map(type => ({ type, probability }));
 };
 
 export const TRANSLATIONS = {
