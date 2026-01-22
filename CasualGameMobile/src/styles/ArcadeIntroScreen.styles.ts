@@ -111,7 +111,7 @@ export const styles = StyleSheet.create({
   recordValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#27ae60'
+    color: '#4a4a4a'
   },
   recordCoin: {
     width: 20,

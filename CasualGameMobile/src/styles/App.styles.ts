@@ -105,7 +105,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   recipeNameExpanded: { 
-    fontSize: 14, 
+    fontSize: 16, 
     fontWeight: '900', 
     color: '#4a4a4a', 
     textAlign: 'center',
@@ -119,42 +119,42 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   recipeIngredientIconExpanded: { 
-    width: 28, 
-    height: 35, 
+    width: 35, 
+    height: 40, 
     alignItems: 'center', 
     justifyContent: 'center',
   },
-  recipePriceContainerExpanded: { 
-    backgroundColor: 'white', 
-    paddingHorizontal: 10, 
-    paddingVertical: 6, 
-    borderRadius: 10, 
-    borderWidth: 2, 
-    borderColor: '#27ae60', 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+  recipePriceContainerExpanded: {
+    backgroundColor: 'white',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#4a4a4a',
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
     marginTop: 4,
   },
-  recipePriceExpanded: { 
-    fontSize: 16, 
-    fontWeight: '900', 
-    color: '#27ae60' 
+  recipePriceExpanded: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#4a4a4a'
   },
   recipeCoinExpanded: { 
-    width: 18, 
-    height: 18 
+    width: 22, 
+    height: 22 
   },
-  recipeName: { fontSize: 11, fontWeight: '900', color: '#4a4a4a', width: 100, marginRight: 15 },
+  recipeName: { fontSize: 12, fontWeight: '900', color: '#666', width: 130, marginRight: 15 },
   recipeIngredients: { flexDirection: 'row', alignItems: 'center', flex: 1, flexWrap: 'nowrap' },
   recipeIngredientIcon: { width: 18, height: 22, alignItems: 'center', justifyContent: 'center', marginRight: -10 },
-  recipePriceContainer: { backgroundColor: 'white', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: '#27ae60', flexDirection: 'row', alignItems: 'center', gap: 4 },
+  recipePriceContainer: { backgroundColor: 'white', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: '#666', flexDirection: 'row', alignItems: 'center', gap: 4 },
   recipeCoin: { width: 14, height: 14 },
-  recipePrice: { fontSize: 12, fontWeight: '900', color: '#27ae60' },
+  recipePrice: { fontSize: 12, fontWeight: '900', color: '#666' },
   secretTextSmall: { fontSize: 12, fontWeight: '900', color: '#adb5bd' },
   helpTextContainerCenter: {
     position: 'absolute',
-    top: '37%',
+    top: '42%',
     left: 0,
     right: 0,
     backgroundColor: '#f8f9fa',
@@ -174,7 +174,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 8
   },
   helpText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#495057',
     textAlign: 'center'
@@ -314,7 +314,7 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '900',
     color: '#4a4a4a',
-    marginRight: 8,
+    marginRight: 2,
     flex: 1,
   },
   objectiveRecipeNameCompleted: {
@@ -325,10 +325,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'nowrap',
+    marginRight: 16,
   },
   objectiveIngredientIcon: {
-    width: 20,
-    height: 24,
+    width: 24,
+    height: 35,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: -8,
@@ -339,18 +340,18 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ff922b',
+    borderColor: '#666',
     minWidth: 45,
     alignItems: 'center',
   },
   objectiveProgressText: {
     fontSize: 12,
     fontWeight: '900',
-    color: '#ff922b',
+    color: '#666',
     textAlign: 'center',
   },
   objectiveProgressTextCompleted: {
-    color: '#155724',
+    color: '#15A724',
   },
 });
 

@@ -921,9 +921,10 @@ function GameContent() {
     setCurrentOrder([]);
     setDestructionsUsed(0); // Resetear contador de eliminaciones
     
-    // Calcular eliminaciones: Super(150) > Normal(75) > Base(25)
+    // Calcular eliminaciones: Arcade(infinito) > Super(150) > Normal(75) > Base(25)
     let startDestructions = 25;
-    if (superDestructionPackToUse) startDestructions = 150;
+    if (mode === 'ARCADE') startDestructions = 999999; // Infinito en arcade
+    else if (superDestructionPackToUse) startDestructions = 150;
     else if (destructionPackToUse) startDestructions = 75;
     
     setMaxDestructions(startDestructions); // Guardar el máximo de eliminaciones
@@ -990,7 +991,8 @@ function GameContent() {
 
 
   const destroyPiece = (index: number) => {
-    if (destructionsUsed >= maxDestructions) {
+    // En modo arcade, las destrucciones son infinitas
+    if (gameMode !== 'ARCADE' && destructionsUsed >= maxDestructions) {
       setShouldBlinkDestructions(true);
       Vibration.vibrate([0, 100, 50, 100]);
       setTimeout(() => setShouldBlinkDestructions(false), 2000);
@@ -1203,8 +1205,8 @@ function GameContent() {
     const isOtherDeletion = firstPieceType !== 'BREAD' && currentSelection.length > 1;
 
     if (isBreadDeletion || isOtherDeletion) {
-      // Verificar que hay suficientes eliminaciones disponibles
-      if (destructionsUsed >= maxDestructions) {
+      // Verificar que hay suficientes eliminaciones disponibles (excepto en arcade donde son infinitas)
+      if (gameMode !== 'ARCADE' && destructionsUsed >= maxDestructions) {
         setShouldBlinkDestructions(true);
         Vibration.vibrate([0, 100, 50, 100]);
         setTimeout(() => setShouldBlinkDestructions(false), 2000);
@@ -1805,60 +1807,86 @@ function GameContent() {
         return (
           <View style={styles.container}>
             <View style={styles.statsRow}>
-              <TouchableOpacity
-                style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
-                onPress={() => {
-                  if (gameMode === 'CAMPAIGN') {
-                    // Limpiar timeout anterior si existe
-                    if (helpTextTimeoutRef.current) {
-                      clearTimeout(helpTextTimeoutRef.current);
-                    }
-                    setHelpText(t.help_time_remaining);
-                    // Ocultar después de 2 segundos
-                    helpTextTimeoutRef.current = setTimeout(() => {
-                      setHelpText('');
-                      helpTextTimeoutRef.current = null;
-                    }, 2000);
-                  }
-                }}
-                activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
-                disabled={gameMode !== 'CAMPAIGN'}
-              >
-              <StatCard 
-                value={`${timeLeft}s`} 
-                type="time" 
-                isLowTime={timeLeft < 10} 
-                isVeryLowTime={timeLeft <= 5}
-                verticalLayout={true} 
-              />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
-                onPress={() => {
-                  if (gameMode === 'CAMPAIGN') {
-                    // Limpiar timeout anterior si existe
-                    if (helpTextTimeoutRef.current) {
-                      clearTimeout(helpTextTimeoutRef.current);
-                    }
-                    setHelpText(t.help_tap_to_destroy);
-                    // Ocultar después de 2 segundos
-                    helpTextTimeoutRef.current = setTimeout(() => {
-                      setHelpText('');
-                      helpTextTimeoutRef.current = null;
-                    }, 2000);
-                  }
-                }}
-                activeOpacity={gameMode === 'CAMPAIGN' ? 0.7 : 1}
-                disabled={gameMode !== 'CAMPAIGN'}
-              >
-                <StatCard
-                  value={`${maxDestructions - destructionsUsed}`}
-                  type="destruction"
-                  isLowTime={(maxDestructions - destructionsUsed) < 10}
-                  shouldBlink={shouldBlinkDestructions}
-                  verticalLayout={true}
-                />
-              </TouchableOpacity>
+              {isArcade ? (
+                // Modo Arcade: solo dinero y tiempo (destrucciones infinitas)
+                <>
+                  
+                  <TouchableOpacity
+                    style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                    activeOpacity={1}
+                    disabled={true}
+                  >
+                    <StatCard
+                      value={`${timeLeft}s`}
+                      type="time"
+                      verticalLayout={true}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                    activeOpacity={1}
+                    disabled={true}
+                  >
+                    <StatCard
+                      value={`${money}`}
+                      type="money"
+                      verticalLayout={true}
+                    />
+                  </TouchableOpacity>
+                </>
+              ) : (
+                // Modo Campaña: tiempo y destrucciones
+                <>
+                  <TouchableOpacity
+                    style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                    onPress={() => {
+                      // Limpiar timeout anterior si existe
+                      if (helpTextTimeoutRef.current) {
+                        clearTimeout(helpTextTimeoutRef.current);
+                      }
+                      setHelpText(t.help_time_remaining);
+                      // Ocultar después de 2 segundos
+                      helpTextTimeoutRef.current = setTimeout(() => {
+                        setHelpText('');
+                        helpTextTimeoutRef.current = null;
+                      }, 2000);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <StatCard
+                      value={`${timeLeft}s`}
+                      type="time"
+                      isLowTime={timeLeft < 10}
+                      isVeryLowTime={timeLeft <= 5}
+                      verticalLayout={true}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                    onPress={() => {
+                      // Limpiar timeout anterior si existe
+                      if (helpTextTimeoutRef.current) {
+                        clearTimeout(helpTextTimeoutRef.current);
+                      }
+                      setHelpText(t.help_tap_to_destroy);
+                      // Ocultar después de 2 segundos
+                      helpTextTimeoutRef.current = setTimeout(() => {
+                        setHelpText('');
+                        helpTextTimeoutRef.current = null;
+                      }, 2000);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <StatCard
+                      value={`${maxDestructions - destructionsUsed}`}
+                      type="destruction"
+                      isLowTime={(maxDestructions - destructionsUsed) < 10}
+                      shouldBlink={shouldBlinkDestructions}
+                      verticalLayout={true}
+                    />
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
 
             <View style={styles.orderCard}>
@@ -1962,14 +1990,14 @@ function GameContent() {
                           <View style={styles.objectiveIngredients}>
                             {recipe.ingredients.map((ing, i) => (
                               <View key={i} style={styles.objectiveIngredientIcon}>
-                                <BurgerPiece type={ing} scale={0.5} gridSize={8} />
+                                <BurgerPiece type={ing} scale={0.7} gridSize={8} />
                               </View>
                             ))}
                           </View>
                         </View>
                         <View style={styles.objectiveProgress}>
                           <Text style={[styles.objectiveProgressText, isCompleted && styles.objectiveProgressTextCompleted]}>
-                            {progress}/{target.count}
+                            {isCompleted ? `${target.count}/${target.count}` : `${progress}/${target.count}`}
                           </Text>
                         </View>
                       </View>

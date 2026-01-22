@@ -46,16 +46,12 @@ const ArcadeIntroScreen: React.FC<ArcadeIntroScreenProps> = ({
             <Text style={styles.statLabel}>{t.record}</Text>
             <View style={styles.recordRow}>
               <Text style={styles.recordValue}>{highScore}</Text>
-              <Image 
-                source={require('../assets/Iconos/coin.png')} 
-                style={styles.recordCoin} 
-                resizeMethod="resize" 
+              <Image
+                source={require('../assets/Iconos/coin.png')}
+                style={styles.recordCoin}
+                resizeMethod="resize"
               />
             </View>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>{t.time}</Text>
-            <Text style={styles.statValue}>60s</Text>
           </View>
         </View>
 

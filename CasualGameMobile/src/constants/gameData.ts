@@ -52,7 +52,6 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'ranchera', name: 'r_ranchera', ingredients: ['BREAD', 'MEAT', 'BACON', 'EGG', 'CHEESE', 'ONION', 'BREAD'], price: 30 },
   { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18 },
   { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
-  { id: 'mecaburger', name: 'r_mecaburger', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
 ];
 
 export const LEVELS: Level[] = [
@@ -67,10 +66,7 @@ export const LEVELS: Level[] = [
     newIngredient: 'TOMATO',
     showNewIngredient: true,
     newRecipe: 'tomato_burger',
-    targetRecipes: [
-      { id: 'tomato_burger', count: 4 },
-      { id: 'classic', count: 2 }
-    ],
+    targetBurgers: 5,
     description: "l1_desc"
   },
   {
@@ -107,7 +103,10 @@ export const LEVELS: Level[] = [
   {
     id: 4,
     name: "l4_name",
-    targetBurgers: 3,
+    targetRecipes: [
+      { id: 'veggie_cheese', count: 2 },
+      { id: 'classic', count: 4 }
+    ],
     ingredients: [
       { type: 'BREAD', probability: 0.25 },
       { type: 'MEAT', probability: 0.25 },
@@ -171,7 +170,10 @@ export const LEVELS: Level[] = [
   {
     id: 8,
     name: "l8_name",
-    targetBurgers: 4,
+    targetRecipes: [
+      { id: 'antivegetal', count: 3 },
+      { id: 'cheese_tomato', count: 2 }
+    ],
     ingredients: [
       { type: 'BREAD', probability: 0.2 },
       { type: 'MEAT', probability: 0.2 },
@@ -272,7 +274,10 @@ export const LEVELS: Level[] = [
   {
     id: 14,
     name: "l14_name",
-    targetBurgers: 5,
+    targetRecipes: [
+      { id: 'bacon_pickle', count: 3 },
+      { id: 'cheese_pickle', count: 2 }
+    ],
     ingredients: [
       { type: 'BREAD', probability: 0.2 },
       { type: 'MEAT', probability: 0.2 },
@@ -343,6 +348,7 @@ export const LEVELS: Level[] = [
     newRecipe: 'egg_ketchup',
     description: "l17_desc"
   },
+
 ];
 
 // Mapeo de qué recetas están desbloqueadas según el nivel superado
@@ -487,7 +493,7 @@ export const TRANSLATIONS = {
     arcade_title: "ARCADE",
     arcade_btn: "¡MINUTO EXPRESS!",
     arcade_desc: "Consigue monedas haciendo hamburguesas libremente en un minuto, y bate tu propio récord.",
-    arcade_intro_desc: "¡Ponte a prueba! Prepara todas las hamburguesas que puedas antes de que se acabe el tiempo. Cuantos más pedidos completes, más dinero ganarás. Además, podras descubrir nuevas recetas probando combinaciones.",
+    arcade_intro_desc: "¡Ponte a prueba! Prepara todas las hamburguesas que puedas antes de que se acabe el tiempo. Cuantos más pedidos completes, más dinero ganarás. Además, podrás descubrir nuevas recetas probando combinaciones.",
     campaign_desc: "Supera los niveles y desbloquea nuevas recetas e ingredientes",
     record: "RÉCORD",
     options: "OPCIONES",
@@ -579,7 +585,7 @@ export const TRANSLATIONS = {
     recipes_panel_subtitle: "Consulta aquí todas las recetas descubiertas",
     recipes_panel_description: "También puedes crear tus propias recetas",
     // Recetas
-    r_pure: "Hamburguesa Pura",
+    r_pure: "Hamburguesa normal",
     r_double: "Doble de Carne",
     r_cheese: "Cheeseburger",
     r_double_cheese: "Doble de Queso",
@@ -649,11 +655,11 @@ export const TRANSLATIONS = {
     l1_desc: "¡Bienvenido! Aprende a usar el TOMATE. En este nivel, solo serviremos hamburguesas con tomate.",
     l2_desc: "¡La mezcla perfecta! Combina el QUESO y el TOMATE para superar este nivel.",
     l3_desc: "¡El Huerto! Has desbloqueado la LECHUGA. Prepara la Hamburguesa Vegetal con tomate y lechuga.",
-    l4_desc: "¡El siguiente paso! Añadimos QUESO a la vegetal para crear la hamburguesa más completa hasta ahora.",
+    l4_desc: "Añadimos QUESO a la vegetal para crear uan delicia. Pero cuidado, en este nivel también hay que hace hamburguesas normales",
     l5_desc: "¡BACON desbloqueado! Añade un toque crujiente.",
     l6_desc: "Para los amantes del TOMATE, añade más TOMATE.",
     l7_desc: "No hacía falta tanto tomate, ¿verdad?",
-    l8_desc: "Las verduras no son lo tuyo, ¿verdad? ¡No hay problema!",
+    l8_desc: "Las verduras no son lo tuyo, ¿verdad? ¡No hay problema! 2 recetas sin verduras",
     l9_desc: "A todos nos gusta la cebolla, ¿no?",
     l10_desc: "¡La cebolla es la reina de las hamburguesas! Añade dos cebollas para crear la Cebollera.",
     l11_desc: "Sin ingredientes nuevos, pero con combinaciones más exigentes. Domina bacon, cebolla y ketchup.",
@@ -774,7 +780,7 @@ export const TRANSLATIONS = {
     ing_PICKLE: "Pickle",
     ing_ONION: "Onion",
     // Recipes
-    r_pure: "Pure Burger",
+    r_pure: "Regular Burger",
     r_double: "Double Meat",
     r_cheese: "Simple Cheeseburger",
     r_double_cheese: "Double Cheese",
@@ -839,11 +845,11 @@ export const TRANSLATIONS = {
     l1_desc: "Welcome! Learn to use TOMATO. In this level, we'll only serve tomato burgers.",
     l2_desc: "The perfect mix! Combine CHEESE and TOMATO to clear this level.",
     l3_desc: "The Orchard! You've unlocked LETTUCE. Prepare the Veggie Burger with tomato and lettuce.",
-    l4_desc: "The next step! We add CHEESE to the veggie burger to create the most complete burger yet.",
+    l4_desc: "We add CHEESE to the veggie burger to create the most complete burger yet. Take care of the regular burgers",
     l5_desc: "BACON unlocked! Add a crunchy touch.",
     l6_desc: "For tomato lovers, add more tomato.",
     l7_desc: "No need for so much tomato, right?",
-    l8_desc: "No green, no problem",
+    l8_desc: "No green, no problem. 2 recipes without green",
     l9_desc: "We all like onions, right?",
     l10_desc: "The onion is the queen of burgers! Add two onions to create the Onioner.",
     l11_desc: "No new ingredients, but tougher combos. Master bacon, onion and ketchup.",
