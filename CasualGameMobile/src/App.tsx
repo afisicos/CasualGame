@@ -944,8 +944,9 @@ function GameContent() {
     setUseSuperTimeBoost(false);
     setUseDestructionPack(false);
     setUseSuperDestructionPack(false);
-    setUseInhibitor(false);
-    setInhibitedIngredient(null);
+    // NOTA: No resetear inhibidor aquí porque debe mantenerse activo durante toda la partida
+    // setUseInhibitor(false);
+    // setInhibitedIngredient(null);
 
     // Iniciar cuenta atrás con el grid recién creado
     startCountdown(initialGrid, mode, level);
@@ -1054,7 +1055,7 @@ function GameContent() {
         // Nueva pieza arriba
         let ingredientProbabilities = gameMode === 'ARCADE'
           ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
-          : selectedLevel.ingredients;
+          : getUnlockedIngredientsForCampaign(unlockedLevel);
 
         // Aplicar filtro del inhibidor si está activo
         if (useInhibitor && inhibitedIngredient) {
@@ -1370,7 +1371,7 @@ function GameContent() {
 
           let ingredientProbabilities = isArcade
             ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
-            : selectedLevel.ingredients;
+            : getUnlockedIngredientsForCampaign(unlockedLevel);
 
           // Aplicar filtro del inhibidor si está activo
           if (useInhibitor && inhibitedIngredient) {
@@ -1713,7 +1714,8 @@ function GameContent() {
 
           // Obtener ingredientes disponibles para inhibir (excluyendo pan y los de la receta objetivo)
           const recipeIngredients = levelRecipe?.ingredients || [];
-          const availableIngredients = selectedLevel.ingredients
+          const unlockedIngredients = getUnlockedIngredientsForCampaign(unlockedLevel);
+          const availableIngredients = unlockedIngredients
             .map(ing => ing.type) // Convertir a array de tipos
             .filter(ing => ing !== 'BREAD' && !recipeIngredients.includes(ing));
 
