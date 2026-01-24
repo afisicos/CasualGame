@@ -8,6 +8,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 
 import GameBoard from './components/GameBoard';
 import StatCard from './components/StatCard';
+import ProgressBar from './components/ProgressBar';
 import MenuScreen from './components/MenuScreen';
 import IntroScreen from './components/IntroScreen';
 import ResultScreen from './components/ResultScreen';
@@ -17,7 +18,7 @@ import OptionsScreen from './components/OptionsScreen';
 import ShopScreen from './components/ShopScreen';
 import RecipesBookScreen from './components/RecipesBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
-import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe, IngredientProbability } from './types';
+import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe, IngredientProbability, LevelStars } from './types';
 import { getLevelTargets } from './constants/gameData';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -79,13 +80,14 @@ import {
   getUnlockedIngredientsForCampaign,
   INGREDIENT_IMAGES
 } from './constants/gameData';
-import { 
-  getGridSize, 
-  createPiece, 
-  findChain, 
-  getBurgerName, 
-  isRecipeMatch, 
-  calculatePrice 
+import {
+  getGridSize,
+  createPiece,
+  findChain,
+  getBurgerName,
+  isRecipeMatch,
+  calculatePrice,
+  calculateStars
 } from './utils/gameLogic';
 import { styles } from './styles/App.styles';
 import { styles as statCardStyles } from './styles/StatCard.styles';
@@ -909,25 +911,26 @@ function GameContent() {
     setBurgersCreated(0);
     setRecipeProgress({});
     
-    // Calcular tiempo: Super(20) > Normal(10) > Base(60)
-    let startTime = 60;
-    if (superTimeBoostToUse) startTime += 20;
-    else if (timeBoostToUse) startTime += 10;
-    
-    setTimeLeft(startTime);
+    // En el nuevo sistema, empezamos a contar tiempo restante desde el límite
+    // Los power-ups de tiempo ahora dan bonus adicional al límite
+    let timeLimit = selectedLevel.timeLimit || 60;
+    if (superTimeBoostToUse) timeLimit += 20; // Bonus adicional
+    else if (timeBoostToUse) timeLimit += 10;
+
+    setTimeLeft(timeLimit);
     setIsGameOver(false);
     setIsGameStarted(false);
     setArcadeDifficultyStep(0);
     setCurrentOrder([]);
     setDestructionsUsed(0); // Resetear contador de eliminaciones
     
-    // Calcular eliminaciones: Arcade(infinito) > Super(150) > Normal(75) > Base(25)
-    let startDestructions = 25;
-    if (mode === 'ARCADE') startDestructions = 999999; // Infinito en arcade
-    else if (superDestructionPackToUse) startDestructions = 150;
-    else if (destructionPackToUse) startDestructions = 75;
-    
-    setMaxDestructions(startDestructions); // Guardar el máximo de eliminaciones
+    // En el nuevo sistema, las eliminaciones son infinitas en campaña
+    // Pero guardamos el límite para calcular estrellas
+    let destructionLimit = selectedLevel.destructionLimit || 25;
+    if (superDestructionPackToUse) destructionLimit += 125; // Bonus de 125 eliminaciones
+    else if (destructionPackToUse) destructionLimit += 50;  // Bonus de 50 eliminaciones
+
+    setMaxDestructions(destructionLimit); // Guardar el límite para calcular estrellas
     setShouldBlinkDestructions(false); // Resetear parpadeo
 
     setScreen('GAME');
@@ -992,13 +995,8 @@ function GameContent() {
 
 
   const destroyPiece = (index: number) => {
-    // En modo arcade, las destrucciones son infinitas
-    if (gameMode !== 'ARCADE' && destructionsUsed >= maxDestructions) {
-      setShouldBlinkDestructions(true);
-      Vibration.vibrate([0, 100, 50, 100]);
-      setTimeout(() => setShouldBlinkDestructions(false), 2000);
-      return;
-    }
+    // En el nuevo sistema, las destrucciones son siempre infinitas en campaña
+    // Solo se cuentan para calcular las estrellas
 
     if (!grid[index] || !grid[index].piece) return;
 
@@ -1206,14 +1204,8 @@ function GameContent() {
     const isOtherDeletion = firstPieceType !== 'BREAD' && currentSelection.length > 1;
 
     if (isBreadDeletion || isOtherDeletion) {
-      // Verificar que hay suficientes eliminaciones disponibles (excepto en arcade donde son infinitas)
-      if (gameMode !== 'ARCADE' && destructionsUsed >= maxDestructions) {
-        setShouldBlinkDestructions(true);
-        Vibration.vibrate([0, 100, 50, 100]);
-        setTimeout(() => setShouldBlinkDestructions(false), 2000);
-        updateSelection([]);
-        return;
-      }
+      // En el nuevo sistema, las eliminaciones son siempre infinitas
+      // Solo se cuentan para calcular las estrellas
 
       // Gastar UNA eliminación por la eliminación múltiple
       setDestructionsUsed(prev => prev + 1);
@@ -1431,19 +1423,10 @@ function GameContent() {
     if (screen !== 'GAME' || isGameOver || !isGameStarted || timerPaused) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          // Limpiar timeout de ayuda si existe
-          if (helpTextTimeoutRef.current) {
-            clearTimeout(helpTextTimeoutRef.current);
-            helpTextTimeoutRef.current = null;
-          }
-          setHelpText(''); // Ocultar ayuda cuando se acaba el tiempo
-          setIsGameOver(true);
-          setScreen('RESULT');
-          return 0;
-        }
-        return prev - 1;
+        // Contar hacia abajo desde el límite
+        const newTime = prev - 1;
+        // Si llega a 0 o menos, se mantiene en 0 (tiempo agotado)
+        return Math.max(0, newTime);
       });
     }, 1000);
     return () => clearInterval(timer);
@@ -1731,7 +1714,8 @@ function GameContent() {
               description={selectedLevel.description}
               targetBurgers={selectedLevel.targetBurgers}
               targetRecipes={selectedLevel.targetRecipes}
-              timeLimit={60}
+              timeLimit={selectedLevel.timeLimit || 60}
+              destructionLimit={selectedLevel.destructionLimit}
               timeBoostCount={timeBoostCount}
               superTimeBoostCount={superTimeBoostCount}
               destructionPackCount={destructionPackCount}
@@ -1787,6 +1771,9 @@ function GameContent() {
           ? levelTargets.reduce((total, target) => total + (recipeProgress[target.id] || 0), 0)
           : burgersCreated;
 
+        // Calcular estrellas para modo campaña
+        const levelStars = gameMode === 'CAMPAIGN' ? calculateStars(selectedLevel, timeLeft, destructionsUsed) : null;
+
         return (
           <ResultScreen
             gameMode={gameMode}
@@ -1798,6 +1785,7 @@ function GameContent() {
             levelNumber={selectedLevel.id}
             recipeProgress={recipeProgress}
             levelTargets={levelTargets}
+            levelStars={levelStars}
             onBack={() => setScreen('MENU')}
             onRetry={handleResultAction}
             onPlaySound={playUIButtonSound}
@@ -1837,10 +1825,10 @@ function GameContent() {
                   </TouchableOpacity>
                 </>
               ) : (
-                // Modo Campaña: tiempo y destrucciones
+                // Modo Campaña: barras de progreso para tiempo y destrucciones
                 <>
                   <TouchableOpacity
-                    style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                    style={styles.progressTouchable}
                     onPress={() => {
                       // Limpiar timeout anterior si existe
                       if (helpTextTimeoutRef.current) {
@@ -1855,16 +1843,15 @@ function GameContent() {
                     }}
                     activeOpacity={0.7}
                   >
-                    <StatCard
-                      value={`${timeLeft}s`}
+                    <ProgressBar
+                      current={timeLeft}
+                      max={selectedLevel.timeLimit || 60}
                       type="time"
-                      isLowTime={timeLeft < 10}
-                      isVeryLowTime={timeLeft <= 5}
-                      verticalLayout={true}
+                      label={t.time}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.statTouchable, statCardStyles.touchableContainerVertical]}
+                    style={styles.progressTouchable}
                     onPress={() => {
                       // Limpiar timeout anterior si existe
                       if (helpTextTimeoutRef.current) {
@@ -1879,12 +1866,11 @@ function GameContent() {
                     }}
                     activeOpacity={0.7}
                   >
-                    <StatCard
-                      value={`${maxDestructions - destructionsUsed}`}
+                    <ProgressBar
+                      current={destructionsUsed}
+                      max={maxDestructions}
                       type="destruction"
-                      isLowTime={(maxDestructions - destructionsUsed) < 10}
-                      shouldBlink={shouldBlinkDestructions}
-                      verticalLayout={true}
+                      label={t.destructions}
                     />
                   </TouchableOpacity>
                 </>

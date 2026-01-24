@@ -421,5 +421,67 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#ff922b'
   },
+  starsRequirementsSection: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  starsRequirementsTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  requirementsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  requirementItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  requirementIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  requirementText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  requirementDesc: {
+    fontSize: 10,
+    color: '#666',
+    textAlign: 'center',
+  },
+  starsPreview: {
+    alignItems: 'center',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  starsPreviewText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ff922b',
+    marginBottom: 2,
+  },
+  starsPreviewDesc: {
+    fontSize: 12,
+    color: '#666',
+  },
 });
 

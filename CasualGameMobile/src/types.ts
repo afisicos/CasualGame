@@ -33,6 +33,12 @@ export interface RecipeTarget {
   count: number; // Número de hamburguesas de este tipo que hay que hacer
 }
 
+export interface LevelStars {
+  stars: number; // 1, 2 o 3 estrellas
+  timeBonus: boolean; // true si se completó dentro del tiempo límite
+  destructionBonus: boolean; // true si se usaron menos eliminaciones que el límite
+}
+
 export interface Level {
   id: number;
   name: string;
@@ -43,5 +49,7 @@ export interface Level {
   newRecipe?: string; // Mantener compatibilidad con niveles antiguos
   targetBurgers?: number; // Mantener compatibilidad con niveles antiguos
   description: string;
+  timeLimit?: number; // Tiempo límite para obtener estrella de tiempo (segundos)
+  destructionLimit?: number; // Número de eliminaciones límite para obtener estrella de eliminaciones
 }
 

@@ -1,5 +1,5 @@
 import { TRANSLATIONS } from '../constants/gameData';
-import { PieceType, IngredientProbability } from '../types';
+import { PieceType, IngredientProbability, Level, LevelStars } from '../types';
 import { Cell, Piece, GameMode } from '../types';
 
 export const getGridSize = (levelId: number, mode: GameMode) => {
@@ -162,3 +162,33 @@ export const calculatePrice = (order: PieceType[]) => {
   return Math.max(5, price);
 };
 
+export const calculateStars = (level: Level, timeRemaining: number, destructionsUsed: number): LevelStars => {
+  const timeLimit = level.timeLimit || 60; // Valor por defecto si no está definido
+  const destructionLimit = level.destructionLimit || 25; // Valor por defecto si no está definido
+
+  // Calcular tiempo transcurrido (tiempo total - tiempo restante)
+  const timeElapsed = timeLimit - timeRemaining;
+
+  // Verificar si se completaron los bonus
+  const timeBonus = timeElapsed <= timeLimit; // true si completó dentro del tiempo límite
+  const destructionBonus = destructionsUsed <= destructionLimit; // true si usó menos eliminaciones que el límite
+
+  // Calcular estrellas según las reglas:
+  // 3 estrellas: ambos bonus completados (menos tiempo Y menos eliminaciones)
+  // 2 estrellas: al menos uno de los bonus completados (tiempo sobrepasado O eliminaciones sobrepasadas)
+  // 1 estrella: ninguno de los bonus completados (tiempo sobrepasado Y eliminaciones sobrepasadas)
+  let stars: number;
+  if (timeBonus && destructionBonus) {
+    stars = 3; // Mención de honor
+  } else if (timeBonus || destructionBonus) {
+    stars = 2; // Logro especial
+  } else {
+    stars = 1; // Logro básico
+  }
+
+  return {
+    stars,
+    timeBonus,
+    destructionBonus
+  };
+};

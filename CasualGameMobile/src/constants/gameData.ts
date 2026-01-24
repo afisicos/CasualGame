@@ -68,7 +68,9 @@ export const LEVELS: Level[] = [
     showNewIngredient: true,
     newRecipe: 'tomato_burger',
     targetBurgers: 5,
-    description: "l1_desc"
+    description: "l1_desc",
+    timeLimit: 45, // 45 segundos para completar
+    destructionLimit: 15 // 15 eliminaciones máximo para estrella
   },
   {
     id: 2,
@@ -83,7 +85,9 @@ export const LEVELS: Level[] = [
     newIngredient: 'CHEESE',
     showNewIngredient: false,
     newRecipe: 'cheese_tomato',
-    description: "l2_desc"
+    description: "l2_desc",
+    timeLimit: 50,
+    destructionLimit: 18
   },
   {
     id: 3,
@@ -99,7 +103,9 @@ export const LEVELS: Level[] = [
     newIngredient: 'LETTUCE',
     showNewIngredient: true,
     newRecipe: 'veggie',
-    description: "l3_desc"
+    description: "l3_desc",
+    timeLimit: 55,
+    destructionLimit: 20
   },
   {
     id: 4,
@@ -117,7 +123,9 @@ export const LEVELS: Level[] = [
     ],
     showNewIngredient: false,
     newRecipe: 'veggie_cheese',
-    description: "l4_desc"
+    description: "l4_desc",
+    timeLimit: 60,
+    destructionLimit: 22
   },
   {
     id: 5,
@@ -133,7 +141,9 @@ export const LEVELS: Level[] = [
     newIngredient: 'BACON',
     showNewIngredient: true,
     newRecipe: 'bacon_cheese',
-    description: "l5_desc"
+    description: "l5_desc",
+    timeLimit: 65,
+    destructionLimit: 25
   },
   {
     id: 6,
@@ -149,7 +159,9 @@ export const LEVELS: Level[] = [
     ],
     showNewIngredient: false,
     newRecipe: 'tomatomato',
-    description: "l6_desc"
+    description: "l6_desc",
+    timeLimit: 70,
+    destructionLimit: 28
   },
   {
     id: 7,
@@ -166,7 +178,9 @@ export const LEVELS: Level[] = [
     newIngredient: 'KETCHUP',
     showNewIngredient: true,
     newRecipe: 'ketchup_lettuce',
-    description: "l7_desc"
+    description: "l7_desc",
+    timeLimit: 75,
+    destructionLimit: 30
   },
   {
     id: 8,
@@ -186,7 +200,9 @@ export const LEVELS: Level[] = [
     ],
     showNewIngredient: false,
     newRecipe: 'antivegetal',
-    description: "l8_desc"
+    description: "l8_desc",
+    timeLimit: 80,
+    destructionLimit: 32
   },
   {
     id: 9,
@@ -205,7 +221,9 @@ export const LEVELS: Level[] = [
     newIngredient: 'ONION',
     showNewIngredient: true,
     newRecipe: 'tonion_burger',
-    description: "l9_desc"
+    description: "l9_desc",
+    timeLimit: 85,
+    destructionLimit: 35
   },
   {
     id: 10,

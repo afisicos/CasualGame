@@ -168,6 +168,34 @@ export const styles = StyleSheet.create({
   },
   recipeResultProgressCompleted: {
     color: '#155724'
+  },
+  starsContainer: {
+    alignItems: 'center',
+    marginVertical: 15,
+    paddingHorizontal: 20,
+  },
+  starsLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#666',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  star: {
+    fontSize: 32,
+    marginHorizontal: 4,
+  },
+  starsDescription: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
   }
 });
 

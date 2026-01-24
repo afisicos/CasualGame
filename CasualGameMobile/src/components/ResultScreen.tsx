@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GameMode } from '../types';
+import { GameMode, LevelStars } from '../types';
 import { BASE_RECIPES } from '../constants/gameData';
 import BurgerPiece from './BurgerPiece';
 import { styles } from '../styles/ResultScreen.styles';
@@ -16,6 +16,7 @@ interface ResultScreenProps {
   levelNumber?: number;
   recipeProgress?: Record<string, number>;
   levelTargets?: { id: string; count: number }[];
+  levelStars?: LevelStars | null;
   onBack: () => void;
   onRetry: () => void;
   onPlaySound?: () => void;
@@ -32,6 +33,7 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
   levelNumber,
   recipeProgress,
   levelTargets,
+  levelStars,
   onBack,
   onRetry,
   onPlaySound,
@@ -78,6 +80,30 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
             </>
           )}
         </View>
+
+        {/* Mostrar estrellas en modo campaña */}
+        {isCampaign && levelStars && (
+          <View style={styles.starsContainer}>
+            <Text style={styles.starsLabel}>ESTRELLAS</Text>
+            <View style={styles.starsRow}>
+              {[1, 2, 3].map((star) => (
+                <Text
+                  key={star}
+                  style={[
+                    styles.star,
+                    { opacity: star <= levelStars.stars ? 1 : 0.3 }
+                  ]}
+                >
+                  ⭐
+                </Text>
+              ))}
+            </View>
+            <Text style={styles.starsDescription}>
+              {levelStars.stars === 3 ? '¡Mención de honor!' :
+               levelStars.stars === 2 ? 'Logro especial' : 'Logro básico'}
+            </Text>
+          </View>
+        )}
 
         <TouchableOpacity style={styles.button} onPress={() => { onPlaySound?.(); onRetry(); }}>
           <Text style={styles.buttonText}>

@@ -19,6 +19,7 @@ interface IntroScreenProps {
   targetBurgers?: number; // Para compatibilidad con formato antiguo
   targetRecipes?: { id: string; count: number }[]; // Nuevos objetivos múltiples
   timeLimit: number;
+  destructionLimit?: number;
   timeBoostCount: number;
   superTimeBoostCount: number;
   destructionPackCount: number;
@@ -48,6 +49,7 @@ interface IntroScreenProps {
 const IntroScreen: React.FC<IntroScreenProps> = ({
   levelId,
   newIngredient,
+  destructionLimit,
   showNewIngredient,
   newRecipe,
   newRecipeId,
@@ -161,7 +163,36 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
         )}
         
         <Text style={styles.description}>{t[description as keyof typeof t] || description}</Text>
-        
+
+        {/* ZONA: REQUERIMIENTOS DE ESTRELLAS */}
+        <View style={styles.starsRequirementsSection}>
+          <Text style={styles.starsRequirementsTitle}>OBJETIVOS DE ESTRELLAS</Text>
+          <View style={styles.requirementsRow}>
+            <View style={styles.requirementItem}>
+              <Text style={styles.requirementIcon}>⏱️</Text>
+              <Text style={styles.requirementText}>
+                Tiempo: {timeLimit}s
+              </Text>
+              <Text style={styles.requirementDesc}>
+                Para estrella de tiempo
+              </Text>
+            </View>
+            <View style={styles.requirementItem}>
+              <Text style={styles.requirementIcon}>💥</Text>
+              <Text style={styles.requirementText}>
+                Eliminaciones: {destructionLimit || 25}
+              </Text>
+              <Text style={styles.requirementDesc}>
+                Para estrella de eliminaciones
+              </Text>
+            </View>
+          </View>
+          <View style={styles.starsPreview}>
+            <Text style={styles.starsPreviewText}>⭐⭐⭐ Mención de honor</Text>
+            <Text style={styles.starsPreviewDesc}>Completa ambos objetivos</Text>
+          </View>
+        </View>
+
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>{t.objective}</Text>
