@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
   },
   description: {
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 10,
     color: '#666',
     lineHeight: 16,
     marginBottom: 10,
@@ -135,7 +135,7 @@ export const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#adb5bd',
+    color: '#9da5ad',
     marginBottom: 5
   },
   statCoin: {
@@ -422,10 +422,11 @@ export const styles = StyleSheet.create({
     color: '#ff922b'
   },
   starsRequirementsSection: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgb(234, 234, 234)',
     borderRadius: 12,
-    padding: 16,
-    marginVertical: 12,
+    minWidth: 300,
+    padding: 2,
+    marginVertical: 7,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -433,13 +434,12 @@ export const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   starsRequirementsTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
     marginBottom: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    textTransform: 'capitalize',
   },
   requirementsRow: {
     flexDirection: 'row',

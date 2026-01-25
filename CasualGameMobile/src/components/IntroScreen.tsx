@@ -166,7 +166,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
 
         {/* ZONA: REQUERIMIENTOS DE ESTRELLAS */}
         <View style={styles.starsRequirementsSection}>
-          <Text style={styles.starsRequirementsTitle}>OBJETIVOS DE ESTRELLAS</Text>
+          <Text style={styles.starsRequirementsTitle}>Objetivos extra</Text>
           <View style={styles.requirementsRow}>
             <View style={styles.requirementItem}>
               <Text style={styles.requirementIcon}>⏱️</Text>
@@ -174,7 +174,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
                 Tiempo: {timeLimit}s
               </Text>
               <Text style={styles.requirementDesc}>
-                Para estrella de tiempo
+                Supera el nivel en menos tiempo
               </Text>
             </View>
             <View style={styles.requirementItem}>
@@ -183,13 +183,9 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
                 Eliminaciones: {destructionLimit || 25}
               </Text>
               <Text style={styles.requirementDesc}>
-                Para estrella de eliminaciones
+                Supera el nivel con menos eliminaciones de ingredientes
               </Text>
             </View>
-          </View>
-          <View style={styles.starsPreview}>
-            <Text style={styles.starsPreviewText}>⭐⭐⭐ Mención de honor</Text>
-            <Text style={styles.starsPreviewDesc}>Completa ambos objetivos</Text>
           </View>
         </View>
 
