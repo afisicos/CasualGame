@@ -1,6 +1,7 @@
 import { TRANSLATIONS } from '../constants/gameData';
 import { PieceType, IngredientProbability, Level, LevelStars } from '../types';
 import { Cell, Piece, GameMode } from '../types';
+import { logGameEvent } from './analytics';
 
 export const getGridSize = (levelId: number, mode: GameMode) => {
   return 7; // Siempre 7x7 por petición del usuario
@@ -168,6 +169,11 @@ export const calculateStars = (level: Level, timeRemaining: number, destructions
 
   // Calcular tiempo transcurrido (tiempo total - tiempo restante)
   const timeElapsed = timeLimit - timeRemaining;
+
+  logGameEvent('timeElapsed', {
+    timeElapsed: timeElapsed,
+    timeLimit: timeLimit,
+  });
 
   // Verificar si se completaron los bonus
   const timeBonus = timeElapsed <= timeLimit; // true si completó dentro del tiempo límite

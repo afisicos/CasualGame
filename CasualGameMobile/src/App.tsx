@@ -1426,7 +1426,7 @@ function GameContent() {
         // Contar hacia abajo desde el límite
         const newTime = prev - 1;
         // Si llega a 0 o menos, se mantiene en 0 (tiempo agotado)
-        return Math.max(0, newTime);
+        return (newTime);
       });
     }, 1000);
     return () => clearInterval(timer);
@@ -2058,14 +2058,14 @@ function GameContent() {
             </View>
 
             {/* Toasts de recetas en modo arcade */}
-            {isArcade && toasts.map(toast => (
+            {/* {isArcade && toasts.map(toast => (
               <RecipeToastItem 
                 key={toast.id} 
                 toast={toast} 
                 onComplete={removeToast} 
                 t={t}
               />
-            ))}
+            ))}  */}
           </View>
         );
       default:

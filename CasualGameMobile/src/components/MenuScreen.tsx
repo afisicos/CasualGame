@@ -155,13 +155,13 @@ const MenuScreen: React.FC<MenuScreenProps> = ({
       const tutorialAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(tutorialPulseAnim, {
-            toValue: 1.05,
-            duration: 800,
+            toValue: 0.95,
+            duration: 500,
             useNativeDriver: true,
           }),
           Animated.timing(tutorialPulseAnim, {
             toValue: 1,
-            duration: 800,
+            duration: 600,
             useNativeDriver: true,
           }),
         ])
