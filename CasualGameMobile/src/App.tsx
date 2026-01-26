@@ -1712,6 +1712,7 @@ function GameContent() {
               onRecipesBook={() => setScreen('RECIPES_BOOK')}
               onWatchAdForEnergy={handleWatchAdForEnergy}
               onPlaySound={playUIButtonSound}
+              onPlayErrorSound={playCancelSound}
               levelStarsData={levelStarsData}
               t={t}
             />

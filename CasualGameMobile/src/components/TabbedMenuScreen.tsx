@@ -38,6 +38,7 @@ interface TabbedMenuScreenProps {
   onRecipesBook?: () => void;
   onWatchAdForEnergy?: () => void;
   onPlaySound?: () => void;
+  onPlayErrorSound?: () => void;
   levelStarsData?: Record<number, LevelStars>;
   t: any;
   isFirstTime?: boolean;
@@ -72,6 +73,7 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   onRecipesBook,
   onWatchAdForEnergy,
   onPlaySound,
+  onPlayErrorSound,
   levelStarsData = {},
   t,
   isFirstTime = false,
@@ -185,6 +187,7 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
             onStartLevel={onStartLevel}
             onWatchAdForEnergy={onWatchAdForEnergy}
             onPlaySound={onPlaySound}
+            onPlayErrorSound={onPlayErrorSound}
             levelStarsData={levelStarsData}
             t={t}
             isFirstTime={isFirstTime}
