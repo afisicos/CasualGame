@@ -103,6 +103,7 @@ export const styles = StyleSheet.create({
     gap: 0,
   },
   content: { flex: 1 },
+  tabContent: { flex: 1 },
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',

@@ -186,10 +186,20 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 8,
+    gap: 12,
+    alignItems: 'center',
+  },
+  starWithIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
   star: {
     fontSize: 32,
-    marginHorizontal: 4,
+  },
+  starIcon: {
+    width: 28,
+    height: 28,
   },
   starsDescription: {
     fontSize: 16,

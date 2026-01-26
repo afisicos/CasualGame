@@ -1,0 +1,207 @@
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  levelRow: {
+    position: 'relative',
+    marginBottom: 40,
+    minHeight: 120,
+  },
+  levelRowContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  levelCard: {
+    width: SCREEN_WIDTH * 0.4,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  levelCardCentered: {
+    alignSelf: 'center',
+  },
+  levelCardLocked: {
+    opacity: 0.5,
+  },
+  levelGradient: {
+    padding: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 130,
+  },
+  levelNumberContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  levelNumber: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: 'white',
+  },
+  lockIcon: {
+    width: 28,
+    height: 28,
+    tintColor: 'white',
+  },
+  levelName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  levelNameLocked: {
+    opacity: 0.7,
+  },
+  newIngredientIconSide: {
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 15,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  starWithIcon: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  star: {
+    fontSize: 18,
+  },
+  starIcon: {
+    width: 20,
+    height: 20,
+  },
+  energyIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  energyIcon: {
+    width: 16,
+    height: 16,
+  },
+  connector: {
+    position: 'absolute',
+    width: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    zIndex: -1,
+    borderRadius: 2,
+  },
+  connectorLeft: {
+    left: SCREEN_WIDTH * 0.2,
+    top: 120,
+    height: 60,
+    transform: [{ rotate: '35deg' }],
+  },
+  connectorRight: {
+    right: SCREEN_WIDTH * 0.2,
+    top: 120,
+    height: 60,
+    transform: [{ rotate: '-35deg' }],
+  },
+  energyPanelOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  energyPanel: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 24,
+    marginHorizontal: 40,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  energyPanelTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#ff6b6b',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  energyPanelMessage: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4a4a4a',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  energyPanelButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  energyPanelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  energyPanelCancel: {
+    backgroundColor: '#f0f0f0',
+  },
+  energyPanelCancelText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#666',
+  },
+  energyPanelWatch: {
+    backgroundColor: '#ff922b',
+  },
+  energyPanelWatchText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: 'white',
+  },
+});

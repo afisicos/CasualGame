@@ -86,17 +86,65 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
           <View style={styles.starsContainer}>
             <Text style={styles.starsLabel}>ESTRELLAS</Text>
             <View style={styles.starsRow}>
-              {[1, 2, 3].map((star) => (
+              {/* Estrella 1: Completar nivel */}
+              <View style={styles.starWithIcon}>
                 <Text
-                  key={star}
                   style={[
                     styles.star,
-                    { opacity: star <= levelStars.stars ? 1 : 0.3 }
+                    { opacity: levelStars.stars >= 1 ? 1 : 0.3 }
                   ]}
                 >
                   ⭐
                 </Text>
-              ))}
+                <Image 
+                  source={require('../assets/Iconos/burger.png')} 
+                  style={[
+                    styles.starIcon,
+                    { opacity: levelStars.stars >= 1 ? 1 : 0.3 }
+                  ]} 
+                  resizeMode="contain" 
+                />
+              </View>
+              
+              {/* Estrella 2: Tiempo */}
+              <View style={styles.starWithIcon}>
+                <Text
+                  style={[
+                    styles.star,
+                    { opacity: levelStars.timeBonus ? 1 : 0.3 }
+                  ]}
+                >
+                  ⭐
+                </Text>
+                <Image 
+                  source={require('../assets/Iconos/time.png')} 
+                  style={[
+                    styles.starIcon,
+                    { opacity: levelStars.timeBonus ? 1 : 0.3 }
+                  ]} 
+                  resizeMode="contain" 
+                />
+              </View>
+              
+              {/* Estrella 3: Eliminaciones */}
+              <View style={styles.starWithIcon}>
+                <Text
+                  style={[
+                    styles.star,
+                    { opacity: levelStars.destructionBonus ? 1 : 0.3 }
+                  ]}
+                >
+                  ⭐
+                </Text>
+                <Image 
+                  source={require('../assets/Iconos/rubber.png')} 
+                  style={[
+                    styles.starIcon,
+                    { opacity: levelStars.destructionBonus ? 1 : 0.3 }
+                  ]} 
+                  resizeMode="contain" 
+                />
+              </View>
             </View>
             <Text style={styles.starsDescription}>
               {levelStars.stars === 3 ? '¡Mención de honor!' :

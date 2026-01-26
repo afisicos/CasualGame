@@ -178,7 +178,11 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
               </Text>
             </View>
             <View style={styles.requirementItem}>
-              <Text style={styles.requirementIcon}>💥</Text>
+              <Image 
+                source={require('../assets/Iconos/rubber.png')} 
+                style={styles.requirementIconImage} 
+                resizeMode="contain" 
+              />
               <Text style={styles.requirementText}>
                 Eliminaciones: {destructionLimit || 25}
               </Text>

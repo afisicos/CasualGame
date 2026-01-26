@@ -10,6 +10,7 @@ import GameBoard from './components/GameBoard';
 import StatCard from './components/StatCard';
 import ProgressBar from './components/ProgressBar';
 import MenuScreen from './components/MenuScreen';
+import TabbedMenuScreen from './components/TabbedMenuScreen';
 import IntroScreen from './components/IntroScreen';
 import ResultScreen from './components/ResultScreen';
 import BurgerPiece from './components/BurgerPiece';
@@ -231,6 +232,7 @@ function GameContent() {
 
   const [unlockedLevel, setUnlockedLevel] = useState<number>(1);
   const [arcadeUnlockedLevel, setArcadeUnlockedLevel] = useState<number>(0);
+  const [levelStarsData, setLevelStarsData] = useState<Record<number, LevelStars>>({});
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVELS && LEVELS.length > 0 ? LEVELS[0] : {
     id: 1,
     name: 'level_1',
@@ -440,6 +442,7 @@ function GameContent() {
         const savedSuperDestructionPack = await AsyncStorage.getItem('superDestructionPackCount');
         const savedInhibitor = await AsyncStorage.getItem('inhibitorCount');
         const savedFirstTime = await AsyncStorage.getItem('isFirstTime');
+        const savedLevelStars = await AsyncStorage.getItem('levelStarsData');
 
         if (savedLevel) {
           const lvId = parseInt(savedLevel);
@@ -485,6 +488,11 @@ function GameContent() {
         // Cargar si es primera vez
         if (savedFirstTime === 'false') {
           setIsFirstTime(false);
+        }
+
+        // Cargar estrellas por nivel
+        if (savedLevelStars) {
+          setLevelStarsData(JSON.parse(savedLevelStars));
         }
 
         setIsDataLoaded(true);
@@ -535,7 +543,8 @@ function GameContent() {
     AsyncStorage.setItem('superDestructionPackCount', superDestructionPackCount.toString());
     AsyncStorage.setItem('inhibitorCount', inhibitorCount.toString());
     AsyncStorage.setItem('isFirstTime', isFirstTime.toString());
-  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount, isFirstTime]);
+    AsyncStorage.setItem('levelStarsData', JSON.stringify(levelStarsData));
+  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount, isFirstTime, levelStarsData]);
 
   // Tutorial para primera vez
   useEffect(() => {
@@ -723,22 +732,36 @@ function GameContent() {
     } catch (e) {}
   };
 
-  const initGrid = (level: Level, mode: GameMode, currentUnlockedLevel: number, useInhibitorParam: boolean, inhibitedIngredientParam: PieceType | null) => {
-    const initialGrid: Cell[] = [];
-    const gridSize = getGridSize(level.id, mode);
-
-    // Determinamos qué ingredientes están disponibles
+  // Función auxiliar para obtener los ingredientes correctos según el nivel y modo
+  const getLevelIngredients = (level: Level, mode: GameMode, currentUnlockedLevel: number, useInhibitorParam: boolean, inhibitedIngredientParam: PieceType | null): IngredientProbability[] => {
     let ingredientProbabilities: IngredientProbability[] = [];
+    
     if (mode === 'ARCADE') {
       ingredientProbabilities = getUnlockedIngredientsForArcade(currentUnlockedLevel);
     } else {
-      ingredientProbabilities = getUnlockedIngredientsForCampaign(currentUnlockedLevel);
+      // En campaña, usar los ingredientes del nivel si están definidos
+      if (level.ingredients && level.ingredients.length > 0) {
+        ingredientProbabilities = level.ingredients;
+      } else {
+        // Fallback: usar ingredientes desbloqueados
+        ingredientProbabilities = getUnlockedIngredientsForCampaign(currentUnlockedLevel);
+      }
     }
 
     // Aplicar filtro del inhibidor si está activo
     if (useInhibitorParam && inhibitedIngredientParam) {
       ingredientProbabilities = ingredientProbabilities.filter(ingredient => ingredient.type !== inhibitedIngredientParam);
     }
+    
+    return ingredientProbabilities;
+  };
+
+  const initGrid = (level: Level, mode: GameMode, currentUnlockedLevel: number, useInhibitorParam: boolean, inhibitedIngredientParam: PieceType | null) => {
+    const initialGrid: Cell[] = [];
+    const gridSize = getGridSize(level.id, mode);
+
+    // Usar la función auxiliar para obtener los ingredientes correctos
+    const ingredientProbabilities = getLevelIngredients(level, mode, currentUnlockedLevel, useInhibitorParam, inhibitedIngredientParam);
 
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
@@ -1050,17 +1073,8 @@ function GameContent() {
           nextGrid[targetIdx].piece = nextGrid[sourceIdx].piece;
         }
 
-        // Nueva pieza arriba
-        let ingredientProbabilities = gameMode === 'ARCADE'
-          ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
-          : getUnlockedIngredientsForCampaign(unlockedLevel);
-
-        // Aplicar filtro del inhibidor si está activo
-        if (useInhibitor && inhibitedIngredient) {
-          ingredientProbabilities = ingredientProbabilities.filter(ingredient =>
-            typeof ingredient === 'string' ? ingredient !== inhibitedIngredient : ingredient.type !== inhibitedIngredient
-          );
-        }
+        // Nueva pieza arriba - usar ingredientes del nivel actual
+        const ingredientProbabilities = getLevelIngredients(selectedLevel, gameMode, gameMode === 'ARCADE' ? arcadeUnlockedLevel : unlockedLevel, useInhibitor, inhibitedIngredient);
 
         // En modo campaña, forzar pan o carne si hay menos de 6 en el tablero
         if (gameMode === 'CAMPAIGN') {
@@ -1331,6 +1345,23 @@ function GameContent() {
             helpTextTimeoutRef.current = null;
           }
           setHelpText('');
+          
+          // Calcular y guardar estrellas para este nivel
+          if (gameMode === 'CAMPAIGN') {
+            const stars = calculateStars(selectedLevel, timeLeft, destructionsUsed);
+            setLevelStarsData(prev => {
+              const currentStars = prev[selectedLevel.id];
+              // Solo actualizar si las nuevas estrellas son mejores o iguales
+              if (!currentStars || stars.stars >= currentStars.stars) {
+                return {
+                  ...prev,
+                  [selectedLevel.id]: stars
+                };
+              }
+              return prev;
+            });
+          }
+          
           setIsGameOver(true);
           setScreen('RESULT');
           setUnlockedLevel(prev => Math.max(prev, selectedLevel.id + 1));
@@ -1361,16 +1392,8 @@ function GameContent() {
             }
           }
 
-          let ingredientProbabilities = isArcade
-            ? getUnlockedIngredientsForArcade(arcadeUnlockedLevel)
-            : getUnlockedIngredientsForCampaign(unlockedLevel);
-
-          // Aplicar filtro del inhibidor si está activo
-          if (useInhibitor && inhibitedIngredient) {
-            ingredientProbabilities = ingredientProbabilities.filter(ingredient =>
-              typeof ingredient === 'string' ? ingredient !== inhibitedIngredient : ingredient.type !== inhibitedIngredient
-            );
-          }
+          // Usar ingredientes del nivel actual
+          const ingredientProbabilities = getLevelIngredients(selectedLevel, gameMode, isArcade ? arcadeUnlockedLevel : unlockedLevel, useInhibitor, inhibitedIngredient);
 
           for (let i = 0; i < nextGrid.length; i++) {
             if (nextGrid[i].piece === null) {
@@ -1450,6 +1473,8 @@ function GameContent() {
     setUseInhibitor(false);
     setInhibitedIngredient(null);
     setInhibitorCount(0);
+    // Resetear estrellas conseguidas
+    setLevelStarsData({});
     // Resetear tutorial para que aparezca nuevamente
     setIsFirstTime(true);
     setTutorialStep(0);
@@ -1650,7 +1675,7 @@ function GameContent() {
           );
         case 'MENU':
           return (
-            <MenuScreen
+            <TabbedMenuScreen
               levels={LEVELS}
               unlockedLevel={unlockedLevel}
               arcadeUnlockedLevel={arcadeUnlockedLevel}
@@ -1687,6 +1712,7 @@ function GameContent() {
               onRecipesBook={() => setScreen('RECIPES_BOOK')}
               onWatchAdForEnergy={handleWatchAdForEnergy}
               onPlaySound={playUIButtonSound}
+              levelStarsData={levelStarsData}
               t={t}
             />
           );

@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8
   },
   pricePill: {
-    backgroundColor: '#27ae60',
+    backgroundColor: '#274e60',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -145,7 +145,7 @@ export const styles = StyleSheet.create({
     marginTop: 2 // Pequeño ajuste para centrar visualmente con el texto
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 10,
     fontWeight: '900',
     color: '#27ae60'
   },
@@ -453,6 +453,11 @@ export const styles = StyleSheet.create({
   },
   requirementIcon: {
     fontSize: 24,
+    marginBottom: 4,
+  },
+  requirementIconImage: {
+    width: 32,
+    height: 32,
     marginBottom: 4,
   },
   requirementText: {
