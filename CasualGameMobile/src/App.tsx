@@ -88,7 +88,8 @@ import {
   getBurgerName,
   isRecipeMatch,
   calculatePrice,
-  calculateStars
+  calculateStars,
+  refreshDailyAchievements
 } from './utils/gameLogic';
 import { styles } from './styles/App.styles';
 import { styles as statCardStyles } from './styles/StatCard.styles';
@@ -302,6 +303,44 @@ function GameContent() {
 
   // Recetario
   const [discoveredRecipes, setDiscoveredRecipes] = useState<string[]>(['classic', 'tomato_burger']);
+  const [dailyAchievements, setDailyAchievements] = useState<DailyAchievementsState>({
+    lastRefreshDate: '',
+    achievements: [],
+  });
+
+  const updateAchievementProgress = (type: AchievementType, count: number, ingredient?: PieceType) => {
+    setDailyAchievements(prev => {
+      const newAchievements = prev.achievements.map(achievement => {
+        if (achievement.claimed) return achievement;
+        if (achievement.type === type) {
+          if (ingredient && achievement.ingredient !== ingredient) return achievement;
+          return {
+            ...achievement,
+            current: Math.min(achievement.target, achievement.current + count)
+          };
+        }
+        return achievement;
+      });
+      return { ...prev, achievements: newAchievements };
+    });
+  };
+
+  const handleClaimAchievementReward = (achievementId: string) => {
+    setDailyAchievements(prev => {
+      const achievement = prev.achievements.find(a => a.id === achievementId);
+      if (achievement && achievement.current >= achievement.target && !achievement.claimed) {
+        setGlobalMoney(m => m + achievement.reward);
+        return {
+          ...prev,
+          achievements: prev.achievements.map(a => 
+            a.id === achievementId ? { ...a, claimed: true } : a
+          )
+        };
+      }
+      return prev;
+    });
+  };
+
   const [isRecipeListVisible, setIsRecipeListVisible] = useState(false);
 
   // Inicializar Firebase Analytics y AdMob al montar el componente
@@ -443,6 +482,7 @@ function GameContent() {
         const savedInhibitor = await AsyncStorage.getItem('inhibitorCount');
         const savedFirstTime = await AsyncStorage.getItem('isFirstTime');
         const savedLevelStars = await AsyncStorage.getItem('levelStarsData');
+        const savedAchievements = await AsyncStorage.getItem('dailyAchievements');
 
         if (savedLevel) {
           const lvId = parseInt(savedLevel);
@@ -495,6 +535,14 @@ function GameContent() {
           setLevelStarsData(JSON.parse(savedLevelStars));
         }
 
+        // Cargar y refrescar logros diarios
+        let achievementsState: DailyAchievementsState | null = null;
+        if (savedAchievements) {
+          achievementsState = JSON.parse(savedAchievements);
+        }
+        const refreshedState = refreshDailyAchievements(achievementsState);
+        setDailyAchievements(refreshedState);
+
         setIsDataLoaded(true);
       } catch (e) {
         setIsDataLoaded(true);
@@ -544,7 +592,8 @@ function GameContent() {
     AsyncStorage.setItem('inhibitorCount', inhibitorCount.toString());
     AsyncStorage.setItem('isFirstTime', isFirstTime.toString());
     AsyncStorage.setItem('levelStarsData', JSON.stringify(levelStarsData));
-  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount, isFirstTime, levelStarsData]);
+    AsyncStorage.setItem('dailyAchievements', JSON.stringify(dailyAchievements));
+  }, [unlockedLevel, arcadeUnlockedLevel, arcadeHighScore, energy, globalMoney, isSoundEnabled, lastEnergyGainTime, discoveredRecipes, language, timeBoostCount, superTimeBoostCount, destructionPackCount, superDestructionPackCount, inhibitorCount, isFirstTime, levelStarsData, dailyAchievements]);
 
   // Tutorial para primera vez
   useEffect(() => {
@@ -1032,6 +1081,12 @@ function GameContent() {
     Vibration.vibrate(60);
     playDestroySound();
 
+    // Actualizar logros diarios
+    const pieceType = grid[index].piece?.type;
+    if (pieceType) {
+      updateAchievementProgress('DELETE_INGREDIENT', 1, pieceType);
+    }
+
     // Usar la función auxiliar para la eliminación real
     performPieceDestruction(index);
   };
@@ -1228,6 +1283,14 @@ function GameContent() {
       setShouldBlinkDestructions(true);
       setTimeout(() => setShouldBlinkDestructions(false), 200);
 
+      // Actualizar logros diarios
+      if (currentSelection.length > 0) {
+        const firstType = grid[currentSelection[0]].piece?.type;
+        if (firstType) {
+          updateAchievementProgress('DELETE_MULTIPLE_SAME_IN_ONE_GO', currentSelection.length, firstType);
+        }
+      }
+
       // Eliminar todos los ingredientes seleccionados (sin gastar más eliminaciones)
       currentSelection.forEach(index => {
         // Eliminar directamente sin incrementar contador adicional
@@ -1283,6 +1346,9 @@ function GameContent() {
       Vibration.vibrate([0, 100, 50, 100]);
       // Reproducir sonido inmediatamente, sin esperar
       playSuccessSound().catch(e => console.log('Error sonido:', e));
+
+      // Actualizar logros diarios
+      updateAchievementProgress('CREATE_BURGER', 1);
 
       // Solo mostrar notificación de descubrimiento para recetas reales, no para strange burgers
       if (isArcade && (match as Recipe).id !== 'strange' && !discoveredRecipes.includes((match as Recipe).id)) {
@@ -1473,6 +1539,9 @@ function GameContent() {
     setUseInhibitor(false);
     setInhibitedIngredient(null);
     setInhibitorCount(0);
+    // Resetear logros diarios
+    const initialAchievements = refreshDailyAchievements(null);
+    setDailyAchievements(initialAchievements);
     // Resetear estrellas conseguidas
     setLevelStarsData({});
     // Resetear tutorial para que aparezca nuevamente
@@ -1696,6 +1765,8 @@ function GameContent() {
               onToggleSuperTimeBoost={setUseSuperTimeBoost}
               onToggleDestructionPack={setUseDestructionPack}
               onToggleSuperDestructionPack={setUseSuperDestructionPack}
+              dailyAchievements={dailyAchievements.achievements}
+              onClaimAchievementReward={handleClaimAchievementReward}
             onStartLevel={(l) => {
               setSelectedLevel(l);
               setScreen('INTRO');

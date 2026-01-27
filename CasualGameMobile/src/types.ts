@@ -39,6 +39,24 @@ export interface LevelStars {
   destructionBonus: boolean; // true si se usaron menos eliminaciones que el límite
 }
 
+export type AchievementType = 'DELETE_INGREDIENT' | 'CREATE_BURGER' | 'DELETE_MULTIPLE_SAME_IN_ONE_GO';
+
+export interface DailyAchievement {
+  id: string;
+  type: AchievementType;
+  description: string;
+  target: number;
+  current: number;
+  reward: number;
+  claimed: boolean;
+  ingredient?: PieceType;
+}
+
+export interface DailyAchievementsState {
+  lastRefreshDate: string; // ISO string
+  achievements: DailyAchievement[];
+}
+
 export interface Level {
   id: number;
   name: string;

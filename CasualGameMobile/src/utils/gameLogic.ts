@@ -1,7 +1,30 @@
-import { TRANSLATIONS } from '../constants/gameData';
-import { PieceType, IngredientProbability, Level, LevelStars } from '../types';
+import { TRANSLATIONS, ACHIEVEMENT_POOL } from '../constants/gameData';
+import { PieceType, IngredientProbability, Level, LevelStars, DailyAchievement, DailyAchievementsState } from '../types';
 import { Cell, Piece, GameMode } from '../types';
 import { logGameEvent } from './analytics';
+
+export const refreshDailyAchievements = (currentState: DailyAchievementsState | null): DailyAchievementsState => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+
+  if (currentState && currentState.lastRefreshDate === today) {
+    return currentState;
+  }
+
+  // Seleccionar 3 logros aleatorios del pool
+  const shuffled = [...ACHIEVEMENT_POOL].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, 3).map((template, index) => ({
+    ...template,
+    id: `daily_${index}_${today}`,
+    current: 0,
+    claimed: false,
+  }));
+
+  return {
+    lastRefreshDate: today,
+    achievements: selected,
+  };
+};
 
 export const getGridSize = (levelId: number, mode: GameMode) => {
   return 7; // Siempre 7x7 por petición del usuario

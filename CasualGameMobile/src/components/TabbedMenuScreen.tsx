@@ -5,7 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LevelsMapTab from './LevelsMapTab';
 import ArcadeTab from './ArcadeTab';
 import RecipesTab from './RecipesTab';
-import { Level, LevelStars } from '../types';
+import DailyAchievementsTab from './DailyAchievementsTab';
+import { Level, LevelStars, DailyAchievement } from '../types';
 import { styles } from '../styles/TabbedMenuScreen.styles';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -40,6 +41,8 @@ interface TabbedMenuScreenProps {
   onPlaySound?: () => void;
   onPlayErrorSound?: () => void;
   onPlayDestroySound?: () => void;
+  dailyAchievements: DailyAchievement[];
+  onClaimAchievementReward: (id: string) => void;
   levelStarsData?: Record<number, LevelStars>;
   t: any;
   isFirstTime?: boolean;
@@ -76,6 +79,8 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   onPlaySound,
   onPlayErrorSound,
   onPlayDestroySound,
+  dailyAchievements,
+  onClaimAchievementReward,
   levelStarsData = {},
   t,
   isFirstTime = false,
@@ -202,7 +207,17 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
           />
         </View>
 
-        {/* Pestaña 2: Arcade */}
+        {/* Pestaña 2: Logros Diarios */}
+        <View style={styles.tabContainer}>
+          <DailyAchievementsTab
+            achievements={dailyAchievements}
+            onClaimReward={onClaimAchievementReward}
+            onPlaySound={onPlaySound}
+            t={t}
+          />
+        </View>
+
+        {/* Pestaña 3: Arcade */}
         <View style={styles.tabContainer}>
           <ArcadeTab
             arcadeUnlockedLevel={arcadeUnlockedLevel}
@@ -218,7 +233,7 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
           />
         </View>
 
-        {/* Pestaña 3: Recetas */}
+        {/* Pestaña 4: Recetas */}
         <View style={styles.tabContainer}>
           <RecipesTab
             onRecipesBook={onRecipesBook}
@@ -235,6 +250,7 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
         <View style={[styles.indicator, currentPage === 0 && styles.indicatorActive]} />
         <View style={[styles.indicator, currentPage === 1 && styles.indicatorActive]} />
         <View style={[styles.indicator, currentPage === 2 && styles.indicatorActive]} />
+        <View style={[styles.indicator, currentPage === 3 && styles.indicatorActive]} />
       </View>
     </View>
   );

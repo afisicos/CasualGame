@@ -1,7 +1,23 @@
-import { PieceType, Level, Recipe, IngredientProbability, RecipeTarget } from '../types';
+import { PieceType, Level, Recipe, IngredientProbability, RecipeTarget, DailyAchievement } from '../types';
 
 export const ENERGY_RECOVERY_TIME = 300; // 5 minutos en segundos
 export const MAX_ENERGY = 10;
+
+export const ACHIEVEMENT_POOL: Omit<DailyAchievement, 'id' | 'current' | 'claimed'>[] = [
+  { type: 'DELETE_INGREDIENT', description: 'achievement_delete_ingredient', target: 100, reward: 100, ingredient: 'LETTUCE' },
+  { type: 'DELETE_INGREDIENT', description: 'achievement_delete_ingredient', target: 100, reward: 100, ingredient: 'TOMATO' },
+  { type: 'DELETE_INGREDIENT', description: 'achievement_delete_ingredient', target: 100, reward: 100, ingredient: 'CHEESE' },
+  { type: 'DELETE_INGREDIENT', description: 'achievement_delete_ingredient', target: 100, reward: 100, ingredient: 'BACON' },
+  { type: 'DELETE_INGREDIENT', description: 'achievement_delete_ingredient', target: 50, reward: 100, ingredient: 'EGG' },
+  { type: 'DELETE_INGREDIENT', description: 'achievement_delete_ingredient', target: 50, reward: 100, ingredient: 'ONION' },
+  { type: 'CREATE_BURGER', description: 'achievement_create_burger', target: 50, reward: 100 },
+  { type: 'CREATE_BURGER', description: 'achievement_create_burger', target: 30, reward: 100 },
+  { type: 'DELETE_MULTIPLE_SAME_IN_ONE_GO', description: 'achievement_delete_multiple', target: 10, reward: 100, ingredient: 'CHEESE' },
+  { type: 'DELETE_MULTIPLE_SAME_IN_ONE_GO', description: 'achievement_delete_multiple', target: 10, reward: 100, ingredient: 'LETTUCE' },
+  { type: 'DELETE_MULTIPLE_SAME_IN_ONE_GO', description: 'achievement_delete_multiple', target: 10, reward: 100, ingredient: 'TOMATO' },
+  { type: 'DELETE_MULTIPLE_SAME_IN_ONE_GO', description: 'achievement_delete_multiple', target: 8, reward: 100, ingredient: 'BACON' },
+  { type: 'DELETE_MULTIPLE_SAME_IN_ONE_GO', description: 'achievement_delete_multiple', target: 5, reward: 100, ingredient: 'EGG' },
+];
 
 // Configuración de barreras
 export interface Barrier {
@@ -726,6 +742,12 @@ export const TRANSLATIONS = {
     l16_desc: "¡HUEVO desbloqueado! El toque perfecto para cualquier hamburguesa. Prepara la Hamburguesa Ranchera con bacon, huevo, queso y cebolla.",
     l17_desc: "¡Proteína extra! Mezcla huevo con ketchup para crear combinaciones únicas. ¡No olvides la receta secreta con doble carne y doble huevo!",
     l18_desc: "¡La Huevolla llega al menú! Prepara hamburguesas con huevo y cebolla. Necesitas hacer 3 Huevollas y 3 hamburguesas con tomate.",
+    daily_achievements: "LOGROS DIARIOS",
+    claim_reward: "RECOGER",
+    claimed: "RECOGIDO",
+    achievement_delete_ingredient: "Elimina {target} {ingredient}",
+    achievement_create_burger: "Crea {target} hamburguesas",
+    achievement_delete_multiple: "Elimina {target} {ingredient} de una pasada",
   },
   en: {
     recipes: "RECIPES",
@@ -924,6 +946,12 @@ export const TRANSLATIONS = {
     l16_desc: "EGG unlocked! The perfect touch for any burger. Prepare the Ranchera Burger with bacon, egg, cheese and onion.",
     l17_desc: "Extra protein! Mix egg with ketchup for unique combinations. Don't forget the secret recipe with double meat and double egg!",
     l18_desc: "Eggnion is on the menu! Prepare burgers with egg and onion. You need to make 3 Eggnions and 3 tomato burgers.",
+    daily_achievements: "DAILY ACHIEVEMENTS",
+    claim_reward: "CLAIM",
+    claimed: "CLAIMED",
+    achievement_delete_ingredient: "Remove {target} {ingredient}",
+    achievement_create_burger: "Create {target} burgers",
+    achievement_delete_multiple: "Remove {target} {ingredient} in one go",
   }
 };
 
