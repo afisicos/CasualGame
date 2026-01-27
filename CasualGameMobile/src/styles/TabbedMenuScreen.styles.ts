@@ -36,7 +36,8 @@ export const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   statEmoji: {
-    fontSize: 14,
+    width: 24,
+    height: 24,
     marginRight: 3,
   },
   statIcon: {

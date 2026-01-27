@@ -1713,6 +1713,7 @@ function GameContent() {
               onWatchAdForEnergy={handleWatchAdForEnergy}
               onPlaySound={playUIButtonSound}
               onPlayErrorSound={playCancelSound}
+              onPlayDestroySound={playDestroySound}
               levelStarsData={levelStarsData}
               t={t}
             />

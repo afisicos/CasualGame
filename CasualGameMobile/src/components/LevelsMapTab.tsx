@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Level, LevelStars } from '../types';
 import { styles } from '../styles/LevelsMapTab.styles';
 import BurgerPiece from './BurgerPiece';
-import { INGREDIENT_IMAGES } from '../constants/gameData';
+import { INGREDIENT_IMAGES, BARRIERS } from '../constants/gameData';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -42,6 +42,7 @@ interface LevelsMapTabProps {
   onWatchAdForEnergy?: () => void;
   onPlaySound?: () => void;
   onPlayErrorSound?: () => void;
+  onPlayDestroySound?: () => void;
   levelStarsData?: Record<number, LevelStars>;
   t: any;
   isFirstTime?: boolean;
@@ -57,6 +58,7 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
   onWatchAdForEnergy,
   onPlaySound,
   onPlayErrorSound,
+  onPlayDestroySound,
   levelStarsData = {},
   t,
   isFirstTime = false,
@@ -70,19 +72,13 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
   const heartbeatAnim = useRef(new Animated.Value(1)).current;
   const hasScrolledToUnlockedLevel = useRef(false);
   
-  // Estado para rastrear los toques en cada barrera
-  const [barrierTaps, setBarrierTaps] = useState<Record<number, number>>({});
   // Estado para barreras rotas (guardado persistentemente)
   const [brokenBarriers, setBrokenBarriers] = useState<Set<number>>(new Set());
-  // Animaciones para cada barrera (simular que se rompe)
-  const barrierAnimations = useRef<Record<number, Animated.Value>>({});
+  // Animaciones para cada barrera
   const barrierScaleAnims = useRef<Record<number, Animated.Value>>({});
-  // Animaciones para la partición de la barrera
-  const barrierLeftHalfAnim = useRef<Record<number, Animated.Value>>({});
-  const barrierRightHalfAnim = useRef<Record<number, Animated.Value>>({});
   const barrierOpacityAnim = useRef<Record<number, Animated.Value>>({});
-  // Estado para controlar si la barrera está en animación de rotura
-  const [barrierBreaking, setBarrierBreaking] = useState<Set<number>>(new Set());
+  // Animación de latido rápido cuando la barrera puede eliminarse
+  const barrierPulseAnims = useRef<Record<number, Animated.Value>>({});
   
   // Cargar barreras rotas desde AsyncStorage al montar
   useEffect(() => {
@@ -192,6 +188,64 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
     }
   }, [isFirstTime, tutorialStep, tutorialPulseAnim]);
 
+  // Animación de latido rápido para barreras que pueden eliminarse
+  useEffect(() => {
+    const animations: Animated.CompositeAnimation[] = [];
+    
+    // Inicializar y gestionar animaciones de latido para cada barrera
+    BARRIERS.forEach((_, barrierIndex) => {
+      if (brokenBarriers.has(barrierIndex)) {
+        // Si la barrera ya está rota, detener animación si existe
+        if (barrierPulseAnims.current[barrierIndex]) {
+          barrierPulseAnims.current[barrierIndex].stopAnimation();
+          barrierPulseAnims.current[barrierIndex].setValue(1);
+        }
+        return;
+      }
+
+      const canRemove = canBarrierBeRemoved(barrierIndex);
+      
+      if (canRemove) {
+        // Inicializar animación si no existe
+        if (!barrierPulseAnims.current[barrierIndex]) {
+          barrierPulseAnims.current[barrierIndex] = new Animated.Value(1);
+        }
+
+        const pulseAnim = barrierPulseAnims.current[barrierIndex];
+        
+        // Animación de latido rápido (más rápido que el latido normal)
+        const pulseAnimation = Animated.loop(
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 1.15, // Escala más grande para ser más notorio
+              duration: 300, // Más rápido (300ms vs 600ms)
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+          ])
+        );
+        
+        pulseAnimation.start();
+        animations.push(pulseAnimation);
+      } else {
+        // Si no puede eliminarse, detener animación y resetear valor
+        if (barrierPulseAnims.current[barrierIndex]) {
+          barrierPulseAnims.current[barrierIndex].stopAnimation();
+          barrierPulseAnims.current[barrierIndex].setValue(1);
+        }
+      }
+    });
+    
+    return () => {
+      // Limpiar todas las animaciones al desmontar o cuando cambian las dependencias
+      animations.forEach(anim => anim.stop());
+    };
+  }, [brokenBarriers, levelStarsData, unlockedLevel]); // Dependencias: cuando cambian las barreras rotas, las estrellas o el nivel desbloqueado
+
   const handleLevelPress = (level: Level) => {
     // Verificar si el nivel está bloqueado por barrera o por progreso
     const isBlockedByBarrier = !canLevelBeUnlocked(level.id);
@@ -214,51 +268,63 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
     return Object.values(levelStarsData || {}).reduce((sum, stars) => sum + (stars?.stars || 0), 0);
   };
 
-  // Determinar si hay una barrera antes de un nivel (cada 5 niveles)
-  const getBarrierBeforeLevel = (levelId: number): number | null => {
-    // Las barreras están después de los niveles 5, 10, 15, 20, etc.
-    // El nivel 6 necesita que la barrera 1 esté desbloqueada
-    if (levelId > 5 && (levelId - 1) % 5 === 0) {
-      return Math.floor((levelId - 1) / 5);
+  // Encontrar la barrera que corresponde a un nivel (retorna el índice de la barrera en BARRIERS)
+  // La barrera se muestra solo antes del nivel inmediatamente siguiente a levelAfter
+  const getBarrierIndexForLevel = (levelId: number): number | null => {
+    // Buscar la barrera cuyo levelAfter + 1 es igual a levelId
+    for (let i = 0; i < BARRIERS.length; i++) {
+      if (levelId === BARRIERS[i].levelAfter + 1) {
+        return i;
+      }
     }
     return null;
   };
 
+  // Obtener la información de una barrera por su índice
+  const getBarrierInfo = (barrierIndex: number) => {
+    return BARRIERS[barrierIndex];
+  };
+
   // Obtener el requisito de estrellas para una barrera
-  const getBarrierStarRequirement = (barrierNumber: number): number => {
-    // La primera barrera requiere 5 estrellas, luego aumenta progresivamente
-    return 5 * barrierNumber;
+  const getBarrierStarRequirement = (barrierIndex: number): number => {
+    return BARRIERS[barrierIndex].requiredStars;
+  };
+
+  // Verificar si una barrera puede ser eliminada (cumple condiciones)
+  const canBarrierBeRemoved = (barrierIndex: number): boolean => {
+    // Debe tener el nivel anterior completado con al menos 1 estrella
+    if (!isPreviousLevelCompleted(barrierIndex)) {
+      return false;
+    }
+    // Debe tener las estrellas necesarias
+    const requiredStars = getBarrierStarRequirement(barrierIndex);
+    const totalStars = getTotalStars();
+    return totalStars >= requiredStars;
   };
 
   // Obtener el nivel anterior a una barrera
-  const getLevelBeforeBarrier = (barrierNumber: number): number => {
-    // La barrera 1 está antes del nivel 6, entonces el nivel anterior es el 5
-    // La barrera 2 está antes del nivel 11, entonces el nivel anterior es el 10
-    return barrierNumber * 5;
+  const getLevelBeforeBarrier = (barrierIndex: number): number => {
+    return BARRIERS[barrierIndex].levelAfter;
   };
 
   // Verificar si el nivel anterior a la barrera está completado con al menos 1 estrella
-  const isPreviousLevelCompleted = (barrierNumber: number): boolean => {
-    const previousLevelId = getLevelBeforeBarrier(barrierNumber);
+  const isPreviousLevelCompleted = (barrierIndex: number): boolean => {
+    const previousLevelId = getLevelBeforeBarrier(barrierIndex);
     const previousLevelStars = getStarsForLevel(previousLevelId);
     return (previousLevelStars?.stars || 0) >= 1;
   };
 
-  // Verificar si una barrera está desbloqueada (considerando toques y estado guardado)
-  const isBarrierUnlocked = (barrierNumber: number): boolean => {
+  // Verificar si una barrera está desbloqueada (considerando estado guardado)
+  const isBarrierUnlocked = (barrierIndex: number): boolean => {
     // Si la barrera está en el conjunto de barreras rotas, está desbloqueada
-    if (brokenBarriers.has(barrierNumber)) {
-      return true;
-    }
-    // La barrera está desbloqueada solo si tiene 3 toques
-    return (barrierTaps[barrierNumber] || 0) >= 3;
+    return brokenBarriers.has(barrierIndex);
   };
 
   // Guardar barrera rota en AsyncStorage
-  const saveBrokenBarrier = async (barrierNumber: number) => {
+  const saveBrokenBarrier = async (barrierIndex: number) => {
     try {
       const newBrokenBarriers = new Set(brokenBarriers);
-      newBrokenBarriers.add(barrierNumber);
+      newBrokenBarriers.add(barrierIndex);
       setBrokenBarriers(newBrokenBarriers);
       await AsyncStorage.setItem('brokenBarriers', JSON.stringify(Array.from(newBrokenBarriers)));
     } catch (error) {
@@ -266,88 +332,41 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
     }
   };
 
-  // Animación de partición y desaparición de la barrera
-  const animateBarrierBreak = (barrierNumber: number) => {
-    // Inicializar animaciones si no existen
-    if (!barrierLeftHalfAnim.current[barrierNumber]) {
-      barrierLeftHalfAnim.current[barrierNumber] = new Animated.Value(0);
-      barrierRightHalfAnim.current[barrierNumber] = new Animated.Value(0);
-      barrierOpacityAnim.current[barrierNumber] = new Animated.Value(1);
+  // Animación de desvanecimiento de la barrera
+  const animateBarrierBreak = (barrierIndex: number) => {
+    // Inicializar animación de opacidad si no existe
+    if (!barrierOpacityAnim.current[barrierIndex]) {
+      barrierOpacityAnim.current[barrierIndex] = new Animated.Value(1);
     }
 
-    const leftAnim = barrierLeftHalfAnim.current[barrierNumber];
-    const rightAnim = barrierRightHalfAnim.current[barrierNumber];
-    const opacityAnim = barrierOpacityAnim.current[barrierNumber];
+    const opacityAnim = barrierOpacityAnim.current[barrierIndex];
 
-    // Marcar que está en animación de rotura
-    setBarrierBreaking(prev => new Set(prev).add(barrierNumber));
+    // Reproducir sonido de destrucción
+    onPlayDestroySound?.();
 
-    // Animación: las dos mitades se separan y desaparecen
-    Animated.parallel([
-      // Mitad izquierda sale hacia la izquierda
-      Animated.timing(leftAnim, {
-        toValue: -SCREEN_WIDTH,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      // Mitad derecha sale hacia la derecha
-      Animated.timing(rightAnim, {
-        toValue: SCREEN_WIDTH,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      // Opacidad disminuye
-      Animated.timing(opacityAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
+    // Animación de desvanecimiento
+    Animated.timing(opacityAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
       // Guardar que la barrera está rota
-      saveBrokenBarrier(barrierNumber);
-      // Remover de la animación de rotura
-      setBarrierBreaking(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(barrierNumber);
-        return newSet;
-      });
+      saveBrokenBarrier(barrierIndex);
     });
   };
 
   // Manejar toque en la barrera
-  const handleBarrierTap = (barrierNumber: number) => {
-    const requiredStars = getBarrierStarRequirement(barrierNumber);
-    const totalStars = getTotalStars();
-    const currentTaps = barrierTaps[barrierNumber] || 0;
-    
-    // Inicializar animaciones si no existen
-    if (!barrierScaleAnims.current[barrierNumber]) {
-      barrierScaleAnims.current[barrierNumber] = new Animated.Value(1);
-    }
-    
-    // Animación de latido rápido al tocar
-    const scaleAnim = barrierScaleAnims.current[barrierNumber];
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.15,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    
+  const handleBarrierTap = (barrierIndex: number) => {
     // Verificar si el nivel anterior está completado con al menos 1 estrella
-    if (!isPreviousLevelCompleted(barrierNumber)) {
+    if (!isPreviousLevelCompleted(barrierIndex)) {
       // Reproducir sonido de error
       onPlayErrorSound?.();
       return;
     }
     
     // Verificar si tiene las estrellas necesarias
+    const requiredStars = getBarrierStarRequirement(barrierIndex);
+    const totalStars = getTotalStars();
     if (totalStars < requiredStars) {
       // Reproducir sonido de error
       onPlayErrorSound?.();
@@ -355,91 +374,26 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
     }
     
     // Si ya está desbloqueada, no hacer nada
-    if (currentTaps >= 3) {
+    if (isBarrierUnlocked(barrierIndex)) {
       return;
     }
     
-    // Incrementar contador de toques
-    const newTaps = currentTaps + 1;
-    setBarrierTaps(prev => ({ ...prev, [barrierNumber]: newTaps }));
-    
-    // Reproducir sonido de toque
-    onPlaySound?.();
-    
-    // Inicializar animaciones si no existen
-    if (!barrierAnimations.current[barrierNumber]) {
-      barrierAnimations.current[barrierNumber] = new Animated.Value(0);
-    }
-    
-    // Animación de "romperse" - shake
-    const shakeAnim = barrierAnimations.current[barrierNumber];
-    const scaleAnimForShake = barrierScaleAnims.current[barrierNumber];
-    
-    // Animación de shake (temblor)
-    Animated.sequence([
-      Animated.parallel([
-        Animated.sequence([
-          Animated.timing(shakeAnim, {
-            toValue: -10,
-            duration: 50,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shakeAnim, {
-            toValue: 10,
-            duration: 50,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shakeAnim, {
-            toValue: -5,
-            duration: 50,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shakeAnim, {
-            toValue: 0,
-            duration: 50,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.sequence([
-          Animated.timing(scaleAnimForShake, {
-            toValue: 0.95,
-            duration: 100,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnimForShake, {
-            toValue: 1,
-            duration: 100,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]),
-    ]).start();
-    
-    // Si se completaron los 3 toques, iniciar animación de rotura
-    if (newTaps >= 3) {
-      // Pequeño delay antes de la animación de rotura
-      setTimeout(() => {
-        animateBarrierBreak(barrierNumber);
-      }, 300);
-    } else {
-      // Si no se completaron los 3 toques, usar la animación de shake existente
-      // (ya se ejecutó arriba)
-    }
+    // Con un solo toque, eliminar la barrera
+    animateBarrierBreak(barrierIndex);
   };
 
   // Verificar si un nivel puede estar desbloqueado (considerando barreras)
   const canLevelBeUnlocked = (levelId: number): boolean => {
-    // Si el nivel es 1-5, no hay barrera
-    if (levelId <= 5) {
+    // Buscar si hay una barrera que bloquea este nivel
+    const barrierIndex = getBarrierIndexForLevel(levelId);
+    
+    // Si no hay barrera que bloquee este nivel, está desbloqueado
+    if (barrierIndex === null) {
       return true;
     }
     
-    // Determinar qué barrera controla este nivel
-    // Niveles 6-10 necesitan barrera 1, niveles 11-15 necesitan barrera 2, etc.
-    const barrierNumber = Math.floor((levelId - 1) / 5);
-    
     // Verificar si esa barrera está desbloqueada
-    return isBarrierUnlocked(barrierNumber);
+    return isBarrierUnlocked(barrierIndex);
   };
 
   // Obtener colores para un nivel específico
@@ -537,129 +491,83 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
           const levelColors = getLevelColors(level.id, isLocked);
           
           // Verificar si hay una barrera antes de este nivel
-          const barrierNumber = getBarrierBeforeLevel(level.id);
-          const showBarrier = barrierNumber !== null && !brokenBarriers.has(barrierNumber!);
-          const barrierUnlocked = barrierNumber !== null ? isBarrierUnlocked(barrierNumber) : true;
-          const barrierRequiredStars = barrierNumber !== null ? getBarrierStarRequirement(barrierNumber) : 0;
-          const isBreaking = barrierNumber !== null ? barrierBreaking.has(barrierNumber) : false;
+          const barrierIndex = getBarrierIndexForLevel(level.id);
+          const showBarrier = barrierIndex !== null && !brokenBarriers.has(barrierIndex);
+          const barrierUnlocked = barrierIndex !== null ? isBarrierUnlocked(barrierIndex) : true;
+          const barrierRequiredStars = barrierIndex !== null ? getBarrierStarRequirement(barrierIndex) : 0;
+          const barrierNextLevel = barrierIndex !== null ? getBarrierInfo(barrierIndex).levelAfter + 1 : 0;
+          const canRemoveBarrier = barrierIndex !== null ? canBarrierBeRemoved(barrierIndex) : false;
+          
+          // Inicializar animación de opacidad si no existe
+          if (barrierIndex !== null && !barrierOpacityAnim.current[barrierIndex]) {
+            barrierOpacityAnim.current[barrierIndex] = new Animated.Value(1);
+          }
+          
+          // Inicializar animación de pulso si no existe
+          if (barrierIndex !== null && !barrierPulseAnims.current[barrierIndex]) {
+            barrierPulseAnims.current[barrierIndex] = new Animated.Value(1);
+          }
           
           return (
             <React.Fragment key={level.id}>
               {/* Mostrar barrera antes del nivel si corresponde y no está rota */}
               {showBarrier && (
-                <View style={styles.barrierRow}>
-                  {isBreaking ? (
-                    // Animación de partición: dos mitades separándose
-                    <View style={styles.barrierBreakingContainer}>
-                      {/* Mitad izquierda */}
-                      <Animated.View
-                        style={[
-                          styles.barrierHalf,
-                          styles.barrierHalfLeft,
-                          barrierLeftHalfAnim.current[barrierNumber!] && {
-                            transform: [
-                              { translateX: barrierLeftHalfAnim.current[barrierNumber!] },
-                            ],
-                            opacity: barrierOpacityAnim.current[barrierNumber!] || 1,
-                          },
-                        ]}
+                <Animated.View 
+                  style={[
+                    styles.barrierRow,
+                    barrierOpacityAnim.current[barrierIndex!] && {
+                      opacity: barrierOpacityAnim.current[barrierIndex!],
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    onPress={() => handleBarrierTap(barrierIndex!)}
+                    activeOpacity={1}
+                    disabled={barrierUnlocked}
+                  >
+                    <Animated.View
+                      style={[
+                        styles.barrierContainer,
+                        {
+                          transform: [
+                            // Animación de latido rápido cuando puede eliminarse
+                            canRemoveBarrier && barrierPulseAnims.current[barrierIndex!] ? 
+                              { scale: barrierPulseAnims.current[barrierIndex!] } : 
+                              { scale: 1 },
+                          ],
+                        },
+                      ]}
+                    >
+                      <LinearGradient
+                        colors={['#666', '#555']}
+                        style={styles.barrierGradient}
                       >
-                        <LinearGradient
-                          colors={['#666', '#555']}
-                          style={[styles.barrierGradient, styles.barrierGradientHalf]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                        >
+                        {!barrierUnlocked && (
                           <Image 
                             source={require('../assets/Iconos/lock.png')} 
-                            style={[styles.barrierLockIcon, { width: 20, height: 20 }]}
+                            style={styles.barrierLockIcon}
                             resizeMode="contain" 
                           />
-                          <Text style={[styles.barrierText, { fontSize: 14 }]}>
-                            {barrierRequiredStars}
-                          </Text>
-                        </LinearGradient>
-                      </Animated.View>
-                      {/* Mitad derecha */}
-                      <Animated.View
-                        style={[
-                          styles.barrierHalf,
-                          styles.barrierHalfRight,
-                          barrierRightHalfAnim.current[barrierNumber!] && {
-                            transform: [
-                              { translateX: barrierRightHalfAnim.current[barrierNumber!] },
-                            ],
-                            opacity: barrierOpacityAnim.current[barrierNumber!] || 1,
-                          },
-                        ]}
-                      >
-                        <LinearGradient
-                          colors={['#666', '#555']}
-                          style={[styles.barrierGradient, styles.barrierGradientHalf]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                        >
-                          <View style={styles.barrierStarsContainer}>
-                            <Text style={styles.barrierStar}>⭐</Text>
+                        )}
+                        <Text style={styles.barrierText}>
+                          {`Nivel ${barrierNextLevel}`}
+                        </Text>
+                        <View style={styles.barrierStarsContainer}>
+                          <Image 
+                            source={require('../assets/Iconos/star.png')} 
+                            style={styles.barrierStar}
+                            resizeMode="contain" 
+                          />
+                          {!barrierUnlocked && (
                             <Text style={styles.barrierStarsText}>
                               {getTotalStars()} / {barrierRequiredStars}
                             </Text>
-                          </View>
-                        </LinearGradient>
-                      </Animated.View>
-                    </View>
-                  ) : (
-                    // Barrera normal
-                    <TouchableOpacity
-                      onPress={() => handleBarrierTap(barrierNumber!)}
-                      activeOpacity={1}
-                      disabled={barrierUnlocked}
-                    >
-                      <Animated.View
-                        style={[
-                          styles.barrierContainer,
-                          {
-                            transform: [
-                              barrierAnimations.current[barrierNumber!] ? { translateX: barrierAnimations.current[barrierNumber!] } : { translateX: 0 },
-                              { scale: barrierScaleAnims.current[barrierNumber!] || 1 },
-                            ],
-                          },
-                        ]}
-                      >
-                        <LinearGradient
-                          colors={barrierUnlocked ? ['#4CAF50', '#45a049'] : ['#666', '#555']}
-                          style={styles.barrierGradient}
-                        >
-                          {!barrierUnlocked && (
-                            <Image 
-                              source={require('../assets/Iconos/lock.png')} 
-                              style={styles.barrierLockIcon}
-                              resizeMode="contain" 
-                            />
                           )}
-                          <Text style={styles.barrierText}>
-                            {barrierUnlocked ? '✓' : barrierRequiredStars}
-                          </Text>
-                          <View style={styles.barrierStarsContainer}>
-                            <Text style={styles.barrierStar}>⭐</Text>
-                            {!barrierUnlocked && (
-                              <Text style={styles.barrierStarsText}>
-                                {getTotalStars()} / {barrierRequiredStars}
-                              </Text>
-                            )}
-                          </View>
-                          {!barrierUnlocked && barrierTaps[barrierNumber!] > 0 && (
-                            <View style={styles.barrierProgressContainer}>
-                              <Text style={styles.barrierProgressText}>
-                                {barrierTaps[barrierNumber!]} / 3
-                              </Text>
-                            </View>
-                          )}
-                        </LinearGradient>
-                      </Animated.View>
-                    </TouchableOpacity>
-                  )}
-                </View>
+                        </View>
+                      </LinearGradient>
+                    </Animated.View>
+                  </TouchableOpacity>
+                </Animated.View>
               )}
               
               <View 
@@ -737,14 +645,14 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
                       <View style={styles.starsContainer}>
                       {/* Estrella 1: Completar nivel */}
                       <View style={styles.starWithIcon}>
-                        <Text
+                        <Image 
+                          source={require('../assets/Iconos/star.png')} 
                           style={[
                             styles.star,
                             { opacity: starsCount >= 1 ? 1 : 0.3 }
                           ]}
-                        >
-                          ⭐
-                        </Text>
+                          resizeMode="contain" 
+                        />
                         <Image 
                           source={require('../assets/Iconos/burger.png')} 
                           style={[
@@ -757,14 +665,14 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
                         
                         {/* Estrella 2: Tiempo */}
                         <View style={styles.starWithIcon}>
-                          <Text
+                          <Image 
+                            source={require('../assets/Iconos/star.png')} 
                             style={[
                               styles.star,
                               { opacity: (stars && stars.timeBonus) ? 1 : 0.3 }
                             ]}
-                          >
-                            ⭐
-                          </Text>
+                            resizeMode="contain" 
+                          />
                           <Image 
                             source={require('../assets/Iconos/time.png')} 
                             style={[
@@ -777,14 +685,14 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
                         
                         {/* Estrella 3: Eliminaciones */}
                         <View style={styles.starWithIcon}>
-                          <Text
+                          <Image 
+                            source={require('../assets/Iconos/star.png')} 
                             style={[
                               styles.star,
                               { opacity: (stars && stars.destructionBonus) ? 1 : 0.3 }
                             ]}
-                          >
-                            ⭐
-                          </Text>
+                            resizeMode="contain" 
+                          />
                           <Image 
                             source={require('../assets/Iconos/rubber.png')} 
                             style={[

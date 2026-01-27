@@ -88,14 +88,14 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
             <View style={styles.starsRow}>
               {/* Estrella 1: Completar nivel */}
               <View style={styles.starWithIcon}>
-                <Text
+                <Image 
+                  source={require('../assets/Iconos/star.png')} 
                   style={[
                     styles.star,
                     { opacity: levelStars.stars >= 1 ? 1 : 0.3 }
                   ]}
-                >
-                  ⭐
-                </Text>
+                  resizeMode="contain" 
+                />
                 <Image 
                   source={require('../assets/Iconos/burger.png')} 
                   style={[
@@ -108,14 +108,14 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
               
               {/* Estrella 2: Tiempo */}
               <View style={styles.starWithIcon}>
-                <Text
+                <Image 
+                  source={require('../assets/Iconos/star.png')} 
                   style={[
                     styles.star,
                     { opacity: levelStars.timeBonus ? 1 : 0.3 }
                   ]}
-                >
-                  ⭐
-                </Text>
+                  resizeMode="contain" 
+                />
                 <Image 
                   source={require('../assets/Iconos/time.png')} 
                   style={[
@@ -128,14 +128,14 @@ const ResultScreen: React.FC<ResultScreenProps> = ({
               
               {/* Estrella 3: Eliminaciones */}
               <View style={styles.starWithIcon}>
-                <Text
+                <Image 
+                  source={require('../assets/Iconos/star.png')} 
                   style={[
                     styles.star,
                     { opacity: levelStars.destructionBonus ? 1 : 0.3 }
                   ]}
-                >
-                  ⭐
-                </Text>
+                  resizeMode="contain" 
+                />
                 <Image 
                   source={require('../assets/Iconos/rubber.png')} 
                   style={[

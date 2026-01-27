@@ -98,11 +98,12 @@ export const styles = StyleSheet.create({
     gap: 4,
   },
   star: {
-    fontSize: 18,
+    width: 28,
+    height: 28,
   },
   starIcon: {
-    width: 20,
-    height: 20,
+    width: 26,
+    height: 26,
   },
   energyIndicator: {
     position: 'absolute',
@@ -245,48 +246,12 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   barrierStar: {
-    fontSize: 20,
+    width: 24,
+    height: 24,
   },
   barrierStarsText: {
     fontSize: 16,
     fontWeight: '700',
     color: 'white',
-  },
-  barrierProgressContainer: {
-    marginTop: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 22,
-  },
-  barrierProgressText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: 'white',
-  },
-  barrierBreakingContainer: {
-    width: SCREEN_WIDTH * 0.5,
-    height: 100,
-    flexDirection: 'row',
-    overflow: 'hidden',
-  },
-  barrierHalf: {
-    width: '50%',
-    height: '100%',
-  },
-  barrierHalfLeft: {
-    alignItems: 'flex-end',
-    paddingRight: 2,
-  },
-  barrierHalfRight: {
-    alignItems: 'flex-start',
-    paddingLeft: 2,
-  },
-  barrierGradientHalf: {
-    width: '100%',
-    height: '100%',
-    padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

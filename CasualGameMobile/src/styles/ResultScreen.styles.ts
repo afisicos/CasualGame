@@ -195,7 +195,8 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   star: {
-    fontSize: 32,
+    width: 32,
+    height: 32,
   },
   starIcon: {
     width: 28,

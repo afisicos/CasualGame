@@ -39,6 +39,7 @@ interface TabbedMenuScreenProps {
   onWatchAdForEnergy?: () => void;
   onPlaySound?: () => void;
   onPlayErrorSound?: () => void;
+  onPlayDestroySound?: () => void;
   levelStarsData?: Record<number, LevelStars>;
   t: any;
   isFirstTime?: boolean;
@@ -74,6 +75,7 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   onWatchAdForEnergy,
   onPlaySound,
   onPlayErrorSound,
+  onPlayDestroySound,
   levelStarsData = {},
   t,
   isFirstTime = false,
@@ -135,7 +137,11 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
               const totalStars = Object.values(levelStarsData || {}).reduce((sum, stars) => sum + (stars?.stars || 0), 0);
               return totalStars > 0 ? (
                 <View style={[styles.statPill, { marginLeft: 3 }]}>
-                  <Text style={styles.statEmoji}>⭐</Text>
+                  <Image 
+                    source={require('../assets/Iconos/star.png')} 
+                    style={styles.statEmoji}
+                    resizeMode="contain" 
+                  />
                   <Text style={styles.statValue}>{totalStars}</Text>
                 </View>
               ) : null;
@@ -188,6 +194,7 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
             onWatchAdForEnergy={onWatchAdForEnergy}
             onPlaySound={onPlaySound}
             onPlayErrorSound={onPlayErrorSound}
+            onPlayDestroySound={onPlayDestroySound}
             levelStarsData={levelStarsData}
             t={t}
             isFirstTime={isFirstTime}

@@ -3,6 +3,20 @@ import { PieceType, Level, Recipe, IngredientProbability, RecipeTarget } from '.
 export const ENERGY_RECOVERY_TIME = 300; // 5 minutos en segundos
 export const MAX_ENERGY = 10;
 
+// Configuración de barreras
+export interface Barrier {
+  levelAfter: number; // Nivel después del cual aparece la barrera (ej: 5 = barrera aparece antes del nivel 6)
+  requiredStars: number; // Número de estrellas necesarias para poder romper la barrera
+}
+
+export const BARRIERS: Barrier[] = [
+  { levelAfter: 5, requiredStars: 5 }, // Barrera después del nivel 5, requiere 5 estrellas
+  { levelAfter: 10, requiredStars: 12 }, // Barrera después del nivel 10, requiere 10 estrellas
+  { levelAfter: 15, requiredStars: 20 }, // Barrera después del nivel 15, requiere 15 estrellas
+  { levelAfter: 20, requiredStars: 30 },// Agregar más barreras según sea necesario
+  // { levelAfter: 20, requiredStars: 20, requiredTaps: 4 }, // Ejemplo con toques personalizados
+];
+
 export const INGREDIENT_IMAGES: Record<PieceType, any> = {
   BREAD: require('../assets/Ingredientes/bread.png'),
   MEAT: require('../assets/Ingredientes/meat.png'),
