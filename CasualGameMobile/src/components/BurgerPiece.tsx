@@ -61,7 +61,7 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
             useNativeDriver: true,
           }),
           Animated.timing(rotateAnim, {
-            toValue: 2,
+            toValue: 3,
             duration: 250,
             useNativeDriver: true,
           }),
