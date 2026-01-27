@@ -70,6 +70,7 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
   const levelRefs = useRef<{ [key: number]: { y: number; height: number } }>({});
   const [centeredLevelId, setCenteredLevelId] = useState<number | null>(null);
   const heartbeatAnim = useRef(new Animated.Value(1)).current;
+  const ingredientRotationAnim = useRef(new Animated.Value(0)).current;
   const hasScrolledToUnlockedLevel = useRef(false);
   
   // Estado para barreras rotas (guardado persistentemente)
@@ -161,6 +162,36 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
     heartbeat.start();
     return () => heartbeat.stop();
   }, [centeredLevelId, heartbeatAnim]);
+
+  // Animación de rotación sutil en vaivén para los ingredientes cuando el nivel está centrado
+  useEffect(() => {
+    if (centeredLevelId === null) {
+      ingredientRotationAnim.setValue(0);
+      return;
+    }
+    
+    const rotation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ingredientRotationAnim, {
+          toValue: 2,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ingredientRotationAnim, {
+          toValue: -2,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ingredientRotationAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    rotation.start();
+    return () => rotation.stop();
+  }, [centeredLevelId, ingredientRotationAnim]);
 
   useEffect(() => {
     if (isFirstTime && tutorialStep === 1) {
@@ -465,7 +496,7 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
   };
 
   // Calcular padding superior para permitir que el nivel 1 quede centrado
-  const topPadding = Math.max(SCREEN_HEIGHT / 2 - 65, 20); // 65 es aproximadamente la mitad de la altura del nivel
+  const topPadding = Math.max(SCREEN_HEIGHT / 2 - 200, 20); // 65 es aproximadamente la mitad de la altura del nivel
 
   return (
     <View style={styles.container}>
@@ -577,9 +608,23 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
               <View style={styles.levelRowContent}>
                 {/* Icono del ingrediente nuevo - izquierda */}
                 {hasNewIngredient && (
-                  <View style={styles.newIngredientIconSide}>
+                  <Animated.View 
+                    style={[
+                      styles.newIngredientIconSide,
+                      !isLocked && level.id === centeredLevelId && {
+                        transform: [
+                          {
+                            rotate: ingredientRotationAnim.interpolate({
+                              inputRange: [-1, 1],
+                              outputRange: ['-8deg', '8deg'],
+                            }),
+                          },
+                        ],
+                      },
+                    ]}
+                  >
                     <BurgerPiece type={level.newIngredient!} scale={1.2} gridSize={8} />
-                  </View>
+                  </Animated.View>
                 )}
                 
                 <Animated.View
@@ -721,9 +766,23 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
                 
                 {/* Icono del ingrediente nuevo - derecha */}
                 {hasNewIngredient && (
-                  <View style={styles.newIngredientIconSide}>
+                  <Animated.View 
+                    style={[
+                      styles.newIngredientIconSide,
+                      !isLocked && level.id === centeredLevelId && {
+                        transform: [
+                          {
+                            rotate: ingredientRotationAnim.interpolate({
+                              inputRange: [-1, 1],
+                              outputRange: ['-8deg', '8deg'],
+                            }),
+                          },
+                        ],
+                      },
+                    ]}
+                  >
                     <BurgerPiece type={level.newIngredient!} scale={1.2} gridSize={8} />
-                  </View>
+                  </Animated.View>
                 )}
               </View>
             </View>
