@@ -15,12 +15,36 @@ interface GameBoardProps {
   selectionType?: 'burger' | 'delete'; // Nuevo: tipo de selección
 }
 
+// Función para generar un valor pseudoaleatorio basado en un ID (consistente)
+const seededRandom = (seed: number) => {
+  if (typeof seed !== 'number' || isNaN(seed)) return 0.5;
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
+
 // Componente memoizado para animar cada pieza individualmente fuera del render principal
 const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, cellSize: number, gridSize: number }) => {
   // Calculamos la posición inicial: solo si es nueva de verdad empezamos arriba
   const initialY = piece.isNew ? -cellSize * 2 : piece.row * cellSize;
   const animX = useRef(new Animated.Value(piece.col * cellSize)).current;
   const animY = useRef(new Animated.Value(initialY)).current;
+  
+  // Generar valores aleatorios únicos para cada pieza basados en su ID (una sola vez)
+  const pieceSeed = typeof piece.id === 'number' ? piece.id : (piece.row || 0) * 1000 + (piece.col || 0);
+  const rotationOffsetRef = useRef((seededRandom(pieceSeed) - 0.5) * 4); // Offset inicial entre -2 y 2 grados
+  const baseDurationRef = useRef(1500 + seededRandom(pieceSeed + 100) * 1000); // Duración base entre 1500-2500ms
+  const maxRotationRef = useRef(3 + seededRandom(pieceSeed + 200) * 2); // Rotación máxima entre 3-5 grados
+  
+  // Asegurar que los valores sean números válidos
+  const rotationOffset = isNaN(rotationOffsetRef.current) ? 0 : rotationOffsetRef.current;
+  const baseDuration = isNaN(baseDurationRef.current) ? 2000 : Math.max(1000, baseDurationRef.current);
+  const maxRotation = isNaN(maxRotationRef.current) ? 4 : Math.max(2, maxRotationRef.current);
+  
+  // Inicializar la animación en un punto aleatorio del ciclo para evitar sincronización
+  const initialRotationValue = useRef(
+    rotationOffset + (seededRandom(pieceSeed + 300) - 0.5) * maxRotation * 2
+  ).current;
+  const rotationAnim = useRef(new Animated.Value(initialRotationValue)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -39,6 +63,47 @@ const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, c
     ]).start();
   }, [piece.row, piece.col, cellSize]);
 
+  // Animación de rotación sutil en vaivén fluida y continua (sin saltos)
+  useEffect(() => {
+    const target1 = rotationOffset + maxRotation;
+    const target2 = rotationOffset - maxRotation;
+    
+    // Inicializar desde un punto que permita transición suave
+    rotationAnim.setValue(initialRotationValue);
+    
+    // Función recursiva para crear animación continua sin saltos
+    const createContinuousAnimation = (currentValue: number, direction: 'up' | 'down') => {
+      const nextTarget = direction === 'up' ? target1 : target2;
+      const nextDirection = direction === 'up' ? 'down' : 'up';
+      
+      return Animated.timing(rotationAnim, {
+        toValue: nextTarget,
+        duration: baseDuration,
+        useNativeDriver: true,
+      }).start((finished) => {
+        if (finished) {
+          // Cuando termina, iniciar la siguiente animación inmediatamente
+          createContinuousAnimation(nextTarget, nextDirection);
+        }
+      });
+    };
+    
+    // Determinar la dirección inicial basada en el valor inicial
+    const range = maxRotation * 2;
+    const normalizedStart = Math.max(0, Math.min(1, (initialRotationValue - target2) / range));
+    const initialDirection = normalizedStart < 0.5 ? 'up' : 'down';
+    
+    // Pequeño delay para evitar que todas las piezas empiecen al mismo tiempo
+    const startDelay = setTimeout(() => {
+      createContinuousAnimation(initialRotationValue, initialDirection);
+    }, (pieceSeed % 100) * 10);
+    
+    return () => {
+      clearTimeout(startDelay);
+      rotationAnim.stopAnimation();
+    };
+  }, [rotationAnim, rotationOffset, maxRotation, baseDuration, initialRotationValue, pieceSeed]);
+
   return (
     <Animated.View 
       style={{
@@ -47,7 +112,17 @@ const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, c
         height: cellSize,
         transform: [
           { translateX: animX },
-          { translateY: animY }
+          { translateY: animY },
+          {
+            rotate: rotationAnim.interpolate({
+              inputRange: [rotationOffset - maxRotation, rotationOffset + maxRotation],
+              outputRange: [
+                `${rotationOffset - maxRotation}deg`, 
+                `${rotationOffset + maxRotation}deg`
+              ],
+              extrapolate: 'clamp',
+            }),
+          },
         ],
         alignItems: 'center',
         justifyContent: 'center',
