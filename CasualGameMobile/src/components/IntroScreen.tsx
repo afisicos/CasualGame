@@ -166,15 +166,15 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
 
         {/* ZONA: REQUERIMIENTOS DE ESTRELLAS */}
         <View style={styles.starsRequirementsSection}>
-          <Text style={styles.starsRequirementsTitle}>Objetivos extra</Text>
+          <Text style={styles.starsRequirementsTitle}>{t.extra_objectives}</Text>
           <View style={styles.requirementsRow}>
             <View style={styles.requirementItem}>
               <Text style={styles.requirementIcon}>⏱️</Text>
               <Text style={styles.requirementText}>
-                Tiempo: {timeLimit}s
+                {t.time_requirement.replace('{time}', timeLimit.toString())}
               </Text>
               <Text style={styles.requirementDesc}>
-                Supera el nivel en menos tiempo
+                {t.time_requirement_desc}
               </Text>
             </View>
             <View style={styles.requirementItem}>
@@ -184,10 +184,10 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
                 resizeMode="contain" 
               />
               <Text style={styles.requirementText}>
-                Eliminaciones: {destructionLimit || 25}
+                {t.destructions_requirement.replace('{count}', (destructionLimit || 25).toString())}
               </Text>
               <Text style={styles.requirementDesc}>
-                Supera el nivel con menos eliminaciones de ingredientes
+                {t.destructions_requirement_desc}
               </Text>
             </View>
           </View>
@@ -322,7 +322,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.backButtonInline} onPress={() => { onPlaySound?.(); onBack(); }}>
-            <Text style={styles.backTextInline}>Volver</Text>
+            <Text style={styles.backTextInline}>{t.back}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -397,7 +397,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({
               ) : (
                 <View style={styles.noIngredientsContainer}>
                   <Text style={styles.noIngredientsText}>
-                    No hay ingredientes disponibles para inhibir en este nivel
+                    {t.no_ingredients_to_inhibit}
                   </Text>
                 </View>
               )}

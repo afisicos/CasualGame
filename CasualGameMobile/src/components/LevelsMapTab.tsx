@@ -581,7 +581,7 @@ const LevelsMapTab: React.FC<LevelsMapTabProps> = ({
                           />
                         )}
                         <Text style={styles.barrierText}>
-                          {`Nivel ${barrierNextLevel}`}
+                          {`${t.level_prefix} ${barrierNextLevel}`}
                         </Text>
                         <View style={styles.barrierStarsContainer}>
                           <Image 

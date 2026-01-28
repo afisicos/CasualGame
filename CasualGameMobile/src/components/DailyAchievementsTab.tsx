@@ -67,7 +67,7 @@ const DailyAchievementsTab: React.FC<DailyAchievementsTabProps> = ({
 
               <View style={styles.rewardContainer}>
                 <View style={styles.rewardTextContainer}>
-                  <Text style={styles.rewardLabel}>Recompensa:</Text>
+                  <Text style={styles.rewardLabel}>{t.reward}</Text>
                   <Text style={styles.rewardValue}>{achievement.reward}</Text>
                   <Image source={require('../assets/Iconos/coin.png')} style={styles.rewardIcon} />
                 </View>
