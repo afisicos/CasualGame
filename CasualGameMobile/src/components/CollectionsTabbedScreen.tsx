@@ -2,13 +2,11 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from '../styles/CollectionsTabbedScreen.styles';
-import { BASE_RECIPES, getUnlockedIngredientsForCampaign } from '../constants/gameData';
+import { getUnlockedIngredientsForCampaign, BASE_RECIPES } from '../constants/gameData';
 import { PieceType } from '../types';
-import BurgerPiece from './BurgerPiece';
 
 interface CollectionsTabbedScreenProps {
   // Props para Arcade
-  arcadeUnlockedLevel: number;
   arcadeHighScore: number;
   energy: number;
   maxEnergy: number;
@@ -17,7 +15,6 @@ interface CollectionsTabbedScreenProps {
   
   // Props para Recetas
   discoveredRecipes: string[];
-  unlockedRecipes: string[];
   onRecipesBook?: () => void;
   
   // Props para Ingredientes
@@ -32,14 +29,12 @@ interface CollectionsTabbedScreenProps {
 }
 
 const CollectionsTabbedScreen: React.FC<CollectionsTabbedScreenProps> = ({
-  arcadeUnlockedLevel,
   arcadeHighScore,
   energy,
   maxEnergy,
   onStartArcade,
   onWatchAdForEnergy,
   discoveredRecipes,
-  unlockedRecipes,
   onRecipesBook,
   unlockedLevel,
   onIngredientsBook,
@@ -111,15 +106,9 @@ const CollectionsTabbedScreen: React.FC<CollectionsTabbedScreenProps> = ({
     };
   }, []);
 
-  // Filtrar solo las recetas completamente descubiertas
-  const availableRecipes = BASE_RECIPES.filter(recipe =>
-    discoveredRecipes.includes(recipe.id)
-  );
-
   // Calcular progreso de recetas
   const totalRecipes = BASE_RECIPES.length;
-  const unlockedCount = availableRecipes.length;
-  const recipesProgressPercentage = totalRecipes > 0 ? (unlockedCount / totalRecipes) * 100 : 0;
+  const unlockedCount = discoveredRecipes.length;
 
   // Obtener ingredientes desbloqueados
   const unlockedIngredientsData = getUnlockedIngredientsForCampaign(unlockedLevel);

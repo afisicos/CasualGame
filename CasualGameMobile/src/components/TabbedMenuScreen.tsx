@@ -39,7 +39,6 @@ interface TabbedMenuScreenProps {
   onIngredientsBook?: () => void;
   onWatchAdForEnergy?: () => void;
   discoveredRecipes: string[];
-  unlockedRecipes: string[];
   onPlaySound?: () => void;
   onPlayErrorSound?: () => void;
   onPlayDestroySound?: () => void;
@@ -82,7 +81,6 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   onIngredientsBook,
   onWatchAdForEnergy,
   discoveredRecipes,
-  unlockedRecipes,
   onPlaySound,
   onPlayErrorSound,
   onPlayDestroySound,
@@ -256,14 +254,12 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
         {/* Pestaña 3: Colecciones (Arcade + Recetas + Ingredientes) */}
         <View style={styles.tabContainer}>
           <CollectionsTabbedScreen
-            arcadeUnlockedLevel={arcadeUnlockedLevel}
             arcadeHighScore={arcadeHighScore}
             energy={energy}
             maxEnergy={maxEnergy}
             onStartArcade={onStartArcade}
             onWatchAdForEnergy={onWatchAdForEnergy}
             discoveredRecipes={discoveredRecipes}
-            unlockedRecipes={unlockedRecipes}
             onRecipesBook={onRecipesBook}
             unlockedLevel={unlockedLevel}
             onIngredientsBook={onIngredientsBook}

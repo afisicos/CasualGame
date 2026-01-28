@@ -1786,10 +1786,6 @@ function GameContent() {
             />
           );
         case 'MENU':
-          const campaignUnlockedRecipes = getUnlockedRecipesForCampaign(unlockedLevel);
-          const arcadeUnlockedRecipes = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
-          const allUnlockedRecipes = [...new Set([...campaignUnlockedRecipes, ...arcadeUnlockedRecipes])];
-          
           return (
             <TabbedMenuScreen
               levels={LEVELS}
@@ -1815,7 +1811,6 @@ function GameContent() {
               dailyAchievements={dailyAchievements.achievements}
               onClaimAchievementReward={handleClaimAchievementReward}
               discoveredRecipes={discoveredRecipes}
-              unlockedRecipes={allUnlockedRecipes}
             onStartLevel={(l) => {
               setSelectedLevel(l);
               setScreen('INTRO');
