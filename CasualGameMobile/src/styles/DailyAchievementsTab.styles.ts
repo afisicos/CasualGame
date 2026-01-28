@@ -8,8 +8,9 @@ export const styles = StyleSheet.create({
     width: width,
   },
   content: {
+    flex: 1,
     padding: 20,
-    paddingTop: 80, // Espacio para el header bar
+    paddingTop: 0,
   },
   title: {
     fontSize: 28,

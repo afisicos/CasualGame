@@ -1,4 +1,4 @@
-export type PieceType = 'BREAD' | 'MEAT' | 'CHEESE' | 'LETTUCE' | 'TOMATO' | 'BACON' | 'KETCHUP' | 'PICKLE' | 'ONION' | 'EGG';
+export type PieceType = 'BREAD' | 'MEAT' | 'CHEESE' | 'LETTUCE' | 'TOMATO' | 'BACON' | 'KETCHUP' | 'PICKLE' | 'ONION' | 'EGG' | 'AVOCADO' | 'JALAPENO' | 'BEETROOT';
 export interface Recipe {
   id: string;
   name: string;
@@ -7,7 +7,7 @@ export interface Recipe {
   discovered?: boolean;
 }
 
-export type Screen = 'SPLASH' | 'MENU' | 'INTRO' | 'ARCADE_INTRO' | 'GAME' | 'RESULT' | 'OPTIONS' | 'SHOP' | 'RECIPES_BOOK';
+export type Screen = 'SPLASH' | 'MENU' | 'INTRO' | 'ARCADE_INTRO' | 'GAME' | 'RESULT' | 'OPTIONS' | 'SHOP' | 'RECIPES_BOOK' | 'INGREDIENTS_BOOK';
 export type GameMode = 'CAMPAIGN' | 'ARCADE';
 
 export interface Piece {

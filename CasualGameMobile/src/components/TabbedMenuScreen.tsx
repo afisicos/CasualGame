@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { View, ScrollView, Dimensions, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LevelsMapTab from './LevelsMapTab';
-import ArcadeTab from './ArcadeTab';
-import RecipesTab from './RecipesTab';
 import DailyAchievementsTab from './DailyAchievementsTab';
+import CollectionsTabbedScreen from './CollectionsTabbedScreen';
 import { Level, LevelStars, DailyAchievement } from '../types';
 import { styles } from '../styles/TabbedMenuScreen.styles';
 
@@ -37,7 +36,10 @@ interface TabbedMenuScreenProps {
   onOptions: () => void;
   onShop: () => void;
   onRecipesBook?: () => void;
+  onIngredientsBook?: () => void;
   onWatchAdForEnergy?: () => void;
+  discoveredRecipes: string[];
+  unlockedRecipes: string[];
   onPlaySound?: () => void;
   onPlayErrorSound?: () => void;
   onPlayDestroySound?: () => void;
@@ -47,6 +49,8 @@ interface TabbedMenuScreenProps {
   t: any;
   isFirstTime?: boolean;
   tutorialStep?: number;
+  initialTab?: number;
+  onTabChange?: (index: number) => void;
 }
 
 const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
@@ -75,7 +79,10 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   onOptions,
   onShop,
   onRecipesBook,
+  onIngredientsBook,
   onWatchAdForEnergy,
+  discoveredRecipes,
+  unlockedRecipes,
   onPlaySound,
   onPlayErrorSound,
   onPlayDestroySound,
@@ -85,16 +92,45 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   t,
   isFirstTime = false,
   tutorialStep = 0,
+  initialTab = 0,
+  onTabChange,
 }) => {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(initialTab);
+
+  // Sincronizar currentPage con initialTab si este cambia externamente
+  // Usar useLayoutEffect para evitar parpadeo visual
+  useLayoutEffect(() => {
+    if (initialTab !== currentPage) {
+      setCurrentPage(initialTab);
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({
+          x: initialTab * SCREEN_WIDTH,
+          animated: false,
+        });
+      }
+    }
+  }, [initialTab, currentPage]);
+
+  // Manejar el desplazamiento inicial al montar
+  useLayoutEffect(() => {
+    if (initialTab !== 0 && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        x: initialTab * SCREEN_WIDTH,
+        animated: false,
+      });
+    }
+  }, []);
 
   // Manejar el cambio de página al deslizar
   const handleScroll = (event: any) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const page = Math.round(offsetX / SCREEN_WIDTH);
-    setCurrentPage(page);
+    if (page !== currentPage) {
+      setCurrentPage(page);
+      onTabChange?.(page);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -217,26 +253,20 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
           />
         </View>
 
-        {/* Pestaña 3: Arcade */}
+        {/* Pestaña 3: Colecciones (Arcade + Recetas + Ingredientes) */}
         <View style={styles.tabContainer}>
-          <ArcadeTab
+          <CollectionsTabbedScreen
             arcadeUnlockedLevel={arcadeUnlockedLevel}
             arcadeHighScore={arcadeHighScore}
             energy={energy}
             maxEnergy={maxEnergy}
             onStartArcade={onStartArcade}
             onWatchAdForEnergy={onWatchAdForEnergy}
-            onPlaySound={onPlaySound}
-            t={t}
-            isFirstTime={isFirstTime}
-            tutorialStep={tutorialStep}
-          />
-        </View>
-
-        {/* Pestaña 4: Recetas */}
-        <View style={styles.tabContainer}>
-          <RecipesTab
+            discoveredRecipes={discoveredRecipes}
+            unlockedRecipes={unlockedRecipes}
             onRecipesBook={onRecipesBook}
+            unlockedLevel={unlockedLevel}
+            onIngredientsBook={onIngredientsBook}
             onPlaySound={onPlaySound}
             t={t}
             isFirstTime={isFirstTime}
@@ -250,7 +280,6 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
         <View style={[styles.indicator, currentPage === 0 && styles.indicatorActive]} />
         <View style={[styles.indicator, currentPage === 1 && styles.indicatorActive]} />
         <View style={[styles.indicator, currentPage === 2 && styles.indicatorActive]} />
-        <View style={[styles.indicator, currentPage === 3 && styles.indicatorActive]} />
       </View>
     </View>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { DailyAchievement, PieceType } from '../types';
 import { INGREDIENT_IMAGES } from '../constants/gameData';
 import { styles } from '../styles/DailyAchievementsTab.styles';
@@ -39,7 +39,7 @@ const DailyAchievementsTab: React.FC<DailyAchievementsTabProps> = ({
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.content}>
         <Text style={styles.title}>{t.daily_achievements}</Text>
         
         {achievements.map((achievement) => {
@@ -95,7 +95,7 @@ const DailyAchievementsTab: React.FC<DailyAchievementsTabProps> = ({
             </View>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 };

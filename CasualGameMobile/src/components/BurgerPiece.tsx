@@ -96,9 +96,18 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
       case 'PICKLE': return require('../assets/Ingredientes/pickle.png');
       case 'ONION': return require('../assets/Ingredientes/onion.png');
       case 'EGG': return require('../assets/Ingredientes/egg.png');
-      default: return null;
+      case 'AVOCADO': return require('../assets/Ingredientes/avocado.png');
+      case 'JALAPENO': return require('../assets/Ingredientes/jalapeno.png');
+      case 'BEETROOT': return require('../assets/Ingredientes/remolacha.png');
+      default: return require('../assets/Ingredientes/bread.png');
     }
   };
+
+  const imageSource = getImage();
+  
+  if (!imageSource) {
+    return null;
+  }
 
   return (
     <Animated.View style={[
@@ -115,7 +124,7 @@ const BurgerPiece: React.FC<BurgerPieceProps> = ({ type, scale = 1, gridSize = 7
       }
     ]}>
       <Image 
-        source={getImage()} 
+        source={imageSource} 
         style={{ width: imageSize, height: imageSize }} 
         resizeMode="contain"
       />

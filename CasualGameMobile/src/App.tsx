@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, Component } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, Component } from 'react';
 import { StyleSheet, View, Vibration, Text, StatusBar, TouchableOpacity, BackHandler, Image, ImageBackground, Alert, Dimensions, LayoutAnimation, Platform, UIManager, ScrollView, Animated, AppState } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,6 +18,7 @@ import SplashScreen from './components/SplashScreen';
 import OptionsScreen from './components/OptionsScreen';
 import ShopScreen from './components/ShopScreen';
 import RecipesBookScreen from './components/RecipesBookScreen';
+import IngredientsBookScreen from './components/IngredientsBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe, IngredientProbability, LevelStars } from './types';
 import { getLevelTargets } from './constants/gameData';
@@ -212,6 +213,9 @@ const RecipeToastItem: React.FC<{ toast: RecipeToastData; onComplete: (id: strin
 function GameContent() {
   const insets = useSafeAreaInsets();
   const [screen, setScreen] = useState<Screen>('SPLASH');
+  const [menuTab, setMenuTab] = useState(0);
+  const [pendingMenuTab, setPendingMenuTab] = useState<number | null>(null);
+  const previousScreenRef = useRef<Screen>('SPLASH');
   const [toasts, setToasts] = useState<RecipeToastData[]>([]);
 
   const showRecipeToast = (name: string, price: number) => {
@@ -364,6 +368,16 @@ function GameContent() {
     }
   }, [screen]);
 
+  // Establecer el tab antes de cambiar a MENU si hay uno pendiente
+  useLayoutEffect(() => {
+    if (screen === 'MENU' && pendingMenuTab !== null) {
+      setMenuTab(pendingMenuTab);
+      // Limpiar después del render para evitar re-renders innecesarios
+      setTimeout(() => setPendingMenuTab(null), 0);
+    }
+    previousScreenRef.current = screen;
+  }, [screen, pendingMenuTab]);
+
   // Power-ups
   const [timeBoostCount, setTimeBoostCount] = useState<number>(0);
   const [superTimeBoostCount, setSuperTimeBoostCount] = useState<number>(0);
@@ -451,6 +465,11 @@ function GameContent() {
         );
         return true;
       } else if (screen !== 'MENU' && screen !== 'SPLASH') {
+        if (screen === 'RECIPES_BOOK' || screen === 'INGREDIENTS_BOOK') {
+          setMenuTab(2); // Ir a la pestaña de colecciones
+        } else {
+          setMenuTab(0); // Por defecto ir a niveles
+        }
         setScreen('MENU');
         return true;
       }
@@ -1730,19 +1749,47 @@ function GameContent() {
             />
           );
         case 'RECIPES_BOOK':
-          const campaignUnlocked = getUnlockedRecipesForCampaign(unlockedLevel);
-          const arcadeUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
-          const allUnlockedRecipes = [...new Set([...campaignUnlocked, ...arcadeUnlocked])];
+          const recipesBookCampaignUnlocked = getUnlockedRecipesForCampaign(unlockedLevel);
+          const recipesBookArcadeUnlocked = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
+          const recipesBookAllUnlocked = [...new Set([...recipesBookCampaignUnlocked, ...recipesBookArcadeUnlocked])];
 
           return (
             <RecipesBookScreen
               discoveredRecipes={discoveredRecipes}
-              unlockedRecipes={allUnlockedRecipes}
+              unlockedRecipes={recipesBookAllUnlocked}
               onPlaySound={playUIButtonSound}
+              onBack={() => {
+                // Establecer el tab primero usando función de actualización
+                setMenuTab(2);
+                // Usar flushSync o simplemente establecer la pantalla después
+                // React agrupará las actualizaciones, pero el tab se establecerá primero
+                setPendingMenuTab(2);
+                setScreen('MENU');
+              }}
+              t={t}
+            />
+          );
+        case 'INGREDIENTS_BOOK':
+          return (
+            <IngredientsBookScreen
+              unlockedLevel={unlockedLevel}
+              onPlaySound={playUIButtonSound}
+              onBack={() => {
+                // Establecer el tab primero usando función de actualización
+                setMenuTab(2);
+                // Usar flushSync o simplemente establecer la pantalla después
+                // React agrupará las actualizaciones, pero el tab se establecerá primero
+                setPendingMenuTab(2);
+                setScreen('MENU');
+              }}
               t={t}
             />
           );
         case 'MENU':
+          const campaignUnlockedRecipes = getUnlockedRecipesForCampaign(unlockedLevel);
+          const arcadeUnlockedRecipes = getUnlockedRecipesForArcade(arcadeUnlockedLevel);
+          const allUnlockedRecipes = [...new Set([...campaignUnlockedRecipes, ...arcadeUnlockedRecipes])];
+          
           return (
             <TabbedMenuScreen
               levels={LEVELS}
@@ -1767,6 +1814,8 @@ function GameContent() {
               onToggleSuperDestructionPack={setUseSuperDestructionPack}
               dailyAchievements={dailyAchievements.achievements}
               onClaimAchievementReward={handleClaimAchievementReward}
+              discoveredRecipes={discoveredRecipes}
+              unlockedRecipes={allUnlockedRecipes}
             onStartLevel={(l) => {
               setSelectedLevel(l);
               setScreen('INTRO');
@@ -1777,10 +1826,13 @@ function GameContent() {
             }}
             isFirstTime={isFirstTime}
             tutorialStep={tutorialStep}
+            initialTab={pendingMenuTab !== null ? pendingMenuTab : menuTab}
+            onTabChange={setMenuTab}
               onStartArcade={() => setScreen('ARCADE_INTRO')}
               onOptions={() => setScreen('OPTIONS')}
               onShop={() => setScreen('SHOP')}
               onRecipesBook={() => setScreen('RECIPES_BOOK')}
+              onIngredientsBook={() => setScreen('INGREDIENTS_BOOK')}
               onWatchAdForEnergy={handleWatchAdForEnergy}
               onPlaySound={playUIButtonSound}
               onPlayErrorSound={playCancelSound}

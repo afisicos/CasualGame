@@ -25,6 +25,14 @@ export const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
+  backText: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
   title: {
     fontSize: 28,
     fontWeight: '900',

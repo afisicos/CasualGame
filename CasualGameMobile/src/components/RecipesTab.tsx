@@ -7,6 +7,7 @@ const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpaci
 
 interface RecipesTabProps {
   onRecipesBook?: () => void;
+  onIngredientsBook?: () => void;
   onPlaySound?: () => void;
   t: any;
   isFirstTime?: boolean;
@@ -15,12 +16,14 @@ interface RecipesTabProps {
 
 const RecipesTab: React.FC<RecipesTabProps> = ({
   onRecipesBook,
+  onIngredientsBook,
   onPlaySound,
   t,
   isFirstTime = false,
   tutorialStep = 0,
 }) => {
   const recipesButtonScale = useRef(new Animated.Value(1)).current;
+  const ingredientsButtonScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const recipesAnimation = Animated.loop(
@@ -38,7 +41,27 @@ const RecipesTab: React.FC<RecipesTabProps> = ({
       ])
     );
     recipesAnimation.start();
-    return () => recipesAnimation.stop();
+
+    const ingredientsAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ingredientsButtonScale, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(ingredientsButtonScale, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    ingredientsAnimation.start();
+
+    return () => {
+      recipesAnimation.stop();
+      ingredientsAnimation.stop();
+    };
   }, []);
 
   return (
@@ -75,6 +98,35 @@ const RecipesTab: React.FC<RecipesTabProps> = ({
               </Animated.View>
             </View>
             <Text style={styles.arcadeDescription}>{t.recipes_panel_description}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Ingredients Panel */}
+        <TouchableOpacity
+          style={styles.recipeBookSection}
+          onPress={() => {
+            Vibration.vibrate(50);
+            onPlaySound?.();
+            if (onIngredientsBook) onIngredientsBook();
+          }}
+          activeOpacity={0.9}
+        >
+          <LinearGradient
+            colors={['#4CAF50', '#8BC34A']}
+            style={styles.arcadeGradient}
+          >
+            <View style={styles.arcadeHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.campaignTitle}>{t.ingredients || 'INGREDIENTES'}</Text>
+                <Text style={styles.campaignLevelName}>{t.ingredients_panel_subtitle || 'Consulta aquí todos los ingredientes descubiertos'}</Text>
+              </View>
+              <Animated.View style={[{ transform: [{ scale: ingredientsButtonScale }] }]}>
+                <View style={styles.playLevelButton}>
+                  <Image source={require('../assets/Iconos/book.png')} style={styles.playLevelIcon} resizeMode="contain" />
+                </View>
+              </Animated.View>
+            </View>
+            <Text style={styles.arcadeDescription}>{t.ingredients_panel_description || 'Descubre la historia y características de cada ingrediente'}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>

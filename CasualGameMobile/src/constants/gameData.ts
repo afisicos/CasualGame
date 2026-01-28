@@ -44,6 +44,9 @@ export const INGREDIENT_IMAGES: Record<PieceType, any> = {
   PICKLE: require('../assets/Ingredientes/pickle.png'),
   ONION: require('../assets/Ingredientes/onion.png'),
   EGG: require('../assets/Ingredientes/egg.png'),
+  AVOCADO: require('../assets/Ingredientes/avocado.png'),
+  JALAPENO: require('../assets/Ingredientes/jalapeno.png'),
+  BEETROOT: require('../assets/Ingredientes/remolacha.png'),
 };
 
 export const BASE_RECIPES: Recipe[] = [
@@ -83,6 +86,27 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'egg_ketchup', name: 'r_egg_ketchup', ingredients: ['BREAD', 'MEAT', 'EGG', 'KETCHUP', 'BREAD'], price: 18 },
   { id: 'protein', name: 'r_protein', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'EGG', 'BREAD'], price: 25 },
   { id: 'huevolla', name: 'r_huevolla', ingredients: ['BREAD', 'MEAT', 'EGG', 'ONION', 'ONION', 'BREAD'], price: 22 },
+  // --- Nuevas recetas con Aguacate (19+) ---
+  { id: 'avocado_classic', name: 'r_avocado_classic', ingredients: ['BREAD', 'MEAT', 'AVOCADO', 'BREAD'], price: 15 },
+  { id: 'avocado_bacon', name: 'r_avocado_bacon', ingredients: ['BREAD', 'MEAT', 'AVOCADO', 'BACON', 'CHEESE', 'BREAD'], price: 25 },
+  { id: 'mexican_style', name: 'r_mexican_style', ingredients: ['BREAD', 'MEAT', 'AVOCADO', 'TOMATO', 'ONION', 'BREAD'], price: 22 },
+  { id: 'green_power', name: 'r_green_power', ingredients: ['BREAD', 'MEAT', 'AVOCADO', 'LETTUCE', 'PICKLE', 'BREAD'], price: 20 },
+  
+  // --- Nuevas recetas con Jalapeño (24+) ---
+  { id: 'spicy_kick', name: 'r_spicy_kick', ingredients: ['BREAD', 'MEAT', 'JALAPENO', 'CHEESE', 'BREAD'], price: 18 },
+  { id: 'volcano', name: 'r_volcano', ingredients: ['BREAD', 'MEAT', 'JALAPENO', 'JALAPENO', 'BACON', 'KETCHUP', 'BREAD'], price: 28 },
+  { id: 'spicy_mex', name: 'r_spicy_mex', ingredients: ['BREAD', 'MEAT', 'JALAPENO', 'AVOCADO', 'CHEESE', 'BREAD'], price: 26 },
+  { id: 'fire_egg', name: 'r_fire_egg', ingredients: ['BREAD', 'MEAT', 'JALAPENO', 'EGG', 'ONION', 'BREAD'], price: 24 },
+
+  // --- Nuevas recetas con Remolacha (30+) ---
+  { id: 'beet_root', name: 'r_beet_root', ingredients: ['BREAD', 'MEAT', 'BEETROOT', 'BREAD'], price: 16 },
+  { id: 'purple_rain', name: 'r_purple_rain', ingredients: ['BREAD', 'MEAT', 'BEETROOT', 'CHEESE', 'EGG', 'BREAD'], price: 26 },
+  { id: 'earthy_veggie', name: 'r_earthy_veggie', ingredients: ['BREAD', 'MEAT', 'BEETROOT', 'LETTUCE', 'TOMATO', 'AVOCADO', 'BREAD'], price: 30 },
+  { id: 'sweet_beet', name: 'r_sweet_beet', ingredients: ['BREAD', 'MEAT', 'BEETROOT', 'ONION', 'KETCHUP', 'BREAD'], price: 22 },
+
+  // --- Recetas de alto nivel (40+) ---
+  { id: 'ultimate_combo', name: 'r_ultimate_combo', ingredients: ['BREAD', 'MEAT', 'AVOCADO', 'JALAPENO', 'BEETROOT', 'BACON', 'CHEESE', 'BREAD'], price: 45 },
+  { id: 'chef_special', name: 'r_chef_special', ingredients: ['BREAD', 'MEAT', 'MEAT', 'EGG', 'AVOCADO', 'JALAPENO', 'BREAD'], price: 40 },
 ];
 
 export const LEVELS: Level[] = [
@@ -244,9 +268,9 @@ export const LEVELS: Level[] = [
       { type: 'BACON', probability: 0.15 },
       { type: 'CHEESE', probability: 0.15 },
       { type: 'TOMATO', probability: 0.15 },
-      { type: 'KETCHUP', probability: 0.5 },
+      { type: 'KETCHUP', probability: 0.05 },
       { type: 'ONION', probability: 0.15 },
-      { type: 'LETTUCE', probability: 0.5 }
+      { type: 'LETTUCE', probability: 0.05 }
     ],
     newIngredient: 'ONION',
     showNewIngredient: true,
@@ -416,7 +440,609 @@ export const LEVELS: Level[] = [
     newRecipe: 'huevolla',
     description: "l18_desc"
   },
-
+  // --- Nuevos Niveles (19-48) ---
+  {
+    id: 19,
+    name: "l19_name",
+    targetBurgers: 6,
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'AVOCADO', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 }
+    ],
+    newIngredient: 'AVOCADO',
+    showNewIngredient: true,
+    newRecipe: 'avocado_classic',
+    description: "l19_desc",
+    timeLimit: 60,
+    destructionLimit: 25
+  },
+  {
+    id: 20,
+    name: "l20_name",
+    targetRecipes: [
+      { id: 'avocado_classic', count: 4 },
+      { id: 'bacon_cheese', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'AVOCADO', probability: 0.2 },
+      { type: 'BACON', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.2 }
+    ],
+    description: "l20_desc",
+    timeLimit: 75,
+    destructionLimit: 30
+  },
+  {
+    id: 21,
+    name: "l21_name",
+    targetRecipes: [
+      { id: 'mexican_style', count: 5 },
+      { id: 'classic', count: 5 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'AVOCADO', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.2 },
+      { type: 'ONION', probability: 0.2 }
+    ],
+    newRecipe: 'mexican_style',
+    description: "l21_desc",
+    timeLimit: 80,
+    destructionLimit: 35
+  },
+  {
+    id: 22,
+    name: "l22_name",
+    targetRecipes: [
+      { id: 'avocado_bacon', count: 3 },
+      { id: 'ranchera', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'EGG', probability: 0.15 },
+      { type: 'ONION', probability: 0.1 }
+    ],
+    newRecipe: 'avocado_bacon',
+    description: "l22_desc",
+    timeLimit: 90,
+    destructionLimit: 40
+  },
+  {
+    id: 23,
+    name: "l23_name",
+    targetRecipes: [
+      { id: 'green_power', count: 4 },
+      { id: 'green_pickle', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 },
+      { type: 'PICKLE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 }
+    ],
+    newRecipe: 'green_power',
+    description: "l23_desc",
+    timeLimit: 85,
+    destructionLimit: 38
+  },
+  {
+    id: 24,
+    name: "l24_name",
+    targetBurgers: 8,
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'JALAPENO', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.15 }
+    ],
+    newIngredient: 'JALAPENO',
+    showNewIngredient: true,
+    newRecipe: 'spicy_kick',
+    description: "l24_desc",
+    timeLimit: 70,
+    destructionLimit: 28
+  },
+  {
+    id: 25,
+    name: "l25_name",
+    targetRecipes: [
+      { id: 'spicy_kick', count: 5 },
+      { id: 'double_cheese', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'JALAPENO', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.3 },
+      { type: 'BACON', probability: 0.1 }
+    ],
+    description: "l25_desc",
+    timeLimit: 80,
+    destructionLimit: 32
+  },
+  {
+    id: 26,
+    name: "l26_name",
+    targetRecipes: [
+      { id: 'volcano', count: 4 },
+      { id: 'super_bacon', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.25 },
+      { type: 'BACON', probability: 0.25 },
+      { type: 'KETCHUP', probability: 0.2 }
+    ],
+    newRecipe: 'volcano',
+    description: "l26_desc",
+    timeLimit: 95,
+    destructionLimit: 45
+  },
+  {
+    id: 27,
+    name: "l27_name",
+    targetRecipes: [
+      { id: 'spicy_mex', count: 4 },
+      { id: 'mexican_style', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'ONION', probability: 0.1 }
+    ],
+    newRecipe: 'spicy_mex',
+    description: "l27_desc",
+    timeLimit: 100,
+    destructionLimit: 50
+  },
+  {
+    id: 28,
+    name: "l28_name",
+    targetRecipes: [
+      { id: 'fire_egg', count: 4 },
+      { id: 'huevolla', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.15 },
+      { type: 'EGG', probability: 0.2 },
+      { type: 'ONION', probability: 0.2 },
+      { type: 'KETCHUP', probability: 0.15 }
+    ],
+    newRecipe: 'fire_egg',
+    description: "l28_desc",
+    timeLimit: 90,
+    destructionLimit: 42
+  },
+  {
+    id: 29,
+    name: "l29_name",
+    targetRecipes: [
+      { id: 'volcano', count: 3 },
+      { id: 'spicy_kick', count: 3 },
+      { id: 'classic', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'JALAPENO', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.1 }
+    ],
+    description: "l29_desc",
+    timeLimit: 110,
+    destructionLimit: 55
+  },
+  {
+    id: 30,
+    name: "l30_name",
+    targetBurgers: 7,
+    ingredients: [
+      { type: 'BREAD', probability: 0.25 },
+      { type: 'MEAT', probability: 0.25 },
+      { type: 'BEETROOT', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 }
+    ],
+    newIngredient: 'BEETROOT',
+    showNewIngredient: true,
+    newRecipe: 'beet_root',
+    description: "l30_desc",
+    timeLimit: 65,
+    destructionLimit: 26
+  },
+  {
+    id: 31,
+    name: "l31_name",
+    targetRecipes: [
+      { id: 'beet_root', count: 5 },
+      { id: 'veggie', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BEETROOT', probability: 0.2 },
+      { type: 'LETTUCE', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.2 }
+    ],
+    description: "l31_desc",
+    timeLimit: 85,
+    destructionLimit: 34
+  },
+  {
+    id: 32,
+    name: "l32_name",
+    targetRecipes: [
+      { id: 'purple_rain', count: 4 },
+      { id: 'cheese_tomato', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'EGG', probability: 0.2 },
+      { type: 'TOMATO', probability: 0.2 }
+    ],
+    newRecipe: 'purple_rain',
+    description: "l32_desc",
+    timeLimit: 95,
+    destructionLimit: 40
+  },
+  {
+    id: 33,
+    name: "l33_name",
+    targetRecipes: [
+      { id: 'sweet_beet', count: 5 },
+      { id: 'onioner', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.2 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'BEETROOT', probability: 0.15 },
+      { type: 'ONION', probability: 0.2 },
+      { type: 'KETCHUP', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.1 }
+    ],
+    newRecipe: 'sweet_beet',
+    description: "l33_desc",
+    timeLimit: 90,
+    destructionLimit: 38
+  },
+  {
+    id: 34,
+    name: "l34_name",
+    targetRecipes: [
+      { id: 'earthy_veggie', count: 3 },
+      { id: 'green_power', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'PICKLE', probability: 0.1 }
+    ],
+    newRecipe: 'earthy_veggie',
+    description: "l34_desc",
+    timeLimit: 105,
+    destructionLimit: 48
+  },
+  {
+    id: 35,
+    name: "l35_name",
+    targetRecipes: [
+      { id: 'beet_root', count: 3 },
+      { id: 'purple_rain', count: 3 },
+      { id: 'sweet_beet', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.25 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'EGG', probability: 0.15 },
+      { type: 'ONION', probability: 0.15 }
+    ],
+    description: "l35_desc",
+    timeLimit: 120,
+    destructionLimit: 60
+  },
+  {
+    id: 36,
+    name: "l36_name",
+    targetRecipes: [
+      { id: 'ultimate_combo', count: 4 },
+      { id: 'classic', count: 6 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.12 },
+      { type: 'MEAT', probability: 0.12 },
+      { type: 'AVOCADO', probability: 0.12 },
+      { type: 'JALAPENO', probability: 0.12 },
+      { type: 'BEETROOT', probability: 0.12 },
+      { type: 'BACON', probability: 0.12 },
+      { type: 'CHEESE', probability: 0.12 },
+      { type: 'TOMATO', probability: 0.16 }
+    ],
+    newRecipe: 'ultimate_combo',
+    description: "l36_desc",
+    timeLimit: 130,
+    destructionLimit: 70
+  },
+  {
+    id: 37,
+    name: "l37_name",
+    targetRecipes: [
+      { id: 'chef_special', count: 4 },
+      { id: 'ranchera', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'EGG', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.15 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 }
+    ],
+    newRecipe: 'chef_special',
+    description: "l37_desc",
+    timeLimit: 125,
+    destructionLimit: 65
+  },
+  {
+    id: 38,
+    name: "l38_name",
+    targetRecipes: [
+      { id: 'ultimate_combo', count: 3 },
+      { id: 'chef_special', count: 3 },
+      { id: 'volcano', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.1 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.1 },
+      { type: 'JALAPENO', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.1 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'EGG', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'KETCHUP', probability: 0.1 }
+    ],
+    description: "l38_desc",
+    timeLimit: 150,
+    destructionLimit: 80
+  },
+  {
+    id: 39,
+    name: "l39_name",
+    targetRecipes: [
+      { id: 'spicy_mex', count: 5 },
+      { id: 'mexican_style', count: 5 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.2 },
+      { type: 'AVOCADO', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 }
+    ],
+    description: "l39_desc",
+    timeLimit: 100,
+    destructionLimit: 45
+  },
+  {
+    id: 40,
+    name: "l40_name",
+    targetRecipes: [
+      { id: 'purple_rain', count: 5 },
+      { id: 'earthy_veggie', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.2 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'EGG', probability: 0.1 },
+      { type: 'AVOCADO', probability: 0.1 },
+      { type: 'LETTUCE', probability: 0.1 },
+      { type: 'TOMATO', probability: 0.1 }
+    ],
+    description: "l40_desc",
+    timeLimit: 115,
+    destructionLimit: 55
+  },
+  {
+    id: 41,
+    name: "l41_name",
+    targetRecipes: [
+      { id: 'volcano', count: 6 },
+      { id: 'spicy_kick', count: 6 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.3 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.1 }
+    ],
+    description: "l41_desc",
+    timeLimit: 110,
+    destructionLimit: 50
+  },
+  {
+    id: 42,
+    name: "l42_name",
+    targetRecipes: [
+      { id: 'ultimate_combo', count: 5 },
+      { id: 'everything_pickle', count: 3 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.1 },
+      { type: 'MEAT', probability: 0.1 },
+      { type: 'AVOCADO', probability: 0.1 },
+      { type: 'JALAPENO', probability: 0.1 },
+      { type: 'BEETROOT', probability: 0.1 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'PICKLE', probability: 0.1 },
+      { type: 'ONION', probability: 0.1 },
+      { type: 'KETCHUP', probability: 0.1 }
+    ],
+    description: "l42_desc",
+    timeLimit: 140,
+    destructionLimit: 75
+  },
+  {
+    id: 43,
+    name: "l43_name",
+    targetRecipes: [
+      { id: 'chef_special', count: 5 },
+      { id: 'protein', count: 5 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.2 },
+      { type: 'EGG', probability: 0.2 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.15 }
+    ],
+    description: "l43_desc",
+    timeLimit: 120,
+    destructionLimit: 60
+  },
+  {
+    id: 44,
+    name: "l44_name",
+    targetRecipes: [
+      { id: 'sweet_beet', count: 6 },
+      { id: 'loaded_bbq', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.15 },
+      { type: 'ONION', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.15 },
+      { type: 'BACON', probability: 0.15 },
+      { type: 'CHEESE', probability: 0.1 }
+    ],
+    description: "l44_desc",
+    timeLimit: 110,
+    destructionLimit: 52
+  },
+  {
+    id: 45,
+    name: "l45_name",
+    targetRecipes: [
+      { id: 'ultimate_combo', count: 4 },
+      { id: 'chef_special', count: 4 },
+      { id: 'mexican_style', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.1 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.1 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'EGG', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.15 }
+    ],
+    description: "l45_desc",
+    timeLimit: 160,
+    destructionLimit: 90
+  },
+  {
+    id: 46,
+    name: "l46_name",
+    targetRecipes: [
+      { id: 'volcano', count: 8 },
+      { id: 'fire_egg', count: 4 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'JALAPENO', probability: 0.3 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'EGG', probability: 0.15 },
+      { type: 'KETCHUP', probability: 0.15 }
+    ],
+    description: "l46_desc",
+    timeLimit: 130,
+    destructionLimit: 65
+  },
+  {
+    id: 47,
+    name: "l47_name",
+    targetRecipes: [
+      { id: 'earthy_veggie', count: 5 },
+      { id: 'green_power', count: 5 },
+      { id: 'veggie_cheese', count: 2 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.15 },
+      { type: 'MEAT', probability: 0.15 },
+      { type: 'BEETROOT', probability: 0.15 },
+      { type: 'AVOCADO', probability: 0.15 },
+      { type: 'LETTUCE', probability: 0.15 },
+      { type: 'TOMATO', probability: 0.15 },
+      { type: 'PICKLE', probability: 0.1 }
+    ],
+    description: "l47_desc",
+    timeLimit: 140,
+    destructionLimit: 70
+  },
+  {
+    id: 48,
+    name: "l48_name",
+    targetRecipes: [
+      { id: 'ultimate_combo', count: 5 },
+      { id: 'chef_special', count: 5 },
+      { id: 'everything_pickle', count: 5 }
+    ],
+    ingredients: [
+      { type: 'BREAD', probability: 0.1 },
+      { type: 'MEAT', probability: 0.1 },
+      { type: 'AVOCADO', probability: 0.1 },
+      { type: 'JALAPENO', probability: 0.1 },
+      { type: 'BEETROOT', probability: 0.1 },
+      { type: 'BACON', probability: 0.1 },
+      { type: 'EGG', probability: 0.1 },
+      { type: 'CHEESE', probability: 0.1 },
+      { type: 'PICKLE', probability: 0.1 },
+      { type: 'ONION', probability: 0.1 }
+    ],
+    description: "l48_desc",
+    timeLimit: 180,
+    destructionLimit: 100
+  },
 ];
 
 // Mapeo de qué recetas están desbloqueadas según el nivel superado
@@ -468,6 +1094,28 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
     recipes.push('protein');
     recipes.push('huevolla');
   }
+  if (arcadeUnlockedLevel >= 19) {
+    recipes.push('avocado_classic');
+    recipes.push('avocado_bacon');
+    recipes.push('mexican_style');
+    recipes.push('green_power');
+  }
+  if (arcadeUnlockedLevel >= 24) {
+    recipes.push('spicy_kick');
+    recipes.push('volcano');
+    recipes.push('spicy_mex');
+    recipes.push('fire_egg');
+  }
+  if (arcadeUnlockedLevel >= 30) {
+    recipes.push('beet_root');
+    recipes.push('purple_rain');
+    recipes.push('earthy_veggie');
+    recipes.push('sweet_beet');
+  }
+  if (arcadeUnlockedLevel >= 36) {
+    recipes.push('ultimate_combo');
+    recipes.push('chef_special');
+  }
 
   return recipes;
 };
@@ -497,6 +1145,9 @@ export const getUnlockedIngredientsForArcade = (arcadeUnlockedLevel: number): In
   if (arcadeUnlockedLevel >= 9) ingredients.push('ONION');
   if (arcadeUnlockedLevel >= 12) ingredients.push('PICKLE');
   if (arcadeUnlockedLevel >= 16) ingredients.push('EGG');
+  if (arcadeUnlockedLevel >= 19) ingredients.push('AVOCADO');
+  if (arcadeUnlockedLevel >= 24) ingredients.push('JALAPENO');
+  if (arcadeUnlockedLevel >= 30) ingredients.push('BEETROOT');
 
   // Convertir a probabilidades uniformes
   const probability = 1 / ingredients.length;
@@ -513,6 +1164,9 @@ export const getUnlockedIngredientsForCampaign = (campaignUnlockedLevel: number)
   if (campaignUnlockedLevel >= 9) ingredients.push('ONION');
   if (campaignUnlockedLevel >= 12) ingredients.push('PICKLE');
   if (campaignUnlockedLevel >= 16) ingredients.push('EGG');
+  if (campaignUnlockedLevel >= 19) ingredients.push('AVOCADO');
+  if (campaignUnlockedLevel >= 24) ingredients.push('JALAPENO');
+  if (campaignUnlockedLevel >= 30) ingredients.push('BEETROOT');
 
   // Convertir a probabilidades uniformes
   const probability = 1 / ingredients.length;
@@ -546,6 +1200,7 @@ export const getTotalTargetBurgers = (level: Level): number => {
 export const TRANSLATIONS = {
   es: {
     recipes: "RECETAS",
+    ingredients: "INGREDIENTES",
     current_order: "RECETA",
     time: "Tiempo",
     money: "Dinero",
@@ -646,6 +1301,9 @@ export const TRANSLATIONS = {
     ing_PICKLE: "Pepinillo",
     ing_ONION: "Cebolla",
     ing_EGG: "Huevo",
+    ing_AVOCADO: "Aguacate",
+    ing_JALAPENO: "Jalapeño",
+    ing_BEETROOT: "Remolacha",
     // Panel de energía
     energy_panel_title: "⚡ ¡Sin energía!",
     energy_panel_message: "Mira un video para recuperar todos los puntos de energía",
@@ -654,6 +1312,9 @@ export const TRANSLATIONS = {
     // Panel de recetas en menú
     recipes_panel_subtitle: "Consulta aquí todas las recetas descubiertas",
     recipes_panel_description: "También puedes crear tus propias recetas",
+    // Panel de ingredientes en menú
+    ingredients_panel_subtitle: "Consulta aquí todos los ingredientes descubiertos",
+    ingredients_panel_description: "Descubre la historia y características de cada ingrediente",
     // Recetas
     r_pure: "Hamburguesa normal",
     r_double: "Doble de Carne",
@@ -705,6 +1366,20 @@ export const TRANSLATIONS = {
     r_egg_ketchup: "Huevetchup",
     r_protein: "La Proteica",
     r_huevolla: "Huevolla",
+    r_avocado_classic: "Aguacate Original",
+    r_avocado_bacon: "Bacon-Guacate",
+    r_mexican_style: "Estilo Mexicano",
+    r_green_power: "Poder Verde",
+    r_spicy_kick: "Patada Picante",
+    r_volcano: "El Volcán",
+    r_spicy_mex: "Mexicana Picante",
+    r_fire_egg: "Huevo de Fuego",
+    r_beet_root: "Raíz Púrpura",
+    r_purple_rain: "Lluvia Púrpura",
+    r_earthy_veggie: "Huerto Terrenal",
+    r_sweet_beet: "Remolacha Dulce",
+    r_ultimate_combo: "El Combo Definitivo",
+    r_chef_special: "Especial del Chef",
     // Niveles
     l1_name: "Rumbo al Tomate",
     l2_name: "Más Sabor",
@@ -742,15 +1417,90 @@ export const TRANSLATIONS = {
     l16_desc: "¡HUEVO desbloqueado! El toque perfecto para cualquier hamburguesa. Prepara la Hamburguesa Ranchera con bacon, huevo, queso y cebolla.",
     l17_desc: "¡Proteína extra! Mezcla huevo con ketchup para crear combinaciones únicas. ¡No olvides la receta secreta con doble carne y doble huevo!",
     l18_desc: "¡La Huevolla llega al menú! Prepara hamburguesas con huevo y cebolla. Necesitas hacer 3 Huevollas y 3 hamburguesas con tomate.",
+    l19_name: "El Oro Verde",
+    l19_desc: "¡AGUACATE desbloqueado! Su textura cremosa es irresistible.",
+    l20_name: "Bacon-Guacate",
+    l20_desc: "Combina el aguacate con bacon y queso para una mezcla explosiva.",
+    l21_name: "Estilo Mexicano",
+    l21_desc: "Aguacate, tomate y cebolla. ¡Un clásico que nunca falla!",
+    l22_name: "Desayuno Completo",
+    l22_desc: "Mezcla aguacate con huevo y bacon para empezar bien el día.",
+    l23_name: "Poder Verde",
+    l23_desc: "Una combinación ultra fresca de aguacate, lechuga y pepinillo.",
+    l24_name: "¡Pica Pica!",
+    l24_desc: "¡JALAPEÑO desbloqueado! Solo para los más valientes.",
+    l25_name: "Doble de Fuego",
+    l25_desc: "Mucho queso para intentar calmar el picante del jalapeño.",
+    l26_name: "El Volcán",
+    l26_desc: "Doble de jalapeño, bacon y ketchup. ¡Va a arder!",
+    l27_name: "Fuego Mexicano",
+    l27_desc: "La combinación definitiva: jalapeño y aguacate.",
+    l28_name: "Huevo de Fuego",
+    l28_desc: "Jalapeño con huevo y cebolla. Un sabor intenso y picante.",
+    l29_name: "Infierno en la Cocina",
+    l29_desc: "Tres recetas picantes para poner a prueba tus nervios.",
+    l30_name: "Raíz Púrpura",
+    l30_desc: "¡REMOLACHA desbloqueada! Un toque dulce y un color increíble.",
+    l31_name: "Huerto Dulce",
+    l31_desc: "Combina la remolacha con lechuga y tomate.",
+    l32_name: "Lluvia Púrpura",
+    l32_desc: "Remolacha, queso y huevo. Una mezcla sorprendente.",
+    l33_name: "Cebolla y Raíz",
+    l33_desc: "El dulzor de la remolacha con el toque de la cebolla.",
+    l34_name: "Huerto Terrenal",
+    l34_desc: "Remolacha y aguacate. La combinación más natural.",
+    l35_name: "Trío de Remolacha",
+    l35_desc: "Domina todas las recetas con remolacha en un solo nivel.",
+    l36_name: "Combo Definitivo",
+    l36_desc: "Aguacate, jalapeño y remolacha juntos. ¿Podrás con ello?",
+    l37_name: "Especial del Chef",
+    l37_desc: "Una receta compleja con doble carne, huevo y aguacate.",
+    l38_name: "Maestro de Cocina",
+    l38_desc: "Tres recetas de alto nivel. Demuestra que eres el mejor.",
+    l39_name: "Fiesta Mexicana",
+    l39_desc: "Mucho aguacate y jalapeño para este desafío.",
+    l40_name: "Colores del Huerto",
+    l40_desc: "Remolacha y aguacate en recetas muy completas.",
+    l41_name: "Calor Extremo",
+    l41_desc: "Nivel centrado en el jalapeño. ¡No te quemes!",
+    l42_name: "El Gran Banquete",
+    l42_desc: "Recetas con muchísimos ingredientes. ¡Organización!",
+    l43_name: "Proteína y Grasa",
+    l43_desc: "Carne, huevo y aguacate. Energía pura.",
+    l44_name: "Dulce y Ahumado",
+    l44_desc: "Remolacha y bacon. Un contraste delicioso.",
+    l45_name: "Desafío Épico",
+    l45_desc: "Tres recetas muy difíciles. Solo para expertos.",
+    l46_name: "Erupción Volcánica",
+    l46_desc: "Muchísimos pedidos de El Volcán. ¡Rápido!",
+    l47_name: "Vegetal Extremo",
+    l47_desc: "Todas las verduras y hortalizas en un solo nivel.",
+    l48_name: "La Prueba Final",
+    l48_desc: "El desafío definitivo antes de los niveles secretos.",
     daily_achievements: "LOGROS DIARIOS",
     claim_reward: "RECOGER",
     claimed: "RECOGIDO",
     achievement_delete_ingredient: "Elimina {target} {ingredient}",
     achievement_create_burger: "Crea {target} hamburguesas",
     achievement_delete_multiple: "Elimina {target} {ingredient} de una pasada",
+    // Descripciones de ingredientes
+    ing_desc_BREAD: "El pan es la base de toda hamburguesa. Sin él, no hay hamburguesa que valga. Su textura esponjosa y su sabor suave complementan perfectamente cualquier ingrediente.",
+    ing_desc_MEAT: "La carne es el corazón de la hamburguesa. Jugosa, sabrosa y llena de proteínas, es lo que hace que una hamburguesa sea realmente una hamburguesa.",
+    ing_desc_CHEESE: "El queso derretido añade cremosidad y sabor a cualquier hamburguesa. Su textura fundida es irresistible y combina perfectamente con casi todo.",
+    ing_desc_LETTUCE: "La lechuga fresca aporta crujiente y frescura. Es el toque verde que equilibra los sabores más intensos de la hamburguesa.",
+    ing_desc_TOMATO: "El tomate añade un toque ácido y jugoso. Su color rojo brillante hace que cualquier hamburguesa se vea más apetitosa.",
+    ing_desc_BACON: "El bacon crujiente es el ingrediente que todo el mundo ama. Su sabor ahumado y salado añade profundidad a cualquier combinación.",
+    ing_desc_KETCHUP: "El ketchup es la salsa más popular del mundo. Su sabor dulce y ligeramente ácido complementa perfectamente las hamburguesas.",
+    ing_desc_PICKLE: "El pepinillo añade un toque ácido y crujiente único. Su sabor intenso puede transformar completamente una hamburguesa.",
+    ing_desc_ONION: "La cebolla añade un sabor picante y aromático. Ya sea cruda o cocida, siempre aporta carácter a la hamburguesa.",
+    ing_desc_EGG: "El huevo frito añade proteína extra y una textura cremosa única. La yema líquida es el toque perfecto para los amantes del desayuno.",
+    ing_desc_AVOCADO: "El aguacate aporta cremosidad natural y un sabor suave y delicioso. Es el ingrediente estrella de las hamburguesas más gourmet.",
+    ing_desc_JALAPENO: "El jalapeño añade picante y sabor. Para los valientes que buscan una experiencia culinaria intensa y memorable.",
+    ing_desc_BEETROOT: "La remolacha aporta dulzor natural y un color púrpura único. Es el ingrediente más sorprendente y versátil de la cocina.",
   },
   en: {
     recipes: "RECIPES",
+    ingredients: "INGREDIENTS",
     current_order: "RECIPE",
     time: "Time",
     money: "Money",
@@ -848,6 +1598,9 @@ export const TRANSLATIONS = {
     // Panel de recetas en menú
     recipes_panel_subtitle: "Check here all discovered recipes",
     recipes_panel_description: "You can also create your own recipes",
+    // Panel de ingredientes en menú
+    ingredients_panel_subtitle: "Check here all discovered ingredients",
+    ingredients_panel_description: "Discover the history and characteristics of each ingredient",
     // Ingredients
     ing_BREAD: "Bread",
     ing_MEAT: "Meat",
@@ -858,6 +1611,10 @@ export const TRANSLATIONS = {
     ing_KETCHUP: "Ketchup",
     ing_PICKLE: "Pickle",
     ing_ONION: "Onion",
+    ing_EGG: "Egg",
+    ing_AVOCADO: "Avocado",
+    ing_JALAPENO: "Jalapeño",
+    ing_BEETROOT: "Beetroot",
     // Recipes
     r_pure: "Regular Burger",
     r_double: "Double Meat",
@@ -909,6 +1666,20 @@ export const TRANSLATIONS = {
     r_egg_ketchup: "Egg Ketchup",
     r_protein: "The Protein",
     r_huevolla: "Eggnion",
+    r_avocado_classic: "Classic Avocado",
+    r_avocado_bacon: "Bacon-Guac",
+    r_mexican_style: "Mexican Style",
+    r_green_power: "Green Power",
+    r_spicy_kick: "Spicy Kick",
+    r_volcano: "The Volcano",
+    r_spicy_mex: "Spicy Mexican",
+    r_fire_egg: "Fire Egg",
+    r_beet_root: "Purple Root",
+    r_purple_rain: "Purple Rain",
+    r_earthy_veggie: "Earthy Veggie",
+    r_sweet_beet: "Sweet Beet",
+    r_ultimate_combo: "Ultimate Combo",
+    r_chef_special: "Chef's Special",
     // Levels
     l1_name: "Road to Tomato",
     l2_name: "Perfect Mix",
@@ -946,12 +1717,86 @@ export const TRANSLATIONS = {
     l16_desc: "EGG unlocked! The perfect touch for any burger. Prepare the Ranchera Burger with bacon, egg, cheese and onion.",
     l17_desc: "Extra protein! Mix egg with ketchup for unique combinations. Don't forget the secret recipe with double meat and double egg!",
     l18_desc: "Eggnion is on the menu! Prepare burgers with egg and onion. You need to make 3 Eggnions and 3 tomato burgers.",
+    l19_name: "Green Gold",
+    l19_desc: "AVOCADO unlocked! Its creamy texture is irresistible.",
+    l20_name: "Bacon-Guac",
+    l20_desc: "Combine avocado with bacon and cheese for an explosive mix.",
+    l21_name: "Mexican Style",
+    l21_desc: "Avocado, tomato and onion. A classic that never fails!",
+    l22_name: "Full Breakfast",
+    l22_desc: "Mix avocado with egg and bacon for a great start to the day.",
+    l23_name: "Green Power",
+    l23_desc: "An ultra-fresh combination of avocado, lettuce and pickle.",
+    l24_name: "Spicy Kick!",
+    l24_desc: "JALAPEÑO unlocked! Only for the brave.",
+    l25_name: "Double Fire",
+    l25_desc: "Lots of cheese to try and calm the jalapeño's heat.",
+    l26_name: "The Volcano",
+    l26_desc: "Double jalapeño, bacon and ketchup. It's going to burn!",
+    l27_name: "Mexican Fire",
+    l27_desc: "The ultimate combination: jalapeño and avocado.",
+    l28_name: "Fire Egg",
+    l28_desc: "Jalapeño with egg and onion. An intense and spicy flavor.",
+    l29_name: "Hell in the Kitchen",
+    l29_desc: "Three spicy recipes to test your nerves.",
+    l30_name: "Purple Root",
+    l30_desc: "BEETROOT unlocked! A sweet touch and an amazing color.",
+    l31_name: "Sweet Orchard",
+    l31_desc: "Combine beetroot with lettuce and tomato.",
+    l32_name: "Purple Rain",
+    l32_desc: "Beetroot, cheese and egg. A surprising mix.",
+    l33_name: "Onion and Root",
+    l33_desc: "The sweetness of beetroot with a touch of onion.",
+    l34_name: "Earthy Orchard",
+    l34_desc: "Beetroot and avocado. The most natural combination.",
+    l35_name: "Beetroot Trio",
+    l35_desc: "Master all beetroot recipes in a single level.",
+    l36_name: "Ultimate Combo",
+    l36_desc: "Avocado, jalapeño and beetroot together. Can you handle it?",
+    l37_name: "Chef's Special",
+    l37_desc: "A complex recipe with double meat, egg and avocado.",
+    l38_name: "Kitchen Master",
+    l38_desc: "Three high-level recipes. Show that you're the best.",
+    l39_name: "Mexican Party",
+    l39_desc: "Lots of avocado and jalapeño for this challenge.",
+    l40_name: "Orchard Colors",
+    l40_desc: "Beetroot and avocado in very complete recipes.",
+    l41_name: "Extreme Heat",
+    l41_desc: "Level focused on jalapeño. Don't get burned!",
+    l42_name: "The Big Feast",
+    l42_desc: "Recipes with many ingredients. Organization is key!",
+    l43_name: "Protein and Fat",
+    l43_desc: "Meat, egg and avocado. Pure energy.",
+    l44_name: "Sweet and Smoky",
+    l44_desc: "Beetroot and bacon. A delicious contrast.",
+    l45_name: "Epic Challenge",
+    l45_desc: "Three very difficult recipes. Only for experts.",
+    l46_name: "Volcanic Eruption",
+    l46_desc: "Many orders of The Volcano. Quick!",
+    l47_name: "Extreme Veggie",
+    l47_desc: "All vegetables and greens in one level.",
+    l48_name: "The Final Test",
+    l48_desc: "The ultimate challenge before the secret levels.",
     daily_achievements: "DAILY ACHIEVEMENTS",
     claim_reward: "CLAIM",
     claimed: "CLAIMED",
     achievement_delete_ingredient: "Remove {target} {ingredient}",
     achievement_create_burger: "Create {target} burgers",
     achievement_delete_multiple: "Remove {target} {ingredient} in one go",
+    // Ingredient descriptions
+    ing_desc_BREAD: "Bread is the foundation of every burger. Without it, there's no burger worth having. Its fluffy texture and mild flavor perfectly complement any ingredient.",
+    ing_desc_MEAT: "Meat is the heart of the burger. Juicy, flavorful and full of protein, it's what makes a burger truly a burger.",
+    ing_desc_CHEESE: "Melted cheese adds creaminess and flavor to any burger. Its melted texture is irresistible and pairs perfectly with almost everything.",
+    ing_desc_LETTUCE: "Fresh lettuce adds crunch and freshness. It's the green touch that balances the more intense flavors of the burger.",
+    ing_desc_TOMATO: "Tomato adds a tangy and juicy touch. Its bright red color makes any burger look more appetizing.",
+    ing_desc_BACON: "Crispy bacon is the ingredient everyone loves. Its smoky and salty flavor adds depth to any combination.",
+    ing_desc_KETCHUP: "Ketchup is the world's most popular sauce. Its sweet and slightly tangy flavor perfectly complements burgers.",
+    ing_desc_PICKLE: "Pickle adds a unique tangy and crunchy touch. Its intense flavor can completely transform a burger.",
+    ing_desc_ONION: "Onion adds a spicy and aromatic flavor. Whether raw or cooked, it always adds character to the burger.",
+    ing_desc_EGG: "Fried egg adds extra protein and a unique creamy texture. The runny yolk is the perfect touch for breakfast lovers.",
+    ing_desc_AVOCADO: "Avocado provides natural creaminess and a smooth, delicious flavor. It's the star ingredient of the most gourmet burgers.",
+    ing_desc_JALAPENO: "Jalapeño adds spice and flavor. For the brave who seek an intense and memorable culinary experience.",
+    ing_desc_BEETROOT: "Beetroot provides natural sweetness and a unique purple color. It's the most surprising and versatile ingredient in the kitchen.",
   }
 };
 
