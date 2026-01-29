@@ -1650,24 +1650,37 @@ function GameContent() {
 
   // FUNCIONES DE TRUCOS - TEMPORAL PARA TESTING
   const trucoNivel = () => {
-    // Desbloquear el siguiente nivel
+    // Desbloquear el siguiente nivel sin mensaje
     setUnlockedLevel(prev => Math.min(prev + 1, LEVELS.length));
-    Alert.alert('🚀 Truco Nivel', `Nivel desbloqueado: ${unlockedLevel + 1}`);
   };
 
   const trucoEstrella = () => {
-    // Dar una estrella al nivel actual desbloqueado
-    const currentLevelId = unlockedLevel;
-    if (currentLevelId > 0) {
-      setLevelStarsData(prev => ({
+    // Buscar cualquier nivel anterior con menos de 3 estrellas
+    // Empezar desde el nivel 1 hasta el nivel actual desbloqueado
+    setLevelStarsData(prev => {
+      // Buscar el primer nivel que tenga menos de 3 estrellas
+      for (let levelId = 1; levelId <= unlockedLevel; levelId++) {
+        const currentStars = prev[levelId]?.stars || 0;
+        if (currentStars < 3) {
+          // Añadir una estrella a este nivel
+          return {
+            ...prev,
+            [levelId]: {
+              stars: currentStars + 1,
+              completed: true
+            }
+          };
+        }
+      }
+      // Si todos los niveles ya tienen 3 estrellas, añadir al último nivel desbloqueado
+      return {
         ...prev,
-        [currentLevelId]: {
-          stars: Math.min((prev[currentLevelId]?.stars || 0) + 1, 3),
+        [unlockedLevel]: {
+          stars: Math.min((prev[unlockedLevel]?.stars || 0) + 1, 3),
           completed: true
         }
-      }));
-      Alert.alert('⭐ Truco Estrella', `Estrella añadida al nivel ${currentLevelId}`);
-    }
+      };
+    });
   };
 
   const handleWatchAdForEnergy = async () => {
