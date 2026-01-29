@@ -30,6 +30,11 @@ export const BARRIERS: Barrier[] = [
   { levelAfter: 10, requiredStars: 12 }, // Barrera después del nivel 10, requiere 10 estrellas
   { levelAfter: 15, requiredStars: 20 }, // Barrera después del nivel 15, requiere 15 estrellas
   { levelAfter: 20, requiredStars: 30 },// Agregar más barreras según sea necesario
+  { levelAfter: 25, requiredStars: 42 },
+  { levelAfter: 30, requiredStars: 55 },
+  { levelAfter: 35, requiredStars: 68 },
+  { levelAfter: 40, requiredStars: 82 },
+  { levelAfter: 45, requiredStars: 96 },
   // { levelAfter: 20, requiredStars: 20, requiredTaps: 4 }, // Ejemplo con toques personalizados
 ];
 
@@ -61,7 +66,7 @@ export const BASE_RECIPES: Recipe[] = [
   { id: 'veggie_cheese', name: 'r_veggie_cheese', ingredients: ['BREAD', 'MEAT', 'CHEESE', 'TOMATO', 'LETTUCE', 'BREAD'], price: 23 },
   { id: 'bacon_cheese', name: 'r_bacon_cheese', ingredients: ['BREAD', 'MEAT', 'BACON', 'CHEESE', 'BREAD'], price: 14 },
   { id: 'super_bacon', name: 'r_super_bacon', ingredients: ['BREAD', 'MEAT', 'BACON', 'BACON', 'BREAD'], price: 12 },
-  { id: 'antivegetal', name: 'r_antivegetal', ingredients: ['BREAD', 'MEAT', 'MEAT', 'CHEESE', 'BACON', 'BREAD'], price: 16 },
+  { id: 'not_green', name: 'r_not_green', ingredients: ['BREAD', 'MEAT', 'MEAT', 'CHEESE', 'BACON', 'BREAD'], price: 16 },
   { id: 'carnivore', name: 'r_carnivore', ingredients: ['BREAD', 'MEAT', 'MEAT', 'MEAT', 'BREAD'], price: 7 },
   { id: 'ketchup_lettuce', name: 'r_ketchup_lettuce', ingredients: ['BREAD', 'MEAT', 'LETTUCE', 'KETCHUP', 'BREAD'], price: 12 },
   { id: 'onioner', name: 'r_onioner', ingredients: ['BREAD', 'MEAT', 'ONION', 'ONION', 'BREAD'], price: 12 },
@@ -240,8 +245,8 @@ export const LEVELS: Level[] = [
     id: 8,
     name: "l8_name",
     targetRecipes: [
-      { id: 'antivegetal', count: 3 },
-      { id: 'cheese_tomato', count: 2 }
+      { id: 'not_green', count: 3 },
+      { id: 'bacon_cheese', count: 2 }
     ],
     ingredients: [
       { type: 'BREAD', probability: 0.2 },
@@ -253,7 +258,7 @@ export const LEVELS: Level[] = [
       { type: 'LETTUCE', probability: 0.05 }
     ],
     showNewIngredient: false,
-    newRecipe: 'antivegetal',
+    newRecipe: 'not_green',
     description: "l8_desc",
     timeLimit: 80,
     destructionLimit: 32
@@ -733,7 +738,7 @@ export const LEVELS: Level[] = [
     id: 34,
     name: "l34_name",
     targetRecipes: [
-      { id: 'earthy_veggie', count: 3 },
+      { id: 'earthy_veggie', count: 2 },
       { id: 'green_power', count: 3 }
     ],
     ingredients: [
@@ -754,9 +759,9 @@ export const LEVELS: Level[] = [
     id: 35,
     name: "l35_name",
     targetRecipes: [
-      { id: 'beet_root', count: 3 },
-      { id: 'purple_rain', count: 3 },
-      { id: 'sweet_beet', count: 3 }
+      { id: 'beet_root', count: 2 },
+      { id: 'purple_rain', count: 2 },
+      { id: 'sweet_beet', count: 2 }
     ],
     ingredients: [
       { type: 'BREAD', probability: 0.15 },
@@ -774,7 +779,7 @@ export const LEVELS: Level[] = [
     id: 36,
     name: "l36_name",
     targetRecipes: [
-      { id: 'ultimate_combo', count: 4 },
+      { id: 'ultimate_combo', count: 3 },
       { id: 'classic', count: 6 }
     ],
     ingredients: [
@@ -1064,7 +1069,7 @@ export const getUnlockedRecipesForArcade = (arcadeUnlockedLevel: number) => {
   if (arcadeUnlockedLevel >= 5) {
     recipes.push('bacon_cheese');
     recipes.push('super_bacon');
-    recipes.push('antivegetal');
+    recipes.push('not_green');
   }
   if (arcadeUnlockedLevel >= 7) {
     recipes.push('ketchup_lettuce');
@@ -1331,7 +1336,7 @@ export const TRANSLATIONS = {
     r_monster: "La Mega Monster",
     r_gourmet: "La Gran Gourmet",
     r_veggie_full: "La Huerta Completa",
-    r_antivegetal: "Anti-Vegetal",
+    r_not_green: "Anti-Vegetal",
     r_bacon_bbq: "Bacon BBQ Style",
     r_cheese_fresh: "Cheeseburger Fresh",
     r_pickled: "La Encurtida",
@@ -1388,7 +1393,7 @@ export const TRANSLATIONS = {
     l5_name: "Se viene el Bacon",
     l6_name: "Toma tomate!",
     l7_name: "¡Ketchup!",
-    l8_name: "Verde no",
+    l8_name: "Verde, poco",
     l9_name: "Cebollita fresca",
     l10_name: "Cebollera",
     l11_name: "Sabor a la Parrilla",
@@ -1634,7 +1639,7 @@ export const TRANSLATIONS = {
     r_onioner: "Onioner",
     r_ketchup_lettuce: "Ketchuga",
     r_dirty_one: "The Dirty One",
-    r_antivegetal: "Anti-Vegetarian",
+    r_not_green: "Anti-Vegetarian",
     r_classic_usa: "American Classic",
     r_viking: "The Viking",
     r_tonion_burger: "Tonion Burger",
