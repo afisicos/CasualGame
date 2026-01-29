@@ -21,7 +21,7 @@ import RecipesBookScreen from './components/RecipesBookScreen';
 import IngredientsBookScreen from './components/IngredientsBookScreen';
 import ArcadeIntroScreen from './components/ArcadeIntroScreen';
 import { PieceType, Screen, GameMode, Cell, Level, Piece, Recipe, IngredientProbability, LevelStars } from './types';
-import { getLevelTargets } from './constants/gameData';
+import { getLevelTargets, BARRIERS } from './constants/gameData';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -1730,8 +1730,18 @@ function GameContent() {
       
       const nextLevel = LEVELS.find(l => l.id === selectedLevel.id + 1);
       if (nextLevel) { 
-        setSelectedLevel(nextLevel); 
-        setScreen('INTRO'); 
+        // Verificar si hay una barrera antes del siguiente nivel
+        const hasBarrierBefore = BARRIERS.some(barrier => barrier.levelAfter === selectedLevel.id);
+        
+        if (hasBarrierBefore) {
+          // Si hay barrera, ir al mapa para que el jugador la vea y pueda romperla
+          setScreen('MENU');
+          setMenuTab('LEVELS_MAP');
+        } else {
+          // Si no hay barrera, continuar normalmente al siguiente nivel
+          setSelectedLevel(nextLevel); 
+          setScreen('INTRO'); 
+        }
       } else { 
         setScreen('MENU'); 
       }
