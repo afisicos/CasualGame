@@ -1540,6 +1540,37 @@ function GameContent() {
     return () => clearInterval(timer);
   }, [screen, isGameOver, isGameStarted, timerPaused]);
 
+  // Limpiar todos los timers cuando se cambie de pantalla o el componente se desmonte
+  useEffect(() => {
+    return () => {
+      if (helpTextTimeoutRef.current) {
+        clearTimeout(helpTextTimeoutRef.current);
+        helpTextTimeoutRef.current = null;
+      }
+      if (expandRecipeTimeoutRef.current) {
+        clearTimeout(expandRecipeTimeoutRef.current);
+        expandRecipeTimeoutRef.current = null;
+      }
+    };
+  }, [screen]);
+
+  // Limpiar el estado del juego cuando se salga de la pantalla GAME para liberar memoria
+  useEffect(() => {
+    if (screen !== 'GAME' && previousScreenRef.current === 'GAME') {
+      // Limpiar selección actual
+      setCurrentSelection([]);
+      // Reducir el tamaño del grid si es muy grande para liberar memoria
+      // Solo mantener un grid pequeño cuando no se está jugando
+      if (grid.length > 64) { // Si el grid es mayor a 8x8
+        const emptyGrid: Cell[] = [];
+        for (let i = 0; i < 64; i++) {
+          emptyGrid.push({ type: 'BREAD', isRemoving: false, id: i });
+        }
+        setGrid(emptyGrid);
+      }
+    }
+  }, [screen, grid.length]);
+
   const resetProgress = async () => {
     setUnlockedLevel(1);
     setArcadeUnlockedLevel(0);

@@ -71,8 +71,13 @@ const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, c
     // Inicializar desde un punto que permita transición suave
     rotationAnim.setValue(initialRotationValue);
     
+    // Flag para controlar si la animación debe continuar
+    let isMounted = true;
+    
     // Función recursiva para crear animación continua sin saltos
     const createContinuousAnimation = (currentValue: number, direction: 'up' | 'down') => {
+      if (!isMounted) return; // No continuar si el componente se desmontó
+      
       const nextTarget = direction === 'up' ? target1 : target2;
       const nextDirection = direction === 'up' ? 'down' : 'up';
       
@@ -81,8 +86,8 @@ const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, c
         duration: baseDuration,
         useNativeDriver: true,
       }).start((finished) => {
-        if (finished) {
-          // Cuando termina, iniciar la siguiente animación inmediatamente
+        if (finished && isMounted) {
+          // Solo continuar si sigue montado y la animación terminó naturalmente
           createContinuousAnimation(nextTarget, nextDirection);
         }
       });
@@ -95,10 +100,13 @@ const AnimatedPiece = React.memo(({ piece, cellSize, gridSize }: { piece: any, c
     
     // Pequeño delay para evitar que todas las piezas empiecen al mismo tiempo
     const startDelay = setTimeout(() => {
-      createContinuousAnimation(initialRotationValue, initialDirection);
+      if (isMounted) {
+        createContinuousAnimation(initialRotationValue, initialDirection);
+      }
     }, (pieceSeed % 100) * 10);
     
     return () => {
+      isMounted = false; // Marcar como desmontado
       clearTimeout(startDelay);
       rotationAnim.stopAnimation();
     };
