@@ -1026,12 +1026,8 @@ function GameContent() {
 
     setScreen('GAME');
 
-    // Consumir power-ups activados
-    if (useTimeBoost && timeBoostCount > 0) setTimeBoostCount(prev => prev - 1);
-    if (useSuperTimeBoost && superTimeBoostCount > 0) setSuperTimeBoostCount(prev => prev - 1);
-    if (useDestructionPack && destructionPackCount > 0) setDestructionPackCount(prev => prev - 1);
-    if (useSuperDestructionPack && superDestructionPackCount > 0) setSuperDestructionPackCount(prev => prev - 1);
-    // El inhibidor ya se consume arriba en la sección de power-ups de campaña
+    // Los power-ups ya se consumieron arriba en las líneas 981-997
+    // No volver a consumir aquí para evitar doble consumo (bug que causaba -1)
 
     // Resetear toggles de power-ups
     setUseTimeBoost(false);
