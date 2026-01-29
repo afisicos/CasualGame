@@ -1648,6 +1648,28 @@ function GameContent() {
     }
   };
 
+  // FUNCIONES DE TRUCOS - TEMPORAL PARA TESTING
+  const trucoNivel = () => {
+    // Desbloquear el siguiente nivel
+    setUnlockedLevel(prev => Math.min(prev + 1, LEVELS.length));
+    Alert.alert('🚀 Truco Nivel', `Nivel desbloqueado: ${unlockedLevel + 1}`);
+  };
+
+  const trucoEstrella = () => {
+    // Dar una estrella al nivel actual desbloqueado
+    const currentLevelId = unlockedLevel;
+    if (currentLevelId > 0) {
+      setLevelStarsData(prev => ({
+        ...prev,
+        [currentLevelId]: {
+          stars: Math.min((prev[currentLevelId]?.stars || 0) + 1, 3),
+          completed: true
+        }
+      }));
+      Alert.alert('⭐ Truco Estrella', `Estrella añadida al nivel ${currentLevelId}`);
+    }
+  };
+
   const handleWatchAdForEnergy = async () => {
     if (energy >= MAX_ENERGY) {
       return;
@@ -1871,6 +1893,8 @@ function GameContent() {
               onPlayDestroySound={playDestroySound}
               levelStarsData={levelStarsData}
               t={t}
+              onTrucoNivel={trucoNivel}
+              onTrucoEstrella={trucoEstrella}
             />
           );
         case 'INTRO':

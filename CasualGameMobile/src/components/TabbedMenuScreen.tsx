@@ -50,6 +50,8 @@ interface TabbedMenuScreenProps {
   tutorialStep?: number;
   initialTab?: number;
   onTabChange?: (index: number) => void;
+  onTrucoNivel?: () => void;
+  onTrucoEstrella?: () => void;
 }
 
 const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
@@ -92,6 +94,8 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
   tutorialStep = 0,
   initialTab = 0,
   onTabChange,
+  onTrucoNivel,
+  onTrucoEstrella,
 }) => {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -210,6 +214,34 @@ const TabbedMenuScreen: React.FC<TabbedMenuScreenProps> = ({
           </View>
         </View>
       </View>
+
+      {/* BOTONES DE TRUCOS - TEMPORAL PARA TESTING */}
+      {(onTrucoNivel || onTrucoEstrella) && (
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, paddingVertical: 8, backgroundColor: 'rgba(0,0,0,0.3)' }}>
+          {onTrucoNivel && (
+            <TouchableOpacity
+              style={{ backgroundColor: '#ff6b6b', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 }}
+              onPress={() => {
+                onPlaySound?.();
+                onTrucoNivel();
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 12 }}>🚀 TRUCO NIVEL</Text>
+            </TouchableOpacity>
+          )}
+          {onTrucoEstrella && (
+            <TouchableOpacity
+              style={{ backgroundColor: '#ffd700', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 }}
+              onPress={() => {
+                onPlaySound?.();
+                onTrucoEstrella();
+              }}
+            >
+              <Text style={{ color: '#000', fontWeight: 'bold', fontSize: 12 }}>⭐ TRUCO ESTRELLA</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
 
       {/* ScrollView horizontal para las pestañas */}
       <ScrollView
